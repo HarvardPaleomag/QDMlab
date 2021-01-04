@@ -54,9 +54,8 @@ arguments
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.pixel  (1,3) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.pixel, 0)} = [0 0 0]
+    kwargs.pixel  (1,3) {mustBeNumeric, mustBePositive} = [42 42 42]
 end
-
 smoothDegree = kwargs.smoothDegree;
 
 pixel = kwargs.pixel;
@@ -89,7 +88,7 @@ dataSmoothed = smooth(1-data,'sgolay', smoothDegree);
         hold on
         plot(freqs, data,'b.-','DisplayName','pixel data')
         plot(freqs, 1-dataSmoothed,'b--','DisplayName','pixel data smooth')
-        plot(peakLocation, 1-peakValue, 'ob','DisplayName','pixel peaks')
+        plot(peakLocation, 1-peakValue, 'ob','DisplayName',sprintf('pixel peaks (%i)', size(peakLocation,1)))
         plot(freqs, globalData/max(globalData)*(1-max(dataSmoothed)), 'r.:','DisplayName','global data')
         legend()
     end

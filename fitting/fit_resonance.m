@@ -4,7 +4,7 @@ arguments
     expData struct
     binSize double
     freq double
-    n (1,1) int8
+    n (1,1) int16
     % keyword arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
@@ -119,22 +119,22 @@ if kwargs.type == 1 %% old local/gaussian guess
     % iterate over all pixels with index (x,y)
     for x = 1:sizeX
         for y = 1:sizeY 
-            pixel = squeeze(binDataNorm(y,x,:)); 
+            pixelData = squeeze(binDataNorm(y,x,:)); 
 
             %% Nuclear Spin polarization
             % default = 0
             if kwargs.nucSpinPol
-                initialGuess(y,x,:) = guessNucSpinPol(pixel, freq);    
+                initialGuess(y,x,:) = guessNucSpinPol(pixelData, freq);    
 
             %% no Nuclear Spin Polarization    
             else
                 % try getting peak positions from smoothed data
                 % LEFT
-                [pkVal, pkLoc, fitFlg] = guess_peaks(pixel, meanData, freq, ...
+                [pkVal, pkLoc, fitFlg] = guess_peaks(pixelData, meanData, freq, ...
                                                     'smoothDegree', kwargs.smoothDegree, ...
                                                     'forceGuess', kwargs.forceGuess,...
                                                     'gaussianFit', kwargs.gaussianFit, ...
-                                                    'pixel', [y x 1]);
+                                                    'pixel', [y x n]);
                 % check if find peaks returned 3 peaks
                 % add them to badpixels
                 if fitFlg == 1 | fitFlg == 2 % 1 == gauss 2= global (i.e. local failed)
@@ -151,8 +151,8 @@ if kwargs.type == 1 %% old local/gaussian guess
                     % the local
                     resonance  = (pkLoc(1)+pkLoc(2)+pkLoc(3))/3;% in GHz
                     width = 0.0005;
-                    contrast = (mean(pixel(1:10)) + pkVal-1)';
-                    baseline = mean(pixel(1:10))-1;
+                    contrast = (mean(pixelData(1:10)) + pkVal-1)';
+                    baseline = mean(pixelData(1:10))-1;
                     initialGuess(y,x,:) = [resonance width contrast baseline];
                 end
             end
@@ -174,8 +174,17 @@ if kwargs.type == 2
                        model_id, initialPreGuess, tolerance, 10000, ...
                        [], EstimatorID.MLE, xValues);
     initialGuess = parameters_to_guess(initialGuess);
+    badPixels = struct();
+    badPixels.chi = chiSquares;
+    badPixels.state = states;
 
 end
+
+if size(badPixels,2) > 0
+    s = size(binDataNorm);
+    fprintf('<>      INFO: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+end
+
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
 
 %     % final GPU fits
@@ -204,7 +213,7 @@ function initialGuess = get_initial_guess(gpudata, freq)
         initialGuess(1,i) = -(mx-mn)/mx; % amplitude
         initialGuess(2,i) = freq(find(data==mn,1)); %center
         initialGuess(3,i) = 0.002; % width
-        initialGuess(4,i) = mean(data(1:10)); % shift
+        initialGuess(4,i) = mean(data(1:10)); % offset -- mean of highest 10 maybe???
     end
 end
 
