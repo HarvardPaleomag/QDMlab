@@ -8,12 +8,12 @@ arguments
     % keyword arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
-    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = false
+    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = false
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = false
+    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
 end
 
 disp('<> --------------------------------------------------------------------')
@@ -201,8 +201,17 @@ fprintf('<>   %i: starting GPU fit\n', n);
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
 
 fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, n, sizeX, sizeY);
+fit.freq = freq;
+fit.binSize = binSize;
 
 fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
+
+if kwargs.checkPlot
+    fprintf('<>>>>>> INFO: close figure to continue\n');
+    fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize);
+    waitfor(fig)
+end
+
 end
 
 %% fitting helper functions
@@ -213,8 +222,8 @@ function initialGuess = get_initial_guess(gpudata, freq)
     for i = 1:size(gpudata,2)
         data = gpudata(n:end-n,i);
         data = smooth(data, 20);
-        mx = max(data);
-        mn = min(data);
+        mx = nanmax(data);
+        mn = nanmin(data);
         initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
         initialGuess(2,i) = freq(find(data==mn,1)); %center
         initialGuess(3,i) = 0.003; % width
