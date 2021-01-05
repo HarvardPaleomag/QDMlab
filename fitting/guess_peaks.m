@@ -44,7 +44,6 @@ Returns
         1: gaussian (local failed)
         2: global (local failed)
 %}
-
 arguments
     data double
     globalData double
@@ -54,7 +53,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.pixel  (1,3) {mustBeNumeric, mustBePositive} = [nan nan nan]
+    kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan]
 end
 smoothDegree = kwargs.smoothDegree;
 
