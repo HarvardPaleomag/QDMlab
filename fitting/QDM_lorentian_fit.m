@@ -1,4 +1,4 @@
-function calculate_B111(dataFolder, binSizes, varargin)
+function QDM_lorentian_fit(dataFolder, binSizes, varargin)
 % calculate_B111 uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
 % 
@@ -31,29 +31,27 @@ function calculate_B111(dataFolder, binSizes, varargin)
 %             show diagnostics plots
 %         plotGuessSpectra: bool (1)
 %         forceGuess: bool (0)
-inParse = inputParser;
-addRequired(inParse, 'dataFolder');
-addRequired(inParse, 'binSize');
-addParameter(inParse, 'fieldPolarity', 0);
-addParameter(inParse, 'type', 0);
 
-addParameter(inParse, 'globalFraction', 0.5); %0.5;%0.237
+arguments
+    dataFolder struct
+    binSize double
+    fieldPolarity double
+    n (1,1) int16
+    % keyword arguments
+    kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
+    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
+    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.plotGuessSpectra (1,1) {mustBeMember(kwargs.plotGuessSpectra, [1, 0])} = 0
+    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = false
+    kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
+    kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
+    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
+    kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 0
+end
 
-% force initial guesses for FOVs with very strong fields
-addParameter(inParse, 'forceGuess', 0);
-% 
-addParameter(inParse, 'checkPlot', false, @islogical);
-addParameter(inParse, 'plotGuessSpectra', 1);
-
-addParameter(inParse, 'gaussianFit', false, @islogical);
-addParameter(inParse, 'gaussianFilter', 0, @isnumeric); %0.5;%0.237
-addParameter(inParse, 'smoothDegree', 2);
-addParameter(inParse, 'nucSpinPol', false, @islogical);
-addParameter(inParse, 'save', true, @islogical);
-
-parse(inParse, dataFolder, binSizes, varargin{:});
-
-if inParse.Results.fieldPolarity == 4
+% select field polarity
+if kwargs.fieldPolarity == 4
   type='nppn';
 else
   type='np  ';
@@ -63,12 +61,18 @@ for n=1:size(binSizes,2)
   binSize=binSizes(n);
 %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
   GPU_fit(dataFolder,binSize,...
-      'fieldPolarity',inParse.Results.fieldPolarity, ...
-      'type', inParse.Results.type,...
-      'globalFraction', inParse.Results.globalFraction,...
-      'gaussianFit', inParse.Results.gaussianFit...,
-      'gaussianFilter', inParse.Results.gaussianFilter)
-      
+      'fieldPolarity',kwargs.fieldPolarity, ...
+      'type', kwargs.type,...
+      'globalFraction', kwargs.globalFraction,...
+      'gaussianFit', kwargs.gaussianFit,...
+      'gaussianFilter', kwargs.gaussianFilter,...
+      'forceGuess', kwargs.forceGuess,...
+      'checkPlot', kwargs.checkPlot,...
+      'plotGuessSpectra', kwargs.plotGuessSpectra,...
+      'smoothDegree', kwargs.smoothDegree,...
+      'nucSpinPol', kwargs.nucSpinPol,...
+      'save', kwargs.save)
+    
   plotResults_CommLine(dataFolder,type)
   foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
 
