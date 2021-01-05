@@ -1,4 +1,4 @@
-function [initialGuess, badPixels] = fit_resonance(expData, binSize, freq, n, kwargs)
+function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, freq, n, kwargs)
 
 arguments
     expData struct
@@ -19,13 +19,14 @@ end
 disp('<> --------------------------------------------------------------------')
 tStart = tic;
 
+fit = struct();
 dataStack = expData.(sprintf('imgStack%i',n));
 
 %% output setup
 badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
 
 %% fittiing related
-tolerance = 1e-30;
+tolerance = 1e-20;
 max_n_iterations = 100;
 
 %% data preparation
@@ -171,10 +172,11 @@ if kwargs.type == 2
     
     % single gaus fit for initial parameters
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                       model_id, initialPreGuess, tolerance, 10000, ...
+                       model_id, initialPreGuess, tolerance, 1000, ...
                        [], EstimatorID.MLE, xValues);
     initialGuess = parameters_to_guess(initialGuess);
     badPixels = struct();
+    badPixels.initialPreGuess = initialPreGuess;
     badPixels.chi = chiSquares;
     badPixels.state = states;
 
@@ -187,17 +189,20 @@ end
 
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
 
-%     % final GPU fits
-%     model_id = ModelID.ESR3RT;
-%     max_n_iterations = 100;
-%     fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(start)');
-%     
-%     %% FINAL GPU FIT
-% 
-%     disp('<>   Starting final GPU fits');
-%     % run Gpufit - Res 1
-%     [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-%         model_id, initialGuess1, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+% final GPU fits
+model_id = ModelID.ESR3RT;
+max_n_iterations = 100;
+
+%% FINAL GPU FIT
+
+fprintf('<>   %i: starting GPU fit\n', n);
+% run Gpufit - Res 1
+[parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
+    model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+
+fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, n, sizeX, sizeY);
+
+fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
 end
 
 %% fitting helper functions
@@ -210,10 +215,12 @@ function initialGuess = get_initial_guess(gpudata, freq)
         data = smooth(data, 20);
         mx = max(data);
         mn = min(data);
-        initialGuess(1,i) = -(mx-mn)/mx; % amplitude
+        initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
         initialGuess(2,i) = freq(find(data==mn,1)); %center
-        initialGuess(3,i) = 0.002; % width
-        initialGuess(4,i) = mean(data(1:10)); % offset -- mean of highest 10 maybe???
+        initialGuess(3,i) = 0.003; % width
+        
+        sorted = sort(data);
+        initialGuess(4,i) = 1.002;%mean(data); % offset -- mean of highest 10 maybe???
     end
 end
 
@@ -228,3 +235,47 @@ function guess = parameters_to_guess(parameters)
     guess = single(guess);
 end
 
+function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, n, sizeX, sizeY)
+    
+    % initialize struct
+    fit = struct(); 
+    
+    fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', n, sizeY, sizeX);
+
+
+    %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
+    output = zeros(6,sizeY,sizeX);
+    output(1,:,:) = reshape(parameters(1,:),[sizeY,sizeX]);
+    output(2,:,:) = reshape(parameters(2,:),[sizeY,sizeX]);
+    output(3,:,:) = reshape(parameters(3,:),[sizeY,sizeX]);
+    output(4,:,:) = reshape(parameters(4,:),[sizeY,sizeX]);
+    output(5,:,:) = reshape(parameters(5,:),[sizeY,sizeX]);
+    output(6,:,:) = reshape(parameters(6,:),[sizeY,sizeX]);
+    fit.parameters = output; 
+
+    ig = zeros(6,sizeY,sizeX);
+    ig(1,:,:) = reshape(initialGuess(1,:),[sizeY,sizeX]);
+    ig(2,:,:) = reshape(initialGuess(2,:),[sizeY,sizeX]);
+    ig(3,:,:) = reshape(initialGuess(3,:),[sizeY,sizeX]);
+    ig(4,:,:) = reshape(initialGuess(4,:),[sizeY,sizeX]);
+    ig(5,:,:) = reshape(initialGuess(5,:),[sizeY,sizeX]);
+    ig(6,:,:) = reshape(initialGuess(6,:),[sizeY,sizeX]);
+    fit.initialGuess = ig;
+
+    % matricies with 2 dimensions for x and y pixels:
+
+    fit.resonance = squeeze(output(1,:,:));
+    fit.width = squeeze(output(2,:,:));    
+    fit.contrastA = squeeze(output(3,:,:));
+    fit.contrastB = squeeze(output(4,:,:));
+    fit.contrastC = squeeze(output(5,:,:));
+    
+    fit.baseline = squeeze(output(6,:,:)+1);
+    fit.states = reshape(states,[sizeY,sizeX]);
+    fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
+    fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
+    fit.n = n;
+    
+    fit.p = parameters;
+    fit.g = initialGuess;
+end
