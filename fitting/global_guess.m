@@ -43,3 +43,5 @@ guess(:,:,3) = Rguess(3);
 guess(:,:,4) = Rguess(4);
 guess(:,:,5) = Rguess(5);
 guess(:,:,6) = Rguess(6);
+
+guess = single(guess);
