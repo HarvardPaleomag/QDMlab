@@ -44,7 +44,6 @@ Returns
         1: gaussian (local failed)
         2: global (local failed)
 %}
-
 arguments
     data double
     globalData double
@@ -54,7 +53,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.pixel  (1,3) {mustBeNumeric, mustBePositive} = [42 42 42]
+    kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan]
 end
 smoothDegree = kwargs.smoothDegree;
 
@@ -77,6 +76,7 @@ dataSmoothed = smooth(1-data,'sgolay', smoothDegree);
     % try getting peak positions from smoothed data
     [peakValue, peakLocation] = findpeaks(dataSmoothed,...
                                 'minpeakdistance', minpeakdistance/2, ...
+                                'minpeakheight',0.5*(min(dataSmoothed)+max(dataSmoothed)),... %old version pre mike
                                 'MinPeakProminence',0.0003, ...
                                 'NPeaks',3,...
                                 'sortstr','ascend');
