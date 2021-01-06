@@ -1,4 +1,4 @@
-function bad_pixels = GPU_fit(dataFolder, binSize, kwargs)
+function fits = GPU_fit(dataFolder, binSize, kwargs)
 %{
 Parameters
 ----------
@@ -34,8 +34,7 @@ Parameters
         if != 0: applies gaussian filter with a standard deviation of
                 'gaussianFilter'. Previous versions of the code used 0.5.
     checkPlot: bool (false)
-    plotGuessSpectra: int (1)
-        display the spectrum used to establish the initial guesses for diagnostics
+        display the fitted resonances. useful to establish the initial guesses for diagnostics
     smoothDegree: int(2)
     globalFraction: double (0.5)
         amount of global illumination signal to subtract from data. 
@@ -49,10 +48,10 @@ Parameters
 
 Notes
 -----
-dataStack1:     2 dimentional wwith xy pixels, frequencies
-data1:          3 dimentional with y pixels, x pixels, frequencies
-binData1:       3 dimentional with binned y pixels, binned x pixels, frequencies
-binDataNorm1:   3 dimentional with normalized binned x pixels, normalized binned, y pixels, frequencies
+dataStack:     2 dimentional wwith xy pixels, frequencies
+data:          3 dimentional with y pixels, x pixels, frequencies
+binData:       3 dimentional with binned y pixels, binned x pixels, frequencies
+binDataNorm:   3 dimentional with normalized binned x pixels, normalized binned, y pixels, frequencies
    if gaussianFilter: 3 dimentional with gaussian blurred normalized binned y pixels, gaussian blurred normalized binned, x pixels, frequencies
     
 %}
@@ -65,7 +64,6 @@ arguments
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.plotGuessSpectra (1,1) {mustBeMember(kwargs.plotGuessSpectra, [1, 0])} = 0
     kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
@@ -117,8 +115,6 @@ for fileNum=startN:1:endN
     %%% select header and data file
     headerFile = headerFiles(fileNum).name;
     dataFile = dataFiles(fileNum).name;
-    badPixels1 = {}; % for testing
-    badPixels2 = {}; % for testing
 
     %%%
     LEDimgFile = 'laser.csv';%'LED_beforerun.csv';
@@ -130,7 +126,7 @@ for fileNum=startN:1:endN
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
-    
+
     if LEDimgFlg==1
         transImg = load(fullfile(dataFolder,LEDimgFile));
         transImg = transImg(SpanYTrans,SpanXTrans);
@@ -191,6 +187,8 @@ for fileNum=startN:1:endN
     end
     
     %% SAVE FIT RESULTS%
+    sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
+    FitCvg = ones(sizeY,sizeX); %just to remove errors. This matrix is useless as is now.
     if kwargs.save
         fprintf('<>      INFO: saving data of %s\n',dataFile);
         save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
@@ -198,14 +196,13 @@ for fileNum=startN:1:endN
             'Freqs1', 'chiSquares1', 'p1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2',...
-            'binSize','type','gaussianFit');
+            'binSize','type','gaussianFit', 'FitCvg');
         
         if LEDimgFlg==1
             saveas(f5, [LEDimgFile 'CROPBIN.png'],'png');
             imwrite(transImgBinUint,gray, [LEDimgFile 'CROPBINPure.png'], 'png');
         end        
     end
-    %% USEFUL TEST CODE TO PLOT FIT AT A PARTICULAR POINT I,J
-    % todo
+
 end
 fprintf('<>   INFO: all GPU fitting tasks completed in: %.1f s\n', toc(tStart)');
