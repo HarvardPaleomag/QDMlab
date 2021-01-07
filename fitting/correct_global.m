@@ -1,7 +1,7 @@
 function corrected = correct_global(data, globalFraction)
 %% global spectra subtraction
 % Find global averaged spectra
-specData = squeeze(mean(mean(data,1),2));%global spectrum 51x1 array
+specData = mean_data(data)';%global spectrum 51x1 array
 
 % BL = base line
 leftBL = mean(specData(1:5,1));
