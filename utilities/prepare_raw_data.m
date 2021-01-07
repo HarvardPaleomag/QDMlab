@@ -1,4 +1,12 @@
-function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
+
+arguments
+    expData
+    binSize
+    nRes
+    kwargs.winType {mustBeMember(kwargs.winType, ['none','boxcar', 'sine', 'tria', 'hamming', 'han'])} = 'none'
+end
+
 % prepares the 
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
@@ -33,19 +41,20 @@ for y = 1:expData.numFreqs
     data(:,:,y) = transpose(reshape(dataStack(y, :), [expData.imgNumCols, expData.imgNumRows]));
 end
 
-% binning
-fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
+if strcmp(kwargs.winType, 'none')
+    % binning
+    fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
 
-sizeXY = size(BinImage(data(:,:,1),binSize));
-binData = zeros(sizeXY(1),sizeXY(2),length(freq));
+    sizeXY = size(BinImage(data(:,:,1),binSize));
+    binData = zeros(sizeXY(1),sizeXY(2),length(freq));
 
-for y = 1:length(freq)
-    binData(:,:,y) = BinImage(data(:,:,y),binSize);
+    for y = 1:length(freq)
+        binData(:,:,y) = BinImage(data(:,:,y),binSize);
+    end
+else
+    fprintf('<>   %i: binning data using moving window >> win = %i winType: %s\n', nRes, binSize, kwargs.winType);
+    binData = moving_bin(data, binSize, 'winType', kwargs.winType);
 end
-
-sizeX = size(binData,2); % binned image x-dimensions
-sizeY = size(binData,1); % binned image y-dimensions
-
 % Correct for severely non-unity baseline by dividing pixelwise by
 % average of all frequency points
 

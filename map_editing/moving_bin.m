@@ -15,11 +15,11 @@ function binnedData = moving_bin(data, win, kwargs)
 
 arguments
     data double
-    win int16
+    win double
     kwargs.winType {mustBeMember(kwargs.winType, ['boxcar', 'sine', 'tria', 'hamming', 'han'])} = 'boxcar'
 end
 
-tic
+tStart = tic;
 [w,  wSum] = window(win, 'winType', kwargs.winType);
 
 binnedData = zeros(size(data));
@@ -34,7 +34,7 @@ for r = win+1:sizeY-win
         binnedData(r,c,:) = meanD;
     end
 end
-toc
+fprintf('<>      INFO: finished moving window binning: %.1f s\n', toc(tStart)');
 end
 
 %% Window FUNCTIONS
