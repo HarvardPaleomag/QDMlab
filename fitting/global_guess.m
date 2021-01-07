@@ -22,16 +22,14 @@ disp('<>      generating initial guess from global resonance parameters');
 sizeX = size(data,2); % binned image x-dimensions
 sizeY = size(data,1); % binned image y-dimensions
 % meanData = squeeze(mean(mean(data,1),2));
-m1 = mean(data,1);
+m1 = nanmean(data,1);
 m2 = nanmean(squeeze(m1),1);
 meanData = squeeze(m2);
-
 %% Resonance 1:
 [pkVal, pkLoc, fitFlg] = guess_peaks(meanData, meanData, freq, ...
                                'smoothDegree', kwargs.smoothDegree, ...
                                'forceGuess', kwargs.forceGuess,...
                                'checkPlot', kwargs.checkPlot);
-
 Rguess = [(pkLoc(1)+pkLoc(2)+pkLoc(3))/3  0.0005  ( mean(meanData(1:10)) +pkVal-1)' mean(meanData(1:10))-1 ]; %resonance [GHz], Width [GHz], (contrast1; contrast2; contrast3)', baseline
 Rguess = Rguess';
 
