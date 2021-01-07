@@ -35,6 +35,7 @@ for r = win+1:sizeY-win
     end
 end
 fprintf('<>      INFO: finished moving window binning: %.1f s\n', toc(tStart)');
+binnedData = binnedData(win+1:sizeY-win, win+1:sizeX-win);
 end
 
 %% Window FUNCTIONS
