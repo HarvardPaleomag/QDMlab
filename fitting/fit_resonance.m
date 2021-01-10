@@ -1,16 +1,15 @@
-function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, freq, n, kwargs)
+function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, kwargs)
 
 arguments
     expData struct
     binSize double
-    freq double
     nRes (1,1) int16
     % keyword arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = false
+    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
@@ -20,7 +19,7 @@ disp('<> --------------------------------------------------------------------')
 tStart = tic;
 
 fit = struct();
-dataStack = expData.(sprintf('imgStack%i',n));
+dataStack = expData.(sprintf('imgStack%i',nRes));
 
 %% output setup
 badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
@@ -154,12 +153,12 @@ max_n_iterations = 100;
 
 %% FINAL GPU FIT
 
-fprintf('<>   %i: starting GPU fit\n', n);
+fprintf('<>   %i: starting GPU fit\n', nRes);
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
 
-fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, n, sizeX, sizeY);
+fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY);
 fit.freq = freq;
 fit.binSize = binSize;
 

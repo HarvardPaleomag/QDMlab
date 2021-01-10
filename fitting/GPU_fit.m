@@ -121,7 +121,7 @@ for fileNum=startN:1:endN
     fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
     expData = load(fullfile(dataFolder, dataFile));
 
-    fprintf('<>     loading of file %i/%i complete\n', fileNum, size(startN:1:endN, 2));
+    fprintf('<>      loading of file %i/%i complete\n', fileNum, size(startN:1:endN, 2));
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
@@ -144,7 +144,7 @@ for fileNum=startN:1:endN
             freq = expData.freqList(1+expData.numFreqs : 2*expData.numFreqs) / 1E9;
         end
             
-        [fit, guess, badPixel] = fit_resonance(expData, binSize, freq, n, ...
+        [fit, guess, badPixel] = fit_resonance(expData, binSize, n, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'nucSpinPol', kwargs.nucSpinPol,...
