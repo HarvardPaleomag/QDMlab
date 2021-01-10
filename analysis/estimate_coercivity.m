@@ -1,4 +1,4 @@
-function [results, files, nROI, nMasks] = estimate_coercivity_from_map(nFolders, varargin)
+function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 % 
@@ -86,48 +86,47 @@ function [results, files, nROI, nMasks] = estimate_coercivity_from_map(nFolders,
 %     Each is a cell with result{i,j} with ith mask and jth file:
 
 
-inParse = inputParser;
-str_or_char = @(x) isstring(x) | ischar(x);
-
-addRequired(inParse, 'nFolders', @iscell);
-addParameter(inParse, 'fileName', 'Bz_uc0.mat', str_or_char);
-addParameter(inParse, 'transFormFile', 'none', str_or_char);
-addParameter(inParse, 'fixedIdx', 1, @isnumeric);
-addParameter(inParse, 'upCont', false, @iscell);
-addParameter(inParse, 'removeHotPixels', false, @isnumeric);
-addParameter(inParse, 'reverse', false, @islogical);
-addParameter(inParse, 'freeHand', false, @islogical);
-addParameter(inParse, 'freeHandFilter', false, @islogical);
-addParameter(inParse, 'selectionThreshold', 0.5, @isnumeric);
-addParameter(inParse, 'checkPlot', false, @islogical);
-addParameter(inParse, 'nROI', false, @iscell);
-addParameter(inParse, 'chi', false, @islogical);
-addParameter(inParse, 'winSize', 4, @isnumeric);
-addParameter(inParse, 'bootStrapError', 1, @isnumeric);
-addParameter(inParse, 'bootStrapPixels', 0, @isnumeric);
-
-parse(inParse, nFolders, varargin{:});
+arguments
+    nFolders
+    kwargs.fileName = 'Bz_uc0.mat'
+    kwargs.transFormFile = 'none'
+    kwargs.fixedIdx (1,1) {mustBePositive} = 1
+    kwargs.upCont = 0
+    kwargs.removeHotPixels = 0
+    kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
+    kwargs.freeHand  (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 0
+    kwargs.freeHandFilter (1,1) {mustBeMember(kwargs.freeHandFilter, [1, 0])} = 0
+    kwargs.selectionThreshold (1,1) {mustBeNumeric} = 0.25
+    kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.nROI = 0
+    kwargs.chi = 0
+    kwargs.winSize (1,1) {mustBeNumeric} = 4
+    kwargs.bootStrapError = 1
+    kwargs.bootStrapPixels = 0
+end
 
 % define optional function parameters
-fileName = inParse.Results.fileName;
-transFormFile = inParse.Results.transFormFile;
-fixedIdx = inParse.Results.fixedIdx;
-reverse = inParse.Results.reverse;
-checkPlot = inParse.Results.checkPlot;
-selectionThreshold = inParse.Results.selectionThreshold;
-nROI = inParse.Results.nROI;
-removeHotPixels = inParse.Results.removeHotPixels;
-upCont = inParse.Results.upCont;
-chi = inParse.Results.chi;
-winSize = inParse.Results.winSize;
-bootStrapError = inParse.Results.bootStrapError;
-bootStrapPixels = inParse.Results.bootStrapPixels;
+fileName = kwargs.fileName;
+
+if ~endsWith(fileName, '.mat')
+    fileName = [fileName, '.mat'];
+end
+
+transFormFile = kwargs.transFormFile;
+fixedIdx = kwargs.fixedIdx;
+reverse = kwargs.reverse;
+checkPlot = kwargs.checkPlot;
+selectionThreshold = kwargs.selectionThreshold;
+nROI = kwargs.nROI;
+removeHotPixels = kwargs.removeHotPixels;
+upCont = kwargs.upCont;
+chi = kwargs.chi;
+winSize = kwargs.winSize;
+bootStrapError = kwargs.bootStrapError;
+bootStrapPixels = kwargs.bootStrapPixels;
 %%
 % fix shape for nFolders
-folderShape = size(nFolders);
-if folderShape(1) > folderShape(2)
-    nFolders = transpose(nFolders);
-end
+nFolders = correct_cell_shape(nFolders);
 %%
 % define QDM parameters
 pixelsize = 4.68e-6;
@@ -201,7 +200,7 @@ if iscell(nROI)
 else
     % pick n areas from the QDM DATA for calculation
     disp('<> pick masks')
-    if inParse.Results.freeHand
+    if kwargs.freeHand
         nROI = pick_area(fixedData);
     else
         nROI = pick_box(fixedData); % each Sel in the size of fixed data
@@ -212,7 +211,7 @@ end
 %
 % if freeHand and freeHandFilter is true then you can draw the mask
 % directly in the image
-if all([inParse.Results.freeHandFilter, inParse.Results.freeHand])
+if all([kwargs.freeHandFilter, kwargs.freeHand])
     nMasks = nROI;
 % otherwise the mask will be calculated from the selection
 else
@@ -239,7 +238,7 @@ nFiles = {};
 for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};
-    iFile = fullfile(iFolder, filesep, [fileName, '.mat']);
+    iFile = fullfile(iFolder, filesep, fileName);
     nFiles{end+1} = iFile;
     
     disp(['<> loading: target file for transformation: '])
@@ -345,7 +344,7 @@ for j = 1:size(nFiles, 2)
     iFileData = transformedData(iFile);
     files{j} = iFileData;
 
-    disp('<> ------------------------------------------------------------')
+%     disp('<> ------------------------------------------------------------')
 
     for i = 1:size(nMasks, 2)
         iMask = nMasks{:, i};
@@ -354,8 +353,6 @@ for j = 1:size(nFiles, 2)
             disp(['<>    transforming mask to match << ...', iFile(end-40:end), ' >>'])
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
         end
-
-        disp(['<> masking << ...', iFile(end-40:end), ' >>'])
 
         % create masked_data: mask is array with 0 where is should be
         % masked and 1 where it should not
@@ -371,7 +368,7 @@ for j = 1:size(nFiles, 2)
         mDataCut = crop_data(mData, iMask);
         d0Cut = crop_data(d0, iMask);
 
-        disp(['<> masking << ...', iFile(end-40:end), ' >>'])
+%         disp(['<> masking << ...', iFile(end-40:end), ' >>'])
 
         % predefine the variables
         mData = [];
@@ -451,6 +448,8 @@ results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRat
     'errs', errs, 'maskSums', maskSums, 'nPixels', nPixels, ...
     'nMasks', {iMasks}, 'nROI', {nROI},...
     'transDatas', {transDatas}, 'fixedData', fixedData, 'transLeds', {transLeds});
+
+fprintf('<>   INFO: coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)\n', size(nROI,2), size(iFiles,2));
 
 if checkPlot
     coercivity_result_plot(results)
