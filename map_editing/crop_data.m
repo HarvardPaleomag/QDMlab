@@ -14,6 +14,5 @@ Parameters
     [x, y, w, h] = get_mask_extent(mask);
 
     % cut around data
-    disp('<>   cropping data')
     croppedData = data(y:y+h, x:x+w);
 end
