@@ -1,4 +1,4 @@
-function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, varargin)
+function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, kwargs)
 % parameters:
 %     fixedFile: str
 %         Path to the reference image. Needs to be a file not folder
@@ -25,24 +25,21 @@ function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, 
 %     a map with the filname as the key and the transform as the value. Can
 %     be accessed like `nTransForms(fname) = iTransForm`
 
-inParams = inputParser;
-str_or_char = @(x) isstring(x) | ischar(x);
+arguments
+    fixedFile
+    nMovingFolders
+    kwargs.transFormFile = 'none'
+    kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
+	kwargs.binning (1,1) {mustBePositive} = 2;
+    kwargs.laser  (1,1) {mustBeMember(kwargs.laser, [1, 0])} = 0
+end
 
-addRequired(inParams, 'fixedFile', str_or_char);
-addRequired(inParams, 'nMovingFolders', @iscell);
-addParameter(inParams, 'transFormFile', false);
-addParameter(inParams, 'checkPlot', false, @islogical);
-addParameter(inParams, 'reverse', false, @islogical);
-addParameter(inParams, 'binning', 2, @islogical);
-addParameter(inParams, 'laser', 0, @islogical);
-
-parse(inParams, fixedFile, nMovingFolders, varargin{:});
-
-transFormFile = inParams.Results.transFormFile;
-checkPlot = inParams.Results.checkPlot;
-reverse = inParams.Results.reverse;
-binning = inParams.Results.binning;
-laser = inParams.Results.laser;
+transFormFile = kwargs.transFormFile;
+checkPlot = kwargs.checkPlot;
+reverse = kwargs.reverse;
+binning = kwargs.binning;
+laser = kwargs.laser;
 
 nMovingFolders = correct_cell_shape(nMovingFolders);
 
