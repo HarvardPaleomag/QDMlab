@@ -115,7 +115,6 @@ for fileNum=startN:1:endN
     start = tic; % for timing 
     
     %%% select header and data file
-    headerFile = headerFiles(fileNum).name;
     dataFile = dataFiles(fileNum).name;
     badPixels1 = {}; % for testing
     badPixels2 = {}; % for testing
