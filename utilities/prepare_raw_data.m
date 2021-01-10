@@ -1,5 +1,6 @@
 function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
-% prepares the 
+% prepares the raw data. Does normalization, binning and reshaping
+
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
 if nRes == 1

@@ -1,10 +1,10 @@
-function [initialGuess, badPixels] = fit_resonance(expData, binSize, freq, n, kwargs)
+function [initialGuess, badPixels] = fit_resonance(expData, binSize, freq, nRes, kwargs)
 
 arguments
     expData struct
     binSize double
     freq double
-    n (1,1) int16
+    nRes (1,1) int16
     % keyword arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
@@ -19,7 +19,7 @@ end
 disp('<> --------------------------------------------------------------------')
 tStart = tic;
 
-dataStack = expData.(sprintf('imgStack%i',n));
+dataStack = expData.(sprintf('imgStack%i',nRes));
 
 %% output setup
 badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
@@ -29,62 +29,21 @@ tolerance = 1e-30;
 max_n_iterations = 100;
 
 %% data preparation
-% X/Y of unbinned data
-% Note: X = COL; Y = ROW -> (y,x) for (row, col) matlab convention
-spanXTrans = 1:expData.imgNumCols;
-spanYTrans = 1:expData.imgNumRows;
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
-% check for 101 frequencies. File includes imgStack3
-if isfield(expData, 'imgStack3')      
-    % combine 1&2 or 3&4
-    dataStacka = expData.(sprintf('imgStack%i',n)); 
-    dataStackb = expData.(sprintf('imgStack%i',n+1));
-    dataStack = [dataStacka; dataStackb];
-end
-
-data = zeros(expData.imgNumRows, expData.imgNumCols, expData.numFreqs);
-
-% crop
-data = data(spanYTrans,spanXTrans,:);
-
-% reshape and transpose each image
-for y = 1:expData.numFreqs
-    data(:,:,y) = transpose(reshape(dataStack(y, :), [expData.imgNumCols, expData.imgNumRows]));
-end
-
-% binning
-fprintf('<>   %i: binning data >> binSize = %i\n', n, binSize);
-
-sizeXY = size(BinImage(data(:,:,1),binSize));
-binData = zeros(sizeXY(1),sizeXY(2),length(freq));
-
-for y = 1:length(freq)
-    binData(:,:,y) = BinImage(data(:,:,y),binSize);
-end
-
-sizeX = size(binData,2); % binned image x-dimensions
-sizeY = size(binData,1); % binned image y-dimensions
-
-% Correct for severely non-unity baseline by dividing pixelwise by
-% average of all frequency points
-
-binDataNorm = zeros(size(binData));
-NormalizationFactor = mean(binData,3);    % compute average
-
-for y = 1:length(freq)
-    binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
-end
+sizeX = size(binDataNorm,2); % binned image x-dimensions
+sizeY = size(binDataNorm,1); % binned image y-dimensions
 
 %% 1. GAUSSIAN BLUR
 % default = 0
 % gaussian filter on the guesses, can lead to some problems if high gradient
 if kwargs.gaussianFilter ~= 0
-    fprintf('<>   %i: smoothing data using gaussian blur: %.1f\n', n, gaussianFilter)
+    fprintf('<>   %i: smoothing data using gaussian blur: %.1f\n', nRes, gaussianFilter)
     gFilter = fspecial('gaussian',[20,20], gaussianFilter);
     binDataNorm = imfilter(binDataNorm, gFilter, 'symmetric', 'conv');
 end
 
-fprintf('<>   %i: starting parameter estimation\n', n);
+fprintf('<>   %i: starting parameter estimation\n', nRes);
 
 %% global spectra subtraction
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
@@ -110,7 +69,7 @@ if kwargs.type == 0 % reshape into [6 x numpoints]
 end
 %% local guess -> guess parameter for each pixel
 if kwargs.type == 1 %% old local/gaussian guess 
-    fprintf('<>   %i: local guess estimation\n', n);
+    fprintf('<>   %i: local guess estimation\n', nRes);
 
     sizeX = size(binData,2); % binned image x-dimensions
     sizeY = size(binData,1); % binned image y-dimensions
@@ -134,13 +93,13 @@ if kwargs.type == 1 %% old local/gaussian guess
                                                     'smoothDegree', kwargs.smoothDegree, ...
                                                     'forceGuess', kwargs.forceGuess,...
                                                     'gaussianFit', kwargs.gaussianFit, ...
-                                                    'pixel', [y x n]);
+                                                    'pixel', [y x nRes]);
                 % check if find peaks returned 3 peaks
                 % add them to badpixels
                 if fitFlg == 1 | fitFlg == 2 % 1 == gauss 2= global (i.e. local failed)
                     badPixels(end+1).x = x; % new entry
                     badPixels(size(badPixels, 2)).y = y;
-                    badPixels(size(badPixels, 2)).nRes = n;
+                    badPixels(size(badPixels, 2)).nRes = nRes;
                     badPixels(size(badPixels, 2)).fitFlg = fitFlg;                    
                 end
 
