@@ -137,12 +137,6 @@ for fileNum=startN:1:endN
     badPixels = struct();
     for n = 1:2
         side = sides{n};
-        if n == 1
-            freq = expData.freqList(1:expData.numFreqs) / 1E9;   %everything is in GHz
-
-        else
-            freq = expData.freqList(1+expData.numFreqs : 2*expData.numFreqs) / 1E9;
-        end
             
         [fit, guess, badPixel] = fit_resonance(expData, binSize, n, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
