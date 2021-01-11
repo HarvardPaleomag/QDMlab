@@ -239,6 +239,7 @@ for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
+    iFile = check_suffix(iFile);
     nFiles{end+1} = iFile;
     
     disp(['<> loading: target file for transformation: '])

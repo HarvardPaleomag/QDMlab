@@ -47,6 +47,7 @@ nMovingFolders = correct_cell_shape(nMovingFolders);
 LED2data = affine2d([1 / binning, 0, 0; 0, 1 / binning, 0; 0, 0, 1]);
 data2LED = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
 
+fixedFile = check_suffix(fixedFile);
 [fixedPath, refFileName, refExtension] = fileparts(fixedFile);
 
 if laser
@@ -56,6 +57,7 @@ else
     fixedData = load(fixedFile);
 end
 
+fixedFile = check_suffix(fixedFile);
 
 if laser
     fixedLed = fixedData;
@@ -93,13 +95,14 @@ for iFolder = nMovingFolders
     iFolder = iFolder{:};
 
     % load moving data
-    movingPath = [iFolder, filesep, refFileName];
-
+    movingFile = [iFolder, filesep, refFileName];
+    movingFile = check_suffix(movingFile);
+    
     if laser
         moving = imread([iFolder filesep refExtension]);
 %         moving = adapthisteq(moving);
     else
-        moving = load(movingPath);
+        moving = load(movingFile);
     end
     % check for differences in LED naming
     if isfield(moving, 'ledImg')
@@ -114,15 +117,15 @@ for iFolder = nMovingFolders
     if reverse
         [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'checkPlot', checkPlot);
         disp(['<>   ', fixedFile, '->'])
-        disp(['<>   ', movingPath])
+        disp(['<>   ', movingFile])
     else
         [tForm, refFrame] = get_image_tform2(fixedLed, movingLed, 'checkPlot', checkPlot);
-        disp(['<>   ', movingPath, '->'])
+        disp(['<>   ', movingFile, '->'])
         disp(['<>   ', fixedFile])
     end
     
-    nTransForms([movingPath, '.mat']) = tForm;
-    nRefFrames([movingPath, '.mat']) = refFrame;
+    nTransForms([movingFile, '.mat']) = tForm;
+    nRefFrames([movingFile, '.mat']) = refFrame;
 
 end
 
