@@ -1,11 +1,24 @@
-expData = load('D:\data\mike\NRM\run_00000.mat');
+% expData = load('D:\data\mike\NRM\run_00000.mat');
+expData = load('/Users/mike/Desktop/NRM/run_00000.mat');
 %%
 binSize = 4;
 nRes = 1;
 %%
-[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'winType', 'sine');
+data = zeros(expData.imgNumRows, expData.imgNumCols, expData.numFreqs);
+
+% reshape and transpose each image
+for y = 1:expData.numFreqs
+    data(:,:,y) = transpose(reshape(expData.imgStack1(y, :), [expData.imgNumCols, expData.imgNumRows]));
+end
+%% only moving Win
+bin = moving_bin(data, 4);
+
 %%
-binDataNormC = correct_global(binDataNorm, 0.5);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'winType', 'boxcar');
+%% OLD style
+[binDataNorm, freq] = prepare_raw_data(expData, 2, nRes, 'winType', 'none');
+%%
+binDataNormC = correct_global(binDataNorm, 0.1);
 %%
 close all
 r = randi(1200,1); c = randi(1900,1);
@@ -28,7 +41,16 @@ gpudata = reshape(binDataNorm,[imgpts,sweeplength]); % make it into 2d matrix
 initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
 %%
 disp('LOCAL GAUSSIAN')
-[fit, guess, preParams] = fit_resonance(expData, binSize, n, 'type',2);
+[fit, guess, preParams] = fit_resonance(expData, binSize, nRes, 'type',2);
 %%
 disp('MOVING window')
-[fitNew, guessNew, preParamsNew] = fit_resonance(expData, binSize, n, 'type',2, 'winType','boxcar');
+[fitNew, guessNew, preParamsNew] = fit_resonance(expData, binSize, nRes, 'type',2, 'winType','boxcar');
+%%
+figure
+ax1 = subplot(1,2,1)
+imagesc()
+axis xy; axis equal; axis tight
+ax1 = subplot(1,2,2)
+imagesc()
+axis xy; axis equal; axis tight
+linkaxes([ax1 ax2])

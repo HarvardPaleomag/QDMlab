@@ -22,20 +22,23 @@ end
 tStart = tic;
 [w,  wSum] = window(win, 'winType', kwargs.winType);
 
+step = 1; % todo: for old style binning
+
 binnedData = zeros(size(data));
 sizeX = size(data,2); sizeY = size(data,1);
 
-for r = win+1:sizeY-win
-    for c = win+1:sizeX-win
-        dWin = data(r-win:r+win, c-win:c+win, :);        
+for row = win+1:step:sizeY-win
+    for col = win+1:step:sizeX-win
+        dWin = data(row-win:row+win, col-win:col+win, :);        
         meanD = sum(dWin.*w, [1 2]);
         meanD = meanD / wSum;
         meanD = squeeze(meanD);
-        binnedData(r,c,:) = meanD;
+        binnedData(row,col,:) = meanD;
     end
 end
+
 fprintf('<>      INFO: finished moving window binning: %.1f s\n', toc(tStart)');
-binnedData = binnedData(win+1:sizeY-win, win+1:sizeX-win);
+% binnedData = binnedData(win+1:sizeY-win, win+1:sizeX-win);
 end
 
 %% Window FUNCTIONS
