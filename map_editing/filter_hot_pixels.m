@@ -1,4 +1,4 @@
-function filteredData = filter_hot_pixels(data, kwargs)
+function filteredData = filter_hot_pixels(data, varargin)
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments
@@ -29,34 +29,33 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
 
-arguments
-   data
-   kwargs.cutOff = 3;
-   kwargs.includeHotPixel = 0
-   kwargs.checkPlot = 0
-   kwargs.chi = 0
-   kwargs.winSize = 3
-end
-
+inParse = inputParser;
+addRequired(inParse, 'data');
+addParameter(inParse, 'cutOff', 3, @isnumeric);
+addParameter(inParse, 'includeHotPixel', false, @islogical);
+addParameter(inParse, 'checkPlot', false, @islogical);
+addParameter(inParse, 'chi', false, @ismatrix);
+addParameter(inParse, 'winSize', 3, @isnumeric);
+parse(inParse, data, varargin{:});
 
 % define optional arguments
-cutOff = kwargs.cutOff;
-includeHotPixel = kwargs.includeHotPixel;
-checkPlot = kwargs.checkPlot;
-chi = kwargs.chi;
-winSize = kwargs.winSize;
+cutOff = inParse.Results.cutOff;
+includeHotPixel = inParse.Results.includeHotPixel;
+checkPlot = inParse.Results.checkPlot;
+chi = inParse.Results.chi;
+winSize = inParse.Results.winSize;
 
 % shape of the data (row,col)
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) > nanmean(data, 'all') + 15 * nanstd(data, 0, 'all');
+aboveStd = abs(data) > nanmean(data, 'all') + 10 * nanstd(data, 0, 'all');
 data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
 if chi ~= 0
     % pefilter chi values to catch extreme outlier
-    chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
+    chiFilter = abs(chi) > nanmean(chi, 'all') + 10 * nanstd(chi, 0, 'all');
     chi(chiFilter) = nan;
     
     % calculate the mean over all pixels

@@ -4,20 +4,16 @@ function  map_figure = QDM_figure(data, kwargs)
 
 arguments
     data
-    kwargs.fig = 'none';
+    kwargs.figure = 'none';
     kwargs.ax = 'none';
     kwargs.nROI = 'none';
     kwargs.filter_hot_pixels = 0
 end
 
-if kwargs.fig == 'none'
-    if kwargs.ax == 'none'
-        map_figure = figure('Name','QDM map','units','normalized','outerposition',[0.2 0.2 0.6 0.6]);
-    else
-        map_figure = ancestor(kwargs.ax,{'figure'},'toplevel');
-    end
+if kwargs.figure == 'none'
+    map_figure = figure('Name','QDM map','units','normalized','outerposition',[0.2 0.2 0.6 0.6]);
 else
-    map_figure = kwargs.fig;
+    map_figure = kwargs.figure;
 end
 
 if kwargs.ax == 'none'
