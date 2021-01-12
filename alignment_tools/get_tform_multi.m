@@ -43,10 +43,6 @@ laser = kwargs.laser;
 
 nMovingFolders = correct_cell_shape(nMovingFolders);
 
-% define resizing affine transformation
-LED2data = affine2d([1 / binning, 0, 0; 0, 1 / binning, 0; 0, 0, 1]);
-data2LED = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
-
 fixedFile = check_suffix(fixedFile);
 [fixedPath, refFileName, refExtension] = fileparts(fixedFile);
 
@@ -56,8 +52,6 @@ if laser
 else
     fixedData = load(fixedFile);
 end
-
-fixedFile = check_suffix(fixedFile);
 
 if laser
     fixedLed = fixedData;
@@ -124,8 +118,8 @@ for iFolder = nMovingFolders
         disp(['<>   ', fixedFile])
     end
     
-    nTransForms([movingFile, '.mat']) = tForm;
-    nRefFrames([movingFile, '.mat']) = refFrame;
+    nTransForms(movingFile) = tForm;
+    nRefFrames(movingFile) = refFrame;
 
 end
 

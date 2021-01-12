@@ -40,7 +40,8 @@ if iscell(steps)
     steps = cell2mat(steps);
 end
 
-figure
+f1 = figure('units','normalized', 'outerposition',[0.3,0.3,3*(0.8/rows),0.8]);
+
 axes = [];
 mx = 0;
 mn = 0;
@@ -85,7 +86,7 @@ end
 linkaxes(axes)
 
 for ax = axes
-    set(ax,'CLim',[-1 1] * mx/2);
+    set(ax,'CLim',[-1 1] * mx/5);
 end
 
 % figure
@@ -98,7 +99,6 @@ for i = 1:nMasks
     ylabel('norm. n(+)pixel')
     legend
 end
-set(gcf,'position',[250,250,3*200,rows*150])
 
 
 %% additional LED plot

@@ -100,7 +100,7 @@ arguments
     kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.nROI = 0
     kwargs.chi = 0
-    kwargs.winSize (1,1) {mustBeNumeric} = 4
+    kwargs.winSize (1,1) = 4
     kwargs.bootStrapError = 1
     kwargs.bootStrapPixels = 0
 end
@@ -190,12 +190,7 @@ if iscell(nROI)
     % In the case that selections are passed to the function, we need to
     % check if they are the same size as the data (i.e. different binning)
     for iSel = 1:size(nROI, 2)
-        if size(nROI{iSel}, 1) ~= size(fixedData, 1)
-            binSel = size(fixedData, 1)/size(nROI{iSel}, 1);
-            resizeBinningSel = affine2d([binSel, 0, 0; 0, binSel, 0; 0, 0, 1]);
-            newSel = imwarp(nROI{iSel}, resizeBinningSel);
-            nROI{iSel} = newSel;
-        end
+        nROI{iSel} = re_bin(nROI{iSel}, fixedData);
     end
 else
     % pick n areas from the QDM DATA for calculation
@@ -221,10 +216,9 @@ else
         % to 0
         selFixedData = fixedData .* nROI{iSelect};
 
-        
         % The masked data now gets filtered to create the final mask
-        iMaskData = selFixedData >= selectionThreshold * max(selFixedData, [], 'all', 'omitnan');
-        disp(['<> creating mask #', num2str(i), ' containing ', num2str(numel(nonzeros(iMaskData))), ' Pixel'])
+        iMaskData = selFixedData >= selectionThreshold * abs(max(selFixedData, [], 'all', 'omitnan'));
+        fprintf('<>      creating mask #%i containing %i pixel\n', iSelect, numel(nonzeros(iMaskData)))
 
         % set mask
         nMasks{end+1} = iMaskData;
