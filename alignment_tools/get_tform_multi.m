@@ -1,4 +1,4 @@
-function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, varargin)
+function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, kwargs)
 % parameters:
 %     fixedFile: str
 %         Path to the reference image. Needs to be a file not folder
@@ -25,31 +25,25 @@ function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, 
 %     a map with the filname as the key and the transform as the value. Can
 %     be accessed like `nTransForms(fname) = iTransForm`
 
-inParams = inputParser;
-str_or_char = @(x) isstring(x) | ischar(x);
+arguments
+    fixedFile
+    nMovingFolders
+    kwargs.transFormFile = 'none'
+    kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
+	kwargs.binning (1,1) {mustBePositive} = 2;
+    kwargs.laser  (1,1) {mustBeMember(kwargs.laser, [1, 0])} = 0
+end
 
-addRequired(inParams, 'fixedFile', str_or_char);
-addRequired(inParams, 'nMovingFolders', @iscell);
-addParameter(inParams, 'transFormFile', false);
-addParameter(inParams, 'checkPlot', false, @islogical);
-addParameter(inParams, 'reverse', false, @islogical);
-addParameter(inParams, 'binning', 2, @islogical);
-addParameter(inParams, 'laser', 0, @islogical);
-
-parse(inParams, fixedFile, nMovingFolders, varargin{:});
-
-transFormFile = inParams.Results.transFormFile;
-checkPlot = inParams.Results.checkPlot;
-reverse = inParams.Results.reverse;
-binning = inParams.Results.binning;
-laser = inParams.Results.laser;
+transFormFile = kwargs.transFormFile;
+checkPlot = kwargs.checkPlot;
+reverse = kwargs.reverse;
+binning = kwargs.binning;
+laser = kwargs.laser;
 
 nMovingFolders = correct_cell_shape(nMovingFolders);
 
-% define resizing affine transformation
-LED2data = affine2d([1 / binning, 0, 0; 0, 1 / binning, 0; 0, 0, 1]);
-data2LED = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
-
+fixedFile = check_suffix(fixedFile);
 [fixedPath, refFileName, refExtension] = fileparts(fixedFile);
 
 if laser
@@ -58,7 +52,6 @@ if laser
 else
     fixedData = load(fixedFile);
 end
-
 
 if laser
     fixedLed = fixedData;
@@ -96,13 +89,14 @@ for iFolder = nMovingFolders
     iFolder = iFolder{:};
 
     % load moving data
-    movingPath = [iFolder, filesep, refFileName];
-
+    movingFile = [iFolder, filesep, refFileName];
+    movingFile = check_suffix(movingFile);
+    
     if laser
         moving = imread([iFolder filesep refExtension]);
 %         moving = adapthisteq(moving);
     else
-        moving = load(movingPath);
+        moving = load(movingFile);
     end
     % check for differences in LED naming
     if isfield(moving, 'ledImg')
@@ -117,15 +111,15 @@ for iFolder = nMovingFolders
     if reverse
         [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'checkPlot', checkPlot);
         disp(['<>   ', fixedFile, '->'])
-        disp(['<>   ', movingPath])
+        disp(['<>   ', movingFile])
     else
         [tForm, refFrame] = get_image_tform2(fixedLed, movingLed, 'checkPlot', checkPlot);
-        disp(['<>   ', movingPath, '->'])
+        disp(['<>   ', movingFile, '->'])
         disp(['<>   ', fixedFile])
     end
     
-    nTransForms([movingPath, '.mat']) = tForm;
-    nRefFrames([movingPath, '.mat']) = refFrame;
+    nTransForms(movingFile) = tForm;
+    nRefFrames(movingFile) = refFrame;
 
 end
 
