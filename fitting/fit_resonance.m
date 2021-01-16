@@ -46,10 +46,12 @@ end
 fprintf('<>   %i: starting parameter estimation\n', nRes);
 
 %% global spectra subtraction
-binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
+if kwargs.type ~= 2
+    binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
+end
 
 %% first determine global guess
-meanData = squeeze(mean(mean(binDataNorm,1),2));
+meanData = squeeze(mean(binDataNorm, [1,2]));
 
 initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
 
