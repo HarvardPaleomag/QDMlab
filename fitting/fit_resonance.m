@@ -49,7 +49,9 @@ binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 %% first determine global guess
 meanData = squeeze(mean(mean(binDataNorm,1),2));
 
-initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
+if kwargs.type ~= 2 % not needed for gaus pre fits
+    initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
+end
 
 sizeX = size(binDataNorm,2); % binned image x-dimensions
 sizeY = size(binDataNorm,1); % binned image y-dimensions

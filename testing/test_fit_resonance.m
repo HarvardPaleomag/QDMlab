@@ -65,16 +65,16 @@ gpudata = single(gpudata);
 xValues = single(freq');
 %%
 disp('GLOBAL')
-[fitOld, guessOld, badPixelsOld] = fit_resonance(expData, binSize, freq, n, 'type',0);
+[fitOld, guessOld, badPixelsOld] = fit_resonance(expData, binSize, n, 'type',0);
 %%
 disp('LOCAL WITH GLOBAL SUBSTITUTION')
-[fitOldGlob, guessOldGlob, badPixelsOldGlob] = fit_resonance(expData, binSize, freq, n, 'type',1);
+[fitOldGlob, guessOldGlob, badPixelsOldGlob] = fit_resonance(expData, binSize, n, 'type',1);
 %%
 disp('LOCAL WITH GAUSSIAN SUBSTITUTION')
-[fitOldGaus, guessOldGaus, badPixelsOldGaus] = fit_resonance(expData, binSize, freq, n, 'type',1, 'gaussianFit',1);
+[fitOldGaus, guessOldGaus, badPixelsOldGaus] = fit_resonance(expData, binSize, n, 'type',1, 'gaussianFit',1);
 %%
 disp('LOCAL GAUSSIAN')
-[fitNew, guessNew, preParamsNew] = fit_resonance(expData, binSize, freq, n, 'type',2);
+[fitNew, guessNew, preParamsNew] = fit_resonance(expData, binSize, n, 'type',2);
 %%
 test(fitNew, fitOld, gpudata, binDataNorm, freq, binSize)
 %%
