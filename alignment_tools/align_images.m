@@ -7,7 +7,6 @@ arguments
     nFolders cell
     transFormFile
     kwargs.fixedIdx = 1
-    kwargs.binning = 2
     kwargs.checkPlot = 1
     kwargs.fileName = 'Bz_uc0.mat'
     kwargs.sequence = 0
@@ -23,14 +22,9 @@ if ~endsWith(fileName, '.mat')
 end
 
 checkPlot = kwargs.checkPlot;
-binning = kwargs.binning;
 fixedIdx = kwargs.fixedIdx;
 sequence = kwargs.sequence;
 reverse = kwargs.reverse;
-
-% define resizing affine transformation
-LED2data = affine2d([1 / binning, 0, 0; 0, 1 / binning, 0; 0, 0, 1]);
-data2LED = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
 
 % generate reference file name
 fixedFile = [nFolders{fixedIdx}, filesep, fileName];
