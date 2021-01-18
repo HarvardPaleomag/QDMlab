@@ -25,6 +25,9 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         default: false
 %         if True hotpixels will be removed
 %         if False hotpixels will not be removed
+%     includeHotPixel: bool (0)
+%         if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel
+%         if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel
 %     selectionThreshold: numeric
 %         default: 0.5
 %         defines the Threshold above which the mask is created.
@@ -93,6 +96,7 @@ arguments
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
     kwargs.upCont = 0
     kwargs.removeHotPixels = 0
+    kwargs.includeHotPixel = 0
     kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
     kwargs.freeHand  (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 0
     kwargs.freeHandFilter (1,1) {mustBeMember(kwargs.freeHandFilter, [1, 0])} = 0
@@ -107,41 +111,31 @@ end
 
 % define optional function parameters
 fileName = kwargs.fileName;
+nROI = kwargs.nROI;
 
 if ~endsWith(fileName, '.mat')
     fileName = [fileName, '.mat'];
 end
-
-transFormFile = kwargs.transFormFile;
-fixedIdx = kwargs.fixedIdx;
-reverse = kwargs.reverse;
-checkPlot = kwargs.checkPlot;
-selectionThreshold = kwargs.selectionThreshold;
-nROI = kwargs.nROI;
-removeHotPixels = kwargs.removeHotPixels;
-upCont = kwargs.upCont;
-chi = kwargs.chi;
-winSize = kwargs.winSize;
-bootStrapError = kwargs.bootStrapError;
-bootStrapPixels = kwargs.bootStrapPixels;
 %%
 % fix shape for nFolders
 nFolders = correct_cell_shape(nFolders);
 %%
-% define QDM parameters
-pixelsize = 4.68e-6;
 
 % ERROR estimation
 nMonteCarlo = 1000; % number of shifts around the mask to estimate errors
 pixelError = 3; % maximum number of pixel that the alignment could be wrong
 
 % generate reference file name
-fixedFile = [nFolders{fixedIdx}, filesep, fileName];
+fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
 %%
-% get transformations and rframes
-[nTransForms, nRefFrames] = get_tform_multi(fixedFile, nFolders, ...
-    'transFormFile', transFormFile, 'reverse', reverse, 'checkPlot', checkPlot);
+%% tranformation / filtering
+[transformedData, nFiles] = get_transformed_maps(nFolders, ...
+                  'fileName', kwargs.fileName, 'transFormFile', kwargs.transFormFile,...
+                  'fixedIdx', kwargs.fixedIdx, 'removeHotPixels', kwargs.removeHotPixels,...
+                  'includeHotPixel', kwargs.includeHotPixel,  'chi', kwargs.chi, ...
+                  'winSize', kwargs.winSize, 'reverse', kwargs.reverse, ...
+                  'checkPlot', kwargs.checkPlot);
 
 % load the reference data
 refFile = load(fixedFile);
@@ -155,13 +149,15 @@ else
     fixedLed = refFile.newLED;
 end
 
-if removeHotPixels
-    if chi
+if kwargs.removeHotPixels
+    if kwargs.chi
         chi = refFile.chi2Pos1 + refFile.chi2Pos2 + refFile.chi2Neg1 + refFile.chi2Neg2;
+    else
+        chi = kwargs.chi;
     end
 
-    fixedData = filter_hot_pixels(fixedData, 'cutOff',removeHotPixels, ...
-        'includeHotPixel',false, 'checkPlot', checkPlot);
+    fixedData = filter_hot_pixels(fixedData, 'cutOff', kwargs.removeHotPixels, ...
+                'chi', chi, 'includeHotPixel',false, 'checkPlot', kwargs.checkPlot);
 end
 
 % detect binning
@@ -169,144 +165,25 @@ binning = size(fixedLed, 1) / size(fixedData, 1);
 resizeBinning = affine2d([1/binning, 0, 0; 0, 1/binning, 0; 0, 0, 1]);
 
 %%
-% The transformation was done on the LED image. Therefore, if there is
-% binning involved, the tform 2daffine object needs to be corrected for
-% that.
-if binning ~= 1
-    disp(['<> WARNING: differently sized data/led detected. ', ...
-        'Changing all transForms to match data: ', num2str(binning)])
-    fnames = keys(nTransForms);
-    for i = 1:size(nTransForms)
-        fname = fnames{i};
-        [tf, rf] = tform_bin_down(nTransForms(fname), nRefFrames(fname), binning);
-        nTransForms(fname) = tf;
-        nRefFrames(fname) = rf;
-    end
-end
+% % The transformation was done on the LED image. Therefore, if there is
+% % binning involved, the tform 2daffine object needs to be corrected for
+% % that.
+% if binning ~= 1
+%     disp(['<> WARNING: differently sized data/led detected. ', ...
+%         'Changing all transForms to match data: ', num2str(binning)])
+%     fnames = keys(nTransForms);
+%     for i = 1:size(nTransForms)
+%         fname = fnames{i};
+%         [tf, rf] = tform_bin_down(nTransForms(fname), nRefFrames(fname), binning);
+%         nTransForms(fname) = tf;
+%         nRefFrames(fname) = rf;
+%     end
+% end
 
-%%
-% transForms and refFrames are now in data coordinates
-if iscell(nROI)
-    % In the case that selections are passed to the function, we need to
-    % check if they are the same size as the data (i.e. different binning)
-    for iSel = 1:size(nROI, 2)
-        nROI{iSel} = re_bin(nROI{iSel}, fixedData);
-    end
-else
-    % pick n areas from the QDM DATA for calculation
-    disp('<> pick masks')
-    if kwargs.freeHand
-        nROI = pick_area(fixedData);
-    else
-        nROI = pick_box(fixedData); % each Sel in the size of fixed data
-    end
-end
-%%
-% CREATE MASK FROM SELECTIONS
-%
-% if freeHand and freeHandFilter is true then you can draw the mask
-% directly in the image
-if all([kwargs.freeHandFilter, kwargs.freeHand])
-    nMasks = nROI;
-% otherwise the mask will be calculated from the selection
-else
-    nMasks = {};
-    for iSelect = 1: size(nROI, 2)
-        % limit the data to only the selected region all other values set
-        % to 0
-        selFixedData = fixedData .* nROI{iSelect};
+nMasks = create_masks(fixedData, kwargs.selectionThreshold,...
+                      'nROI', nROI, 'freeHand', kwargs.freeHand,...
+                      'freeHandFilter', kwargs.freeHandFilter);
 
-        % The masked data now gets filtered to create the final mask
-        iMaskData = selFixedData >= selectionThreshold * abs(max(selFixedData, [], 'all', 'omitnan'));
-        fprintf('<>      creating mask #%i containing %i pixel\n', iSelect, numel(nonzeros(iMaskData)))
-
-        % set mask
-        nMasks{end+1} = iMaskData;
-    end
-end
-
-%% tranformation / filtering
-transformedData = containers.Map;
-nFiles = {};
-% cycle through all folders
-for i = 1:size(nFolders, 2)
-    % create filename
-    iFolder = nFolders{i};
-    iFile = fullfile(iFolder, filesep, fileName);
-    iFile = check_suffix(iFile);
-    nFiles{end+1} = iFile;
-    
-    disp(['<> loading: target file for transformation: '])
-    disp(['      << ', iFile '>>'])
-    target = load(iFile);
-
-    if contains(fileName, 'B111')
-        targetData = target.B111ferro;
-        targetLed = target.ledImg;
-    else
-        targetData = target.Bz;
-        targetLed = target.newLED;
-    end
-
-    %% upward cont.
-    if iscell(upCont)
-        h = upCont{i};
-        if std(abs(targetData(:))) > mean(abs(targetData(:)))
-            disp('<>   HOT pixels found: filtering before upward continuation')
-            targetData = filter_hot_pixels(targetData, 'cutOff', 10);
-        end
-
-        if h ~= 0
-            disp(['<>   calculating upward continuation (' num2str(h) ') micron'])
-            targetData = UpCont(targetData, h*1e-6, 1/pixelsize);
-        end
-    end
-
-    %% filtering
-    if removeHotPixels
-        if isnumeric(chi)
-            chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
-        end
-        disp(['<>   filtering: ...' iFile(end-40:end-20)  '... .mat'])
-
-        targetData = filter_hot_pixels(targetData, 'cutOff',removeHotPixels, ...
-            'includeHotPixel',false, 'winSize', winSize, 'checkPlot', checkPlot,'chi', chi);
-    end
-
-    iTransForm = nTransForms(iFile);
-    iRefFrame = nRefFrames(iFile);
-
-    %% reverse
-    % in the case of reverse, tform and rframe are the ref -> target
-    % tranformation. Therefore, the data/led of the target does not need to
-    % be transformed. However, the mask itself needs to be transformed form
-    % the reference coordinates to the target coordinates later.
-
-    if reverse
-        transData = targetData;
-        transLed = targetLed;
-    else
-        disp(['<>    transforming: target data/LED'])
-        disp(['         << ...', fileName, ' >>'])
-        transData = tform_data(targetData, iTransForm, iRefFrame);
-        transLed = tform_data(targetLed, iTransForm, iRefFrame);
-    end
-
-    if iscell(upCont)
-        h = upCont{i};
-        disp(['<> calculating upward continuation (', num2str(h), ') micron'])
-        transData = UpCont(transData, h*1e-6, 1/pixelsize);
-    end
-    % create struct for the the transformed data of this file
-    fileTransForm = struct;
-    fileTransForm.transData = transData;
-    fileTransForm.transLed = transLed;
-    fileTransForm.transForm = iTransForm;
-    fileTransForm.refFrame = iRefFrame;
-
-    % save the result in the trans_data container for later use
-    transformedData(iFile) = fileTransForm;
-end
 
 % calculation of the mask for each file.
 % Note: this is where the mask is transformed in case of 'reverse' == true
@@ -340,11 +217,11 @@ for j = 1:size(nFiles, 2)
     files{j} = iFileData;
 
 %     disp('<> ------------------------------------------------------------')
-
+    % iterate over each mask
     for i = 1:size(nMasks, 2)
         iMask = nMasks{:, i};
 
-        if reverse
+        if kwargs.reverse
             disp(['<>    transforming mask to match << ...', iFile(end-40:end), ' >>'])
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
         end
@@ -380,14 +257,18 @@ for j = 1:size(nFiles, 2)
             continue
         end
         
+        dx = 0; dy = 0;
         % calculate parameters
-        for n = 1:bootStrapError
+        for n = 1:kwargs.bootStrapError
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
-            dx = randi([-bootStrapPixels, bootStrapPixels]);
-            dy = randi([-bootStrapPixels, bootStrapPixels]);
+            if kwargs.bootStrapError
+                dx = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
+                dy = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
+            end
+            
             mask = shift_matrix(iMask, dx, dy);
-            mData = mask .* iFileData.transData;
+            mData = iFileData.transData .* mask;
             mDataCut = limit_mask(mData);
 
             nPixel = numel(nonzeros(d0Cut));
@@ -398,12 +279,12 @@ for j = 1:size(nFiles, 2)
             maskSum = [maskSum, sum(mDataCut, 'all')];
 
             % Pixel above threshold
-            thresh = mDataCut >= selectionThreshold * max(mDataCut, [], 'all');
+            thresh = mDataCut >= kwargs.selectionThreshold * max(mDataCut, [], 'all');
             iPixelThresh = [iPixelThresh, numel(nonzeros(thresh))];
         end
         
         % Pixel above threshold
-        thresh = mDataCut >= mean(d0Select,'all') + selectionThreshold * std(d0Select, 0, 'all');
+        thresh = mDataCut >= mean(d0Select,'all') + kwargs.selectionThreshold * std(d0Select, 0, 'all');
         iPixelThresh = numel(nonzeros(thresh));
 
         % store everything
@@ -446,6 +327,6 @@ results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRat
 
 fprintf('<>   INFO: coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)\n', size(nROI,2), size(iFiles,2));
 
-if checkPlot
+if kwargs.checkPlot
     coercivity_result_plot(results)
 end
