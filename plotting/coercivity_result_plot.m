@@ -45,6 +45,8 @@ f1 = figure('units','normalized', 'outerposition',[0.3,0.3,3*(0.8/rows),0.8]);
 axes = [];
 mx = 0;
 mn = 0;
+means = [];
+stds = [];
 
 for j = 1:nFiles
     % load the data of this file
@@ -59,7 +61,10 @@ for j = 1:nFiles
     if min(iFileData, [], 'all') < mn
         mn = nanmin(iFileData, [], 'all');
     end
-
+    
+    means = [means, nanmean(iFileData, 'all')];
+    stds = [stds, nanstd(iFileData, 0, 'all')];
+    
     fileName = results.nFiles{1, j};
     fNameSplit = split(fileName,filesep);
     step = fNameSplit(end-2);
@@ -86,7 +91,8 @@ end
 linkaxes(axes)
 
 for ax = axes
-    set(ax,'CLim',[-1 1] * mx/5);
+    lim = mean(means)+5*mean(stds);
+    set(ax,'CLim',[-1 1] * lim);
 end
 
 % figure
