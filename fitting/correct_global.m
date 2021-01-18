@@ -20,8 +20,8 @@ for i=1:size(data,1)
         
         pixelrange = meanbaseline-min(data(i,j,:)); %difference between baseline and the minimum value in pixel spectrum
         
-        if pixelrange < 0
-            continue
+        if pixelrange == 0
+            corrected(i,j,k) = nan;
         end
         
         debug(i,j) = pixelrange;
