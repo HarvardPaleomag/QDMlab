@@ -34,7 +34,6 @@ end
 
 % binning
 fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
-
 binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by
