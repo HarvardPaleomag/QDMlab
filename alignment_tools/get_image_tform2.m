@@ -1,4 +1,4 @@
-function [transForm, refFrame] = get_image_tform2(fixedData, movingData, varargin)
+function [transForm, refFrame] = get_image_tform2(fixedData, movingData, kwargs)
 % takes reference data and calculate tform, rframe that tranforms target data
 % to match the reference in the reference frame
 % 
@@ -14,12 +14,12 @@ function [transForm, refFrame] = get_image_tform2(fixedData, movingData, varargi
 %     title: char
 %         Adds a title to the checkPlot
 
-inParse = inputParser;
-addRequired(inParse, 'fixedData');
-addRequired(inParse, 'movingData');
-addParameter(inParse, 'checkPlot', false, @islogical);
-addParameter(inParse, 'title', 'checkPlot alignment', @ischar);
-parse(inParse, fixedData, movingData, varargin{:});
+arguments
+    fixedData
+    movingData
+    kwargs.checkPlot = 0;
+    kwargs.title {ischar} = 'checkPlot alignment';
+end
 
 if fixedData == movingData
     disp('<> INFO: Transformation not needed. Same image detected')
@@ -50,7 +50,7 @@ end
         'similarity');
     refFrame = imref2d(size(fixedData));
 
-    if inParse.Results.checkPlot
+    if kwargs.checkPlot
         transformedData = imwarp(movingData,transForm, 'OutputView', refFrame);
         
         checkFigure = figure('Position', [610,150,378,835]);

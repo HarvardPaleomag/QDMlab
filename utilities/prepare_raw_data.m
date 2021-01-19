@@ -4,7 +4,6 @@ dataStack = expData.(sprintf('imgStack%i',nRes));
 
 if nRes == 1
     freq = expData.freqList(1:expData.numFreqs) / 1E9;   %everything is in GHz
-
 else
     freq = expData.freqList(1+expData.numFreqs : 2*expData.numFreqs) / 1E9;
 end
@@ -36,15 +35,7 @@ end
 % binning
 fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
 
-sizeXY = size(BinImage(data(:,:,1),binSize));
-binData = zeros(sizeXY(1),sizeXY(2),length(freq));
-
-for y = 1:length(freq)
-    binData(:,:,y) = BinImage(data(:,:,y),binSize);
-end
-
-sizeX = size(binData,2); % binned image x-dimensions
-sizeY = size(binData,1); % binned image y-dimensions
+binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by
 % average of all frequency points

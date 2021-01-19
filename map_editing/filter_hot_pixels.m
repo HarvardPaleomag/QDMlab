@@ -1,4 +1,4 @@
-function filteredData = filter_hot_pixels(data, varargin)
+function filteredData = filter_hot_pixels(data, kwargs)
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments
@@ -29,59 +29,64 @@ function filteredData = filter_hot_pixels(data, varargin)
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
 
-inParse = inputParser;
-addRequired(inParse, 'data');
-addParameter(inParse, 'cutOff', 3, @isnumeric);
-addParameter(inParse, 'includeHotPixel', false, @islogical);
-addParameter(inParse, 'checkPlot', false, @islogical);
-addParameter(inParse, 'chi', false, @ismatrix);
-addParameter(inParse, 'winSize', 3, @isnumeric);
-parse(inParse, data, varargin{:});
+
+arguments
+   data
+   kwargs.cutOff = 'none';
+   kwargs.includeHotPixel = 0
+   kwargs.checkPlot = 0
+   kwargs.chi = 0
+   kwargs.winSize = 3
+end
+
 
 % define optional arguments
-cutOff = inParse.Results.cutOff;
-includeHotPixel = inParse.Results.includeHotPixel;
-checkPlot = inParse.Results.checkPlot;
-chi = inParse.Results.chi;
-winSize = inParse.Results.winSize;
+cutOff = kwargs.cutOff;
+includeHotPixel = kwargs.includeHotPixel;
+checkPlot = kwargs.checkPlot;
+chi = kwargs.chi;
+winSize = kwargs.winSize;
 
 % shape of the data (row,col)
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) > nanmean(data, 'all') + 10 * nanstd(data, 0, 'all');
+aboveStd = abs(data) >= 5;
 data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
-if chi ~= 0
-    % pefilter chi values to catch extreme outlier
-    chiFilter = abs(chi) > nanmean(chi, 'all') + 10 * nanstd(chi, 0, 'all');
-    chi(chiFilter) = nan;
-    
-    % calculate the mean over all pixels
-    chiMean = nanmedian(abs(chi), 'all');
+if ~strcmp(cutOff, 'none')
+    fprintf('<>   FILTER: data where data/chi is %i standard deviations above the median\n', cutOff)
 
-    %calculate the standard deviation of all pixels
-    chiStd = nanstd(chi, 0, 'all');
-    disp(['<>   using chi2 values: median = ' num2str(chiMean) '; std = ' num2str(chiStd)])
+    if chi ~= 0
+        % pefilter chi values to catch extreme outlier
+        chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
+        chi(chiFilter) = nan;
 
-    %create boolean array with pixels with intensity higher than cutoff
-    aboveStd = aboveStd | (chi > chiMean + cutOff * chiStd);
-    aboveStd = aboveStd | chiFilter;
-else
-    % calculate the mean over all pixels
-    dmean = nanmedian(data, 'all');
+        % calculate the mean over all pixels
+        chiMean = nanmedian(abs(chi), 'all');
 
-    %calculate the standard deviation of all pixels
-    dstd = nanstd(data, 0, 'all');
-    disp(['<>   using data values: median = ' num2str(dmean) '; std = ' num2str(dstd)])
+        %calculate the standard deviation of all pixels
+        chiStd = nanstd(chi, 0, 'all');
+        disp(['<>      using chi2 values: median = ' num2str(chiMean) '; std = ' num2str(chiStd)])
 
-    %create boolean array with pixels with intensity higher than cutoff
-    aboveStd = aboveStd | abs(data) > dmean + cutOff * dstd;
+        %create boolean array with pixels with intensity higher than cutoff
+        aboveStd = aboveStd | (chi > chiMean + cutOff * chiStd);
+        aboveStd = aboveStd | chiFilter;
+    else
+        % calculate the mean over all pixels
+        dmean = nanmedian(data, 'all');
+
+        %calculate the standard deviation of all pixels
+        dstd = nanstd(data, 0, 'all');
+        disp(['<>      using data values: median = ' num2str(dmean) '; std = ' num2str(dstd)])
+
+        %create boolean array with pixels with intensity higher than cutoff
+        aboveStd = aboveStd | abs(data) > dmean + cutOff * dstd;
+    end
 end
 
 %% calculate pixel substitution
-
 % copy original data into new array
 filteredData = data;
 
@@ -142,11 +147,6 @@ else
                 % if include_hot_pixel without using the pixel itself
                 new_val = nanmean(window, 'all');
 
-%                 if abs(new_val) > 10 * dataMedian
-%                     new_val = nan;
-%                 end
-
-
                 filteredData(row,col) = new_val;
 
             end
@@ -155,7 +155,12 @@ else
 end
 
 n_pixels = sum(sum(filteredPixels));
-disp(['<>   filtering by ' num2str(cutOff) ' stdev: removed ' int2str(n_pixels) ' of ' int2str(numel(filteredPixels)) '. Corresponding to ', num2str((n_pixels/numel(filteredPixels))*100, 2) '%.'])
+
+if strcmp(cutOff, 'none')
+    fprintf('<>   FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+else
+    fprintf('<>   FILTER: by %i stdev: removed %i / %i pixel = %.2f%%\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+end
 
 %% checkplot
 if checkPlot

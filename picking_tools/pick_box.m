@@ -33,7 +33,7 @@ retCoord = p.Results.returnCoordinates;
 if led == 1
     fig = LEDimage(data);
 else
-    fig = QDMfigure(data);
+    fig = QDM_figure(data);
 end
 figTitle = 'Pick Sources';
 
