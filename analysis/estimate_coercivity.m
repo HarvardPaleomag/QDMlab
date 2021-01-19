@@ -105,8 +105,8 @@ arguments
     kwargs.nROI = 0
     kwargs.chi = 0
     kwargs.winSize (1,1) = 4
-    kwargs.bootStrapError = 1
-    kwargs.bootStrapPixels = 0
+    kwargs.bootStrapN = 1
+    kwargs.bootStrapPixels = 4
 end
 
 % define optional function parameters
@@ -161,26 +161,9 @@ if kwargs.removeHotPixels
 end
 
 % detect binning
-binning = size(fixedLed, 1) / size(fixedData, 1);
-resizeBinning = affine2d([1/binning, 0, 0; 0, 1/binning, 0; 0, 0, 1]);
+binning = detect_binning(refFile);
 
-%%
-% % The transformation was done on the LED image. Therefore, if there is
-% % binning involved, the tform 2daffine object needs to be corrected for
-% % that.
-% if binning ~= 1
-%     disp(['<> WARNING: differently sized data/led detected. ', ...
-%         'Changing all transForms to match data: ', num2str(binning)])
-%     fnames = keys(nTransForms);
-%     for i = 1:size(nTransForms)
-%         fname = fnames{i};
-%         [tf, rf] = tform_bin_down(nTransForms(fname), nRefFrames(fname), binning);
-%         nTransForms(fname) = tf;
-%         nRefFrames(fname) = rf;
-%     end
-% end
-
-nMasks = create_masks(fixedData, kwargs.selectionThreshold,...
+[nMasks, nROI] = create_masks(fixedData, kwargs.selectionThreshold,...
                       'nROI', nROI, 'freeHand', kwargs.freeHand,...
                       'freeHandFilter', kwargs.freeHandFilter);
 
@@ -259,10 +242,11 @@ for j = 1:size(nFiles, 2)
         
         dx = 0; dy = 0;
         % calculate parameters
-        for n = 1:kwargs.bootStrapError
+        
+        for n = 1:kwargs.bootStrapN
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
-            if kwargs.bootStrapError
+            if kwargs.bootStrapN
                 dx = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
                 dy = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
             end

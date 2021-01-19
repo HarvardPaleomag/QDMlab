@@ -189,7 +189,7 @@ function initialGuess = get_initial_guess(gpudata, freq)
         initialGuess(3,i) = 0.003; % width
         
         sorted = sort(data);
-        initialGuess(4,i) = 1.002;%mean(data); % offset -- mean of highest 10 maybe???
+        initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end
 

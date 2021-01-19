@@ -40,7 +40,7 @@ if iscell(steps)
     steps = cell2mat(steps);
 end
 
-f1 = figure('units','normalized', 'outerposition',[0.3,0.3,3*(0.8/rows),0.8]);
+f1 = figure('units','normalized', 'outerposition',[0,0,3*(0.8/rows),0.8]);
 
 axes = [];
 mx = 0;

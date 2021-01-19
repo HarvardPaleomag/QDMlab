@@ -1,4 +1,4 @@
-function nMasks = create_masks(data, selectionThreshold, kwargs)
+function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
 %%
 % transForms and refFrames are now in data coordinates
 arguments
