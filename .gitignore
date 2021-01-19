@@ -1,8 +1,10 @@
 
 *.DS_Store
 
+*none.mat
+
 *.asv
 
 *.m~
 
-analysis/none.mat
+
