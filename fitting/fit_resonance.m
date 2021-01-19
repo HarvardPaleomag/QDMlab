@@ -189,7 +189,7 @@ function initialGuess = get_initial_guess(gpudata, freq)
         initialGuess(3,i) = 0.003; % width
         
         sorted = sort(data);
-        initialGuess(4,i) = 1.002;%mean(data); % offset -- mean of highest 10 maybe???
+        initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end
 
@@ -204,12 +204,12 @@ function guess = parameters_to_guess(parameters)
     guess = single(guess);
 end
 
-function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, n, sizeX, sizeY)
+function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY)
     
     % initialize struct
     fit = struct(); 
     
-    fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', n, sizeY, sizeX);
+    fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
 
 
     %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
@@ -243,7 +243,7 @@ function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iter
     fit.states = reshape(states,[sizeY,sizeX]);
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
-    fit.n = n;
+    fit.nRes = nRes;
     
     fit.p = parameters;
     fit.g = initialGuess;

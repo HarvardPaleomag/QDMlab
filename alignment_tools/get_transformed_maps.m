@@ -167,8 +167,7 @@ for i = 1:size(nFolders, 2)
         transData = targetData;
         transLed = targetLed;
     else
-        disp(['<>   transforming: target data & LED'])
-        disp(['<>       << ...', iFile(end-30:end), ' >>'])
+        fprintf('<>   transforming: target data & LED  << ... %s >>\n', iFile(end-50:end))
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
     end

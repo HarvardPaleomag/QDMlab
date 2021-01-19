@@ -64,25 +64,23 @@ if ~strcmp(cutOff, 'none')
         chi(chiFilter) = nan;
 
         % calculate the mean over all pixels
-        chiMean = nanmedian(abs(chi), 'all');
+        dMed = nanmedian(abs(chi), 'all');
 
         %calculate the standard deviation of all pixels
-        chiStd = nanstd(chi, 0, 'all');
-        disp(['<>      using chi2 values: median = ' num2str(chiMean) '; std = ' num2str(chiStd)])
+        dStd = nanstd(chi, 0, 'all');
+        disp(['<>           using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
 
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | (chi > chiMean + cutOff * chiStd);
+        aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
         aboveStd = aboveStd | chiFilter;
     else
         % calculate the mean over all pixels
-        dmean = nanmedian(data, 'all');
+        dMed = nanmedian(data, 'all');
 
         %calculate the standard deviation of all pixels
-        dstd = nanstd(data, 0, 'all');
-        disp(['<>      using data values: median = ' num2str(dmean) '; std = ' num2str(dstd)])
-
+        dStd = nanstd(data, 0, 'all');
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | abs(data) > dmean + cutOff * dstd;
+        aboveStd = aboveStd | abs(data) > dMed + cutOff * dStd;
     end
 end
 
@@ -159,7 +157,7 @@ n_pixels = sum(sum(filteredPixels));
 if strcmp(cutOff, 'none')
     fprintf('<>   FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
 else
-    fprintf('<>   FILTER: by %i stdev: removed %i / %i pixel = %.2f%%\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    fprintf('<>   FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
 end
 
 %% checkplot

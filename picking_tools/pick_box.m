@@ -35,7 +35,7 @@ if led == 1
 else
     fig = QDM_figure(data);
 end
-figTitle = 'Pick Sources';
+figTitle = 'Pick Sources (ESC to exit)';
 
 title(figTitle)
 nRects = {};
@@ -67,11 +67,12 @@ while n
         % save all points you continue getting
         % rounded and negative values -> 0
         if retCoord
-            disp(['<>   creating coordinates of box #', num2str(n), ''])
+            fprintf('<>      creating coordinates of box #%i (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy)
             nRects{end+1} = max(round([x0, y0, dx, dy]), 0);
         else
-            disp(['<>   creating mask for box #', num2str(n), ''])
             iMask = createMask(iRect);
+            m = limit_mask(iMask);
+            fprintf('<>      creating mask for box #%i (%ix%i : %i pixel)\n', n, size(m,2), size(m,1), numel(m))
             nRects{end+1} = iMask;
         end
 

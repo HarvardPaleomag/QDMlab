@@ -14,7 +14,7 @@ if size(led) ~= size(data)
 else
     binning = 1;
 end
-
-if binning > 1
-    disp(['<>   binning detected: ' num2str(binning)])
-end
+% 
+% if binning > 1
+%     disp(['<>   binning detected: ' num2str(binning)])
+% end
