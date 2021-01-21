@@ -1,96 +1,57 @@
-function [initialGuess, badPixels] = fit_resonance(expData, binSize, freq, n, kwargs)
+function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, kwargs)
 
 arguments
     expData struct
     binSize double
-    freq double
-    n (1,1) int16
+    nRes (1,1) int16
     % keyword arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
-    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = false
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = false
+    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = false
+    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
 end
 
 disp('<> --------------------------------------------------------------------')
 tStart = tic;
 
-dataStack = expData.(sprintf('imgStack%i',n));
+fit = struct();
+dataStack = expData.(sprintf('imgStack%i',nRes));
 
 %% output setup
 badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
 
 %% fittiing related
-tolerance = 1e-30;
+tolerance = 1e-20;
 max_n_iterations = 100;
 
 %% data preparation
-% X/Y of unbinned data
-% Note: X = COL; Y = ROW -> (y,x) for (row, col) matlab convention
-spanXTrans = 1:expData.imgNumCols;
-spanYTrans = 1:expData.imgNumRows;
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
-% check for 101 frequencies. File includes imgStack3
-if isfield(expData, 'imgStack3')      
-    % combine 1&2 or 3&4
-    dataStacka = expData.(sprintf('imgStack%i',n)); 
-    dataStackb = expData.(sprintf('imgStack%i',n+1));
-    dataStack = [dataStacka; dataStackb];
-end
-
-data = zeros(expData.imgNumRows, expData.imgNumCols, expData.numFreqs);
-
-% crop
-data = data(spanYTrans,spanXTrans,:);
-
-% reshape and transpose each image
-for y = 1:expData.numFreqs
-    data(:,:,y) = transpose(reshape(dataStack(y, :), [expData.imgNumCols, expData.imgNumRows]));
-end
-
-% binning
-fprintf('<>   %i: binning data >> binSize = %i\n', n, binSize);
-
-sizeXY = size(BinImage(data(:,:,1),binSize));
-binData = zeros(sizeXY(1),sizeXY(2),length(freq));
-
-for y = 1:length(freq)
-    binData(:,:,y) = BinImage(data(:,:,y),binSize);
-end
-
-sizeX = size(binData,2); % binned image x-dimensions
-sizeY = size(binData,1); % binned image y-dimensions
-
-% Correct for severely non-unity baseline by dividing pixelwise by
-% average of all frequency points
-
-binDataNorm = zeros(size(binData));
-NormalizationFactor = mean(binData,3);    % compute average
-
-for y = 1:length(freq)
-    binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
-end
+sizeX = size(binDataNorm,2); % binned image x-dimensions
+sizeY = size(binDataNorm,1); % binned image y-dimensions
 
 %% 1. GAUSSIAN BLUR
 % default = 0
 % gaussian filter on the guesses, can lead to some problems if high gradient
 if kwargs.gaussianFilter ~= 0
-    fprintf('<>   %i: smoothing data using gaussian blur: %.1f\n', n, gaussianFilter)
+    fprintf('<>   %i: smoothing data using gaussian blur: %.1f\n', nRes, gaussianFilter)
     gFilter = fspecial('gaussian',[20,20], gaussianFilter);
     binDataNorm = imfilter(binDataNorm, gFilter, 'symmetric', 'conv');
 end
 
-fprintf('<>   %i: starting parameter estimation\n', n);
+fprintf('<>   %i: starting parameter estimation\n', nRes);
 
 %% global spectra subtraction
-binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
+if kwargs.type ~= 2
+    binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
+end
 
 %% first determine global guess
-meanData = squeeze(mean(mean(binDataNorm,1),2));
+meanData = squeeze(mean(binDataNorm, [1,2]));
 
 initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
 
@@ -110,7 +71,7 @@ if kwargs.type == 0 % reshape into [6 x numpoints]
 end
 %% local guess -> guess parameter for each pixel
 if kwargs.type == 1 %% old local/gaussian guess 
-    fprintf('<>   %i: local guess estimation\n', n);
+    fprintf('<>   %i: local guess estimation\n', nRes);
 
     sizeX = size(binData,2); % binned image x-dimensions
     sizeY = size(binData,1); % binned image y-dimensions
@@ -134,13 +95,13 @@ if kwargs.type == 1 %% old local/gaussian guess
                                                     'smoothDegree', kwargs.smoothDegree, ...
                                                     'forceGuess', kwargs.forceGuess,...
                                                     'gaussianFit', kwargs.gaussianFit, ...
-                                                    'pixel', [y x n]);
+                                                    'pixel', [y x nRes]);
                 % check if find peaks returned 3 peaks
                 % add them to badpixels
                 if fitFlg == 1 | fitFlg == 2 % 1 == gauss 2= global (i.e. local failed)
                     badPixels(end+1).x = x; % new entry
                     badPixels(size(badPixels, 2)).y = y;
-                    badPixels(size(badPixels, 2)).nRes = n;
+                    badPixels(size(badPixels, 2)).nRes = nRes;
                     badPixels(size(badPixels, 2)).fitFlg = fitFlg;                    
                 end
 
@@ -171,10 +132,11 @@ if kwargs.type == 2
     
     % single gaus fit for initial parameters
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                       model_id, initialPreGuess, tolerance, 10000, ...
+                       model_id, initialPreGuess, tolerance, 1000, ...
                        [], EstimatorID.MLE, xValues);
     initialGuess = parameters_to_guess(initialGuess);
     badPixels = struct();
+    badPixels.initialPreGuess = initialPreGuess;
     badPixels.chi = chiSquares;
     badPixels.state = states;
 
@@ -187,17 +149,29 @@ end
 
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
 
-%     % final GPU fits
-%     model_id = ModelID.ESR3RT;
-%     max_n_iterations = 100;
-%     fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(start)');
-%     
-%     %% FINAL GPU FIT
-% 
-%     disp('<>   Starting final GPU fits');
-%     % run Gpufit - Res 1
-%     [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-%         model_id, initialGuess1, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+% final GPU fits
+model_id = ModelID.ESR3RT;
+max_n_iterations = 100;
+
+%% FINAL GPU FIT
+
+fprintf('<>   %i: starting GPU fit\n', nRes);
+% run Gpufit - Res 1
+[parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
+    model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+
+fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY);
+fit.freq = freq;
+fit.binSize = binSize;
+
+fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
+
+if kwargs.checkPlot
+    fprintf('<>>>>>> INFO: close figure to continue\n');
+    fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize);
+    waitfor(fig)
+end
+
 end
 
 %% fitting helper functions
@@ -208,12 +182,14 @@ function initialGuess = get_initial_guess(gpudata, freq)
     for i = 1:size(gpudata,2)
         data = gpudata(n:end-n,i);
         data = smooth(data, 20);
-        mx = max(data);
-        mn = min(data);
-        initialGuess(1,i) = -(mx-mn)/mx; % amplitude
+        mx = nanmax(data);
+        mn = nanmin(data);
+        initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
         initialGuess(2,i) = freq(find(data==mn,1)); %center
-        initialGuess(3,i) = 0.002; % width
-        initialGuess(4,i) = mean(data(1:10)); % offset -- mean of highest 10 maybe???
+        initialGuess(3,i) = 0.003; % width
+        
+        sorted = sort(data);
+        initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end
 
@@ -228,3 +204,47 @@ function guess = parameters_to_guess(parameters)
     guess = single(guess);
 end
 
+function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY)
+    
+    % initialize struct
+    fit = struct(); 
+    
+    fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
+
+
+    %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
+    output = zeros(6,sizeY,sizeX);
+    output(1,:,:) = reshape(parameters(1,:),[sizeY,sizeX]);
+    output(2,:,:) = reshape(parameters(2,:),[sizeY,sizeX]);
+    output(3,:,:) = reshape(parameters(3,:),[sizeY,sizeX]);
+    output(4,:,:) = reshape(parameters(4,:),[sizeY,sizeX]);
+    output(5,:,:) = reshape(parameters(5,:),[sizeY,sizeX]);
+    output(6,:,:) = reshape(parameters(6,:),[sizeY,sizeX]);
+    fit.parameters = output; 
+
+    ig = zeros(6,sizeY,sizeX);
+    ig(1,:,:) = reshape(initialGuess(1,:),[sizeY,sizeX]);
+    ig(2,:,:) = reshape(initialGuess(2,:),[sizeY,sizeX]);
+    ig(3,:,:) = reshape(initialGuess(3,:),[sizeY,sizeX]);
+    ig(4,:,:) = reshape(initialGuess(4,:),[sizeY,sizeX]);
+    ig(5,:,:) = reshape(initialGuess(5,:),[sizeY,sizeX]);
+    ig(6,:,:) = reshape(initialGuess(6,:),[sizeY,sizeX]);
+    fit.initialGuess = ig;
+
+    % matricies with 2 dimensions for x and y pixels:
+
+    fit.resonance = squeeze(output(1,:,:));
+    fit.width = squeeze(output(2,:,:));    
+    fit.contrastA = squeeze(output(3,:,:));
+    fit.contrastB = squeeze(output(4,:,:));
+    fit.contrastC = squeeze(output(5,:,:));
+    
+    fit.baseline = squeeze(output(6,:,:)+1);
+    fit.states = reshape(states,[sizeY,sizeX]);
+    fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
+    fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
+    fit.nRes = nRes;
+    
+    fit.p = parameters;
+    fit.g = initialGuess;
+end

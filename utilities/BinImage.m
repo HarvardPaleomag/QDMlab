@@ -1,5 +1,10 @@
 function BinnedImage = BinImage(Image,BinSize)
 
+if BinSize == 1
+    BinnedImage = Image;
+    return
+end
+
 % crop to integer number of bins
 Image = Image(1:end-mod(end,BinSize),1:end-mod(end,BinSize));
 
