@@ -46,14 +46,16 @@ end
 fprintf('<>   %i: starting parameter estimation\n', nRes);
 
 %% global spectra subtraction
-if kwargs.type ~= 2
-    binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
-end
+binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
+
 
 %% first determine global guess
 meanData = squeeze(mean(binDataNorm, [1,2]));
 
-initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
+if kwargs.type ~= 2
+    initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
+end
+
 
 %% prepare GPUfit data
 sweeplength = size(dataStack,1);
@@ -125,11 +127,12 @@ if kwargs.type == 1 %% old local/gaussian guess
 end
 %% GPU pre fits
 if kwargs.type == 2
-    model_id = ModelID.GAUSS_1D;
     
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq);
     
+    model_id = ModelID.GAUSS_1D;
+
     % single gaus fit for initial parameters
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
                        model_id, initialPreGuess, tolerance, 1000, ...
@@ -181,14 +184,15 @@ function initialGuess = get_initial_guess(gpudata, freq)
     freq = freq(n:end-n);
     for i = 1:size(gpudata,2)
         data = gpudata(n:end-n,i);
-        data = smooth(data, 20);
         mx = nanmax(data);
         mn = nanmin(data);
+        
+        [~, idx] = sort(data);
+        
         initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
-        initialGuess(2,i) = freq(find(data==mn,1)); %center
+        initialGuess(2,i) = freq(int16(mean(idx(1:3)))); % amplitude
         initialGuess(3,i) = 0.003; % width
         
-        sorted = sort(data);
         initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end
