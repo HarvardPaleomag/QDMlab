@@ -187,13 +187,12 @@ function initialGuess = get_initial_guess(gpudata, freq)
         mn = nanmin(data);
         
         [~, idx] = sort(data);
-        i = sort(idx(1:10));
-        i_ = int16(median(i));
+        idx = sort(idx(1:10));
+        idx = int16(median(idx));
         
         initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
-        initialGuess(2,i) = freq(i_); % center
+        initialGuess(2,i) = freq(idx); % center
         initialGuess(3,i) = 0.003; % width
-        
         initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end
