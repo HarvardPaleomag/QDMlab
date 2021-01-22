@@ -129,11 +129,10 @@ end
 if kwargs.type == 2
     
     % initial parameters
-    initialPreGuess = get_initial_guess(gpudata, freq);
-    
-    model_id = ModelID.GAUSS_1D;
+    initialPreGuess = get_initial_guess(gpudata, freq);  
 
     % single gaus fit for initial parameters
+    model_id = ModelID.GAUSS_1D;
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
                        model_id, initialPreGuess, tolerance, 1000, ...
                        [], EstimatorID.MLE, xValues);
@@ -188,9 +187,11 @@ function initialGuess = get_initial_guess(gpudata, freq)
         mn = nanmin(data);
         
         [~, idx] = sort(data);
+        i = sort(idx(1:10));
+        i_ = int16(median(i));
         
         initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
-        initialGuess(2,i) = freq(int16(mean(idx(1:3)))); % amplitude
+        initialGuess(2,i) = freq(i_); % center
         initialGuess(3,i) = 0.003; % width
         
         initialGuess(4,i) = 1.002;%mean(data); % offset 
