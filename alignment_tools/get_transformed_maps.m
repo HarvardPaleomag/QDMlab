@@ -90,6 +90,7 @@ refFileData = load(refFile);
 
 % get transformations and rframes
 if inParse.Results.checkPlot
+    inParse.Results.checkPlot
     [nTransForms, nRefFrames] = align_images(nFolders, 0, ...
         'fileName', fileName, 'fixedIdx', fixedIdx);
 else

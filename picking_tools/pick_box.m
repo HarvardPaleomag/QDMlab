@@ -31,7 +31,9 @@ closeFig = p.Results.closeFig;
 retCoord = p.Results.returnCoordinates;
 
 if led == 1
-    fig = LEDimage(data);
+%     fig = LEDimage(data);
+    fig = figure;
+    imagesc(data);
 else
     fig = QDM_figure(data);
 end
