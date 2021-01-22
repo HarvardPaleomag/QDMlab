@@ -1,4 +1,4 @@
-function fits = QDM_lorentian_fit(dataFolders, binSizes, kwargs)
+function fits = QDM_lorentzian_fit(dataFolders, binSizes, kwargs)
 % calculate_B111 uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
 % 
