@@ -18,7 +18,7 @@ if iscell(nROI)
     end
 else
     % pick n areas from the QDM DATA for calculation
-    disp('<> pick masks')
+    disp('<> ATTENTION: pick your masks. ESC to exit')
     if kwargs.freeHand
         nROI = pick_area(data);
     else
@@ -46,7 +46,8 @@ else
 
         % The masked data now gets filtered to create the final mask
         iMaskData = selData >= selectionThreshold * nanmax(selData, [], 'all');
-        fprintf('<>      creating mask #%i containing %i pixel\n', iSelect, numel(nonzeros(iMaskData)))
+        m = limit_mask(nROI{iSelect});
+        fprintf('<>      creating mask #%i containing %i/%i pixel (%.2f %%)\n', iSelect, numel(nonzeros(iMaskData)), numel(m), numel(nonzeros(iMaskData))/numel(m)*100)
 
         % set mask
         nMasks{end+1} = iMaskData;
