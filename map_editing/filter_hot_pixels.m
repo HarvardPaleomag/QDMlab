@@ -1,4 +1,4 @@
-function filteredData = filter_hot_pixels(data, kwargs)
+function filteredData = filter_hot_pixels(data, varargin)
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments
@@ -39,13 +39,12 @@ arguments
    kwargs.winSize = 3
 end
 
-
 % define optional arguments
-cutOff = kwargs.cutOff;
-includeHotPixel = kwargs.includeHotPixel;
-checkPlot = kwargs.checkPlot;
-chi = kwargs.chi;
-winSize = kwargs.winSize;
+cutOff = inParse.Results.cutOff;
+includeHotPixel = inParse.Results.includeHotPixel;
+checkPlot = inParse.Results.checkPlot;
+chi = inParse.Results.chi;
+winSize = inParse.Results.winSize;
 
 % shape of the data (row,col)
 dshape = size(data);
