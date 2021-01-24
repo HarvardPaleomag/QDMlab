@@ -188,10 +188,6 @@ transLeds = {};
 %% save checkPlot axes to link them later
 axes = [];
 
-% if checkPlot
-%     checkfig = figure;
-% end
-
 for j = 1:size(nFiles, 2)
     iFile = nFiles{j};
 
