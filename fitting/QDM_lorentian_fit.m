@@ -27,7 +27,7 @@ function fits = QDM_lorentian_fit(dataFolders, binSizes, kwargs)
 %         gaussianFilter: numeric (0)
 %         nucSpinPol: bool (false)
 %         save: bool (true)
-%         checkPlot: bool (false)
+%         : bool (false)
 %             show diagnostics plots
 %         plotGuessSpectra: bool (1)
 %         forceGuess: bool (0)
@@ -42,7 +42,7 @@ arguments
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
     kwargs.plotGuessSpectra (1,1) {mustBeMember(kwargs.plotGuessSpectra, [1, 0])} = 0
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = false
+    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
@@ -50,11 +50,8 @@ arguments
 end
 
 % check if there is more than one folder
-if iscell(dataFolders)
-    dataFolders = correct_cell_shape(dataFolders);
-else
-    dataFolders = {dataFolders};
-end
+dataFolders = correct_cell_shape(dataFolders);
+
 % check if there is one or more binSize
 if isnumeric(binSizes)
     binSizes = [binSizes];
@@ -79,7 +76,7 @@ for dataFolder = dataFolders
           'gaussianFit', kwargs.gaussianFit,...
           'gaussianFilter', kwargs.gaussianFilter,...
           'forceGuess', kwargs.forceGuess,...
-          'checkPlot', kwargs.plotGuessSpectra,...
+          'checkPlot', kwargs.checkPlot,...
           'smoothDegree', kwargs.smoothDegree,...
           'nucSpinPol', kwargs.nucSpinPol,...
           'save', kwargs.save);

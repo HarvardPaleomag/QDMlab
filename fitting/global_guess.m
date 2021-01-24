@@ -22,9 +22,9 @@ disp('<>      generating initial guess from global resonance parameters');
 sizeX = size(data,2); % binned image x-dimensions
 sizeY = size(data,1); % binned image y-dimensions
 % meanData = squeeze(mean(mean(data,1),2));
-m1 = mean(data,1);
-m2 = nanmean(squeeze(m1),1);
-meanData = squeeze(m2);
+% m1 = mean(data,1);
+% m2 = nanmean(squeeze(m1),1);
+meanData = squeeze(nanmean(data,[1,2]));
 
 %% Resonance 1:
 [pkVal, pkLoc, fitFlg] = guess_peaks(meanData, meanData, freq, ...
