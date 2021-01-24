@@ -15,11 +15,7 @@ end
 
 nFolders = correct_cell_shape(nFolders);
 
-fileName = kwargs.fileName;
-
-if ~endsWith(fileName, '.mat')
-    fileName = [fileName, '.mat'];
-end
+fileName = check_suffix(kwargs.fileName);
 
 checkPlot = kwargs.checkPlot;
 fixedIdx = kwargs.fixedIdx;
