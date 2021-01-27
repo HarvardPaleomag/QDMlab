@@ -69,6 +69,7 @@ arguments
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
     kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 1
 end
+
 tStart = tic;
 fieldPolarity = kwargs.fieldPolarity;
 gaussianFit = kwargs.gaussianFit;
@@ -120,10 +121,11 @@ for fileNum=startN:1:endN
     %%%
     LEDimgFile = 'laser.csv';
     
+    loadStart = tic;
     fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
     expData = load(fullfile(dataFolder, dataFile));
 
-    fprintf('<>      loading of file %i/%i complete\n', fileNum, size(startN:1:endN, 2));
+    fprintf('<>      loading of file %i/%i complete (%.1f s)\n', fileNum, size(startN:1:endN, 2), toc(loadStart));
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
