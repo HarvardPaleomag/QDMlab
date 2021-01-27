@@ -90,6 +90,7 @@ refFileData = load(refFile);
 
 % get transformations and rframes
 if inParse.Results.checkPlot
+    inParse.Results.checkPlot
     [nTransForms, nRefFrames] = align_images(nFolders, 0, ...
         'fileName', fileName, 'fixedIdx', fixedIdx);
 else
@@ -180,6 +181,7 @@ for i = 1:size(nFolders, 2)
     fileTransForm.refLed = refLed;
     
     fileTransForm.fileName = iFile;
+    fileTransForm.targetLed = targetLed;
     fileTransForm.targetData = targetData;
 
     fileTransForm.transData = transData;
@@ -191,4 +193,58 @@ for i = 1:size(nFolders, 2)
 
     % save the result in the trans_data container for later use
     transformedData(iFile) = fileTransForm;
+    
+    %%% create checkplots
+    if inParse.Results.checkPlot
+        if i ~= fixedIdx
+            check_plot(fileTransForm);
+        end
+    end
+end
+end
+
+function check_plot(fileTransForm)
+    f = figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
+    ax1 = subplot(2,3,1);
+    ref = fileTransForm.refData;
+    ref = filter_hot_pixels(ref);
+    pcolor(ref);
+    axis xy; axis equal; axis tight; shading flat;
+    title('reference Data')
+
+    ax2 = subplot(2,3,2);
+    target = fileTransForm.targetData;
+    target = filter_hot_pixels(target);
+    pcolor(target);
+    axis xy; axis equal; axis tight;shading flat;
+    title('target Data')
+
+    ax3 = subplot(2,3,3);
+    trans = fileTransForm.transData;
+    trans = filter_hot_pixels(trans);
+    pcolor(trans);
+    axis xy; axis equal; axis tight;shading flat;
+    title('transformed Data')
+
+    ax4 = subplot(2,3,4);
+    pcolor(fileTransForm.refLed);
+    axis xy; axis equal; axis tight; shading flat;
+    colormap(ax4, bone)
+    title('reference LED')
+
+    ax5 = subplot(2,3,5);
+    pcolor(fileTransForm.targetLed);
+    axis xy; axis equal; axis tight;shading flat;
+    colormap(ax5, bone)
+    title('target LED')
+
+    ax6 = subplot(2,3,6);
+    pcolor(fileTransForm.transLed);
+
+    axis xy; axis equal; axis tight;shading flat;
+    title('transformed LED')
+    colormap(ax6, bone)
+
+    linkaxes([ax1 ax2 ax3]);
+    linkaxes([ax4 ax5 ax6]);
 end

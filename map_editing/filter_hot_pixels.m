@@ -39,7 +39,6 @@ arguments
    kwargs.winSize = 3
 end
 
-
 % define optional arguments
 cutOff = kwargs.cutOff;
 includeHotPixel = kwargs.includeHotPixel;
