@@ -79,6 +79,8 @@ tolerance = 1e-20;
 max_n_iterations = 100;
 
 %% data preparation
+% this step could easily be skipped, the only thing one needs to figure out
+% is how to get the 
 [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
 sizeX = size(binDataNorm,2); % binned image x-dimensions
