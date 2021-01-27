@@ -1,11 +1,61 @@
 function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, kwargs)
-
+% fits a single resonance frequency (i.e. low/high frequency range) of
+% either positive or negative field
+%
+%   1. prepare_raw_data
+%   2. gaussian filter (imfilter) if `gaussienFilter` == 1
+%   3. correction of global data
+%   4. global_guess if type ~= 2
+%   5. reshapes data for gpufit -> all pixels in a row
+%   6. type = 1: guess peaks
+%      type = 2: a. get_initial_guess -> creates pre guess for single gaussian GPU fit
+%                b. gpu_fit (GAUSS_1D)
+%                c. parameters_to_guess calculates the initial guess from the fitted parameters of 6.b.
+%   7. gpu_fit calculates lorentzian fits %todo add option for N15
+%   8. reshape_fits creates the (y,x) sized array out of the fitted parameters
+%  (9.) checkPlot of fits -> needs to be closed to proceed
+%
+% Parameters
+% ----------
+%     required
+%     ========
+%     expData: struct
+%         Data of load(run0000n.mat)
+%     binSize: int
+%         binning size (can be 1)
+%     nRes: int
+%         number of resonance. Low frequencies = 1, High frequencies = 2
+%     keyword
+%     =======
+%     type: int (2)
+%         type of initial guess:
+%         1: global
+%         2: local
+%         3: gaussian
+%     globalFraction: double (0.5)
+%         Ammount of global signal to be corrected for (see. correct_global)
+%     forceGuess: int (0)
+%         Used for forcing a guess (NOT IMP{LEMENTED) %todo
+%     checkPlot: int (0)
+%         Creates an interactive plot to check the fits
+%     gaussianFit: int (0)
+%         In case the type = local and the MATLAB function find_peaks does
+%         not find 3 peaks:
+%             if 0: the global guess will be used for that pixel
+%             if 1: a gaussian fit is used to find peak positions
+%     gaussianFilter: int (0)
+%         Determines if a gaussian filter is applied before fitting
+%     smoothDegree: int (2)
+%         The ammount of smoothing if gaussianFilter == 1
+%     nucSpinPol: int (0)
+%         Not quite sure this is a remnant of the prev. code
+                       
 arguments
     expData struct
     binSize double
     nRes (1,1) int16
     % keyword arguments
-    kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
+    kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0

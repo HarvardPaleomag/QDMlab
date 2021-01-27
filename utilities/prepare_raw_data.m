@@ -1,5 +1,21 @@
 function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
-% prepares the 
+% [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+% prepares the raw data for GPU fitting
+% 1. reshapes the data into from (x*y) -> (y,x) array
+% 2. Bins data: (imresize)
+% 3. Normalizes
+%
+% Parameters
+% ----------
+%     required
+%     ========
+%     expData: struct
+%         Data of load(run0000n.mat)
+%     binSize: int
+%         binning size (can be 1)
+%     nRes: int
+%         number of resonance. Low frequencies = 1, High frequencies = 2
+
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
 if nRes == 1
