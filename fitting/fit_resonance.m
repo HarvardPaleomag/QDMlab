@@ -182,13 +182,14 @@ if kwargs.type == 2
     
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq);  
-
+    
     % single gaus fit for initial parameters
     model_id = ModelID.GAUSS_1D;
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                       model_id, initialPreGuess, tolerance, 1000, ...
+                       model_id, initialPreGuess, tolerance, 100, ...
                        [], EstimatorID.MLE, xValues);
     initialGuess = parameters_to_guess(initialGuess);
+
     badPixels = struct();
     badPixels.initialPreGuess = initialPreGuess;
     badPixels.chi = chiSquares;
