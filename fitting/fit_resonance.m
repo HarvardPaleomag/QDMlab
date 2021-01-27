@@ -240,7 +240,33 @@ end
 end
 
 %% fitting helper functions
-function initialGuess = get_initial_guess(gpudata, freq)
+function initialGuess =  get_initial_guess(gpudata, freq)
+    initialGuess = zeros(4, size(gpudata,2), 'single');
+    n = 5; % cut off outer points
+    gpudata = gpudata(n:end-n,:);
+    
+    % amplitude
+    mx = nanmax(gpudata);
+    mn = nanmin(gpudata);
+    initialGuess(1,:) = -2*((mx-mn)./mx);
+    
+    % center frequency
+    l = 10; % lowest n values
+    [~, idx] = sort(gpudata);
+    idx = int16(median(idx(1:l,:)));
+    center = zeros(1, numel(idx));
+    
+    parfor i = 1:numel(idx)
+        center(i) = freq(idx(i));
+    end
+    
+    initialGuess(2,:) = center;
+    % width
+    initialGuess(3,:) = 0.003;
+    % offset 
+    initialGuess(4,:) = 1.002;
+end
+function initialGuess = get_initial_guess_OLD(gpudata, freq)
     initialGuess = zeros(4, size(gpudata,2), 'single');
     n = 5;
     freq = freq(n:end-n);
