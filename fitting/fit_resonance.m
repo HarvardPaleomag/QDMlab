@@ -199,7 +199,12 @@ end
 
 if size(badPixels,2) > 0
     s = size(binDataNorm);
-    fprintf('<>      INFO: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+    if kwargs.type == 2
+        badPre = numel(nonzeros(badPixels.state));
+        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', badPre, s(1)*s(2));
+    else
+        fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+    end
 end
 
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
@@ -220,6 +225,11 @@ fit.freq = freq;
 fit.binSize = binSize;
 
 fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
+
+if numel(nonzeros(states)) > 0
+    badPre =  numel(nonzeros(states));
+    fprintf('<>      WARNING: %i / %i pixels failed the final fit. See fit.states!\n', badPre, s(1)*s(2));
+end
 
 if kwargs.checkPlot
     fprintf('<>>>>>> INFO: close figure to continue\n');
