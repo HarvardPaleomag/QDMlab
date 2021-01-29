@@ -1,4 +1,4 @@
-function [x,y] = index2xy(index, nRows)
+function [x,y] = index2xy(index, nRows, kwargs)
 % returns the x,y coordinates of a pixel given the index of the gpu array
 %
 % index: int
@@ -11,15 +11,30 @@ function [x,y] = index2xy(index, nRows)
 %         x(column) coordinate of pixel
 %     y: int
 %         y(row) coordinate of pixel
+% type: str (gpu)
+%    can be 'gpu' or 'binDataNorm'
 % See also xy2index
-        
+
+arguments
+    index
+    nRows
+    kwargs.type = 'gpu';
+end
+
 x = fix(index / nRows)+1;
 y = mod(index, nRows);
+
 if y == 0 
     y = nRows;
     x = x-1;
 end
+if strcmp(kwargs.type, 'binDataNorm')
+    x_ = y;
+    y = x ;
+    x = x_;
 end
+end
+
 
 %% test
 % [r,c] = size(binDataNorm);
