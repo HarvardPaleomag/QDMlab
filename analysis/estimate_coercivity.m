@@ -69,15 +69,16 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %     bootStrapError: int, bool
 %         default: 1
 %         This uses a boot strapping approach to estimate errors. It will
-%         shift the mask by 'bootStrapPixels' 'bootStrapError' times. The
+%         shift the mask by 'pixelError' 'bootStrapError' times. The
 %         result value is calculated from the mean of all calculations and an
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%         Note: if bootStrapError == 1, 'bootStrapPixels' should be 0
+%         Note: if bootStrapError == 1, 'pixelError' should be 0
 %         otherwise the mask is shifted and the result will be wrong.
-%     bootStrapPixels: int
+%     pixelError: int
 %         default: 0
+%         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
 %         an error.
 % 
@@ -106,7 +107,7 @@ arguments
     kwargs.chi = 0
     kwargs.winSize (1,1) = 4
     kwargs.bootStrapN = 1
-    kwargs.bootStrapPixels = 4
+    kwargs.pixelError = 4
 end
 
 % define optional function parameters
@@ -121,10 +122,6 @@ end
 nFolders = correct_cell_shape(nFolders);
 %%
 
-% ERROR estimation
-nMonteCarlo = 1000; % number of shifts around the mask to estimate errors
-pixelError = 3; % maximum number of pixel that the alignment could be wrong
-
 % generate reference file name
 fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
@@ -135,6 +132,7 @@ fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
                   'fixedIdx', kwargs.fixedIdx, 'removeHotPixels', kwargs.removeHotPixels,...
                   'includeHotPixel', kwargs.includeHotPixel,  'chi', kwargs.chi, ...
                   'winSize', kwargs.winSize, 'reverse', kwargs.reverse, ...
+                  'upCont', kwargs.upCont,...
                   'checkPlot', kwargs.checkPlot);
 
 % load the reference data
@@ -247,8 +245,8 @@ for j = 1:size(nFiles, 2)
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
             if kwargs.bootStrapN
-                dx = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
-                dy = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
+                dx = randi([-kwargs.pixelError, kwargs.pixelError]);
+                dy = randi([-kwargs.pixelError, kwargs.pixelError]);
             end
             
             mask = shift_matrix(iMask, dx, dy);

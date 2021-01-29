@@ -22,7 +22,7 @@ else
     if kwargs.freeHand
         nROI = pick_area(data);
     else
-        nROI = pick_box(data); % each Sel in the size of fixed data
+        nROI = pick_box(data, 'closeFig', 1); % each Sel in the size of fixed data
     end
 end
 data(abs(data) >= 5) = nan;
@@ -41,8 +41,8 @@ else
         % limit the data to only the selected region all other values set
         % to 0
         selData = data .* nROI{iSelect};
-        pcolor(selData);
-        axis xy; axis equal; axis tight; shading flat;
+%         pcolor(selData);
+%         axis xy; axis equal; axis tight; shading flat;
 
         % The masked data now gets filtered to create the final mask
         iMaskData = selData >= selectionThreshold * nanmax(selData, [], 'all');

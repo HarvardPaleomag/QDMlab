@@ -1,7 +1,19 @@
-function [corrected, debug] = correct_global(data, globalFraction)
-%% global spectra subtraction
+function [corrected, debug] = correct_global(data, globalFraction, kwargs)
+%% [corrected, debug] = correct_global(data, globalFraction)
+% global spectra subtraction
 % Find global averaged spectra
-specData = squeeze(mean(data,[1 2]));%global spectrum 51x1 array
+
+arguments
+    data
+    globalFraction
+    kwargs.mean = 'none'
+end
+
+if strcmp(kwargs.mean, 'none')
+    specData = squeeze(mean(data,[1 2]));%global spectrum 51x1 array
+else
+    specData = kwargs.mean;
+end
 
 % BL = base line
 leftBL = mean(specData(1:5,1));
@@ -21,7 +33,7 @@ for i=1:size(data,1)
         pixelrange = meanbaseline-min(data(i,j,:)); %difference between baseline and the minimum value in pixel spectrum
         
         if pixelrange == 0
-            corrected(i,j,k) = nan;
+            corrected(i,j,:) = nan;
         end
         
         debug(i,j) = pixelrange;

@@ -1,10 +1,4 @@
-
-*.DS_Store
-
-*none.mat
-
+**/.DS_Store
+**/none.mat
 *.asv
-
 *.m~
-
-

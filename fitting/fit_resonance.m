@@ -1,11 +1,61 @@
 function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, kwargs)
-
+% fits a single resonance frequency (i.e. low/high frequency range) of
+% either positive or negative field
+%
+%   1. prepare_raw_data
+%   2. gaussian filter (imfilter) if `gaussienFilter` == 1
+%   3. correction of global data
+%   4. global_guess if type ~= 2
+%   5. reshapes data for gpufit -> all pixels in a row
+%   6. type = 1: guess peaks
+%      type = 2: a. get_initial_guess -> creates pre guess for single gaussian GPU fit
+%                b. gpu_fit (GAUSS_1D)
+%                c. parameters_to_guess calculates the initial guess from the fitted parameters of 6.b.
+%   7. gpu_fit calculates lorentzian fits %todo add option for N15
+%   8. reshape_fits creates the (y,x) sized array out of the fitted parameters
+%  (9.) checkPlot of fits -> needs to be closed to proceed
+%
+% Parameters
+% ----------
+%     required
+%     ========
+%     expData: struct
+%         Data of load(run0000n.mat)
+%     binSize: int
+%         binning size (can be 1)
+%     nRes: int
+%         number of resonance. Low frequencies = 1, High frequencies = 2
+%     keyword
+%     =======
+%     type: int (2)
+%         type of initial guess:
+%         1: global
+%         2: local
+%         3: gaussian
+%     globalFraction: double (0.5)
+%         Ammount of global signal to be corrected for (see. correct_global)
+%     forceGuess: int (0)
+%         Used for forcing a guess (NOT IMP{LEMENTED) %todo
+%     checkPlot: int (0)
+%         Creates an interactive plot to check the fits
+%     gaussianFit: int (0)
+%         In case the type = local and the MATLAB function find_peaks does
+%         not find 3 peaks:
+%             if 0: the global guess will be used for that pixel
+%             if 1: a gaussian fit is used to find peak positions
+%     gaussianFilter: int (0)
+%         Determines if a gaussian filter is applied before fitting
+%     smoothDegree: int (2)
+%         The ammount of smoothing if gaussianFilter == 1
+%     nucSpinPol: int (0)
+%         Not quite sure this is a remnant of the prev. code
+                       
 arguments
     expData struct
     binSize double
     nRes (1,1) int16
     % keyword arguments
-    kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 0
+    kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
@@ -29,6 +79,8 @@ tolerance = 1e-20;
 max_n_iterations = 100;
 
 %% data preparation
+% this step could easily be skipped, the only thing one needs to figure out
+% is how to get the 
 [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
 sizeX = size(binDataNorm,2); % binned image x-dimensions
@@ -130,13 +182,14 @@ if kwargs.type == 2
     
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq);  
-
+    
     % single gaus fit for initial parameters
     model_id = ModelID.GAUSS_1D;
     [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                       model_id, initialPreGuess, tolerance, 1000, ...
+                       model_id, initialPreGuess, tolerance, 100, ...
                        [], EstimatorID.MLE, xValues);
     initialGuess = parameters_to_guess(initialGuess);
+
     badPixels = struct();
     badPixels.initialPreGuess = initialPreGuess;
     badPixels.chi = chiSquares;
@@ -146,7 +199,12 @@ end
 
 if size(badPixels,2) > 0
     s = size(binDataNorm);
-    fprintf('<>      INFO: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+    if kwargs.type == 2
+        badPre = numel(nonzeros(badPixels.state));
+        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', badPre, s(1)*s(2));
+    else
+        fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+    end
 end
 
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
@@ -168,6 +226,11 @@ fit.binSize = binSize;
 
 fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
 
+if numel(nonzeros(states)) > 0
+    badPre =  numel(nonzeros(states));
+    fprintf('<>      WARNING: %i / %i pixels failed the final fit. See fit.states!\n', badPre, s(1)*s(2));
+end
+
 if kwargs.checkPlot
     fprintf('<>>>>>> INFO: close figure to continue\n');
     fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize);
@@ -177,7 +240,33 @@ end
 end
 
 %% fitting helper functions
-function initialGuess = get_initial_guess(gpudata, freq)
+function initialGuess =  get_initial_guess(gpudata, freq)
+    initialGuess = zeros(4, size(gpudata,2), 'single');
+    n = 5; % cut off outer points
+    gpudata = gpudata(n:end-n,:);
+    
+    % amplitude
+    mx = nanmax(gpudata);
+    mn = nanmin(gpudata);
+    initialGuess(1,:) = -2*((mx-mn)./mx);
+    
+    % center frequency
+    l = 10; % lowest n values
+    [~, idx] = sort(gpudata);
+    idx = int16(median(idx(1:l,:)));
+    center = zeros(1, numel(idx));
+    
+    parfor i = 1:numel(idx)
+        center(i) = freq(idx(i));
+    end
+    
+    initialGuess(2,:) = center;
+    % width
+    initialGuess(3,:) = 0.003;
+    % offset 
+    initialGuess(4,:) = 1.002;
+end
+function initialGuess = get_initial_guess_OLD(gpudata, freq)
     initialGuess = zeros(4, size(gpudata,2), 'single');
     n = 5;
     freq = freq(n:end-n);
@@ -187,13 +276,12 @@ function initialGuess = get_initial_guess(gpudata, freq)
         mn = nanmin(data);
         
         [~, idx] = sort(data);
-        i = sort(idx(1:10));
-        i_ = int16(median(i));
+        idx = sort(idx(1:10));
+        idx = int16(median(idx));
         
         initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
-        initialGuess(2,i) = freq(i_); % center
+        initialGuess(2,i) = freq(idx); % center
         initialGuess(3,i) = 0.003; % width
-        
         initialGuess(4,i) = 1.002;%mean(data); % offset 
     end
 end

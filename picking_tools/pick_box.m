@@ -22,16 +22,20 @@ str_or_char = @(x) isstring(x) | ischar(x);
 
 addRequired(p, 'data');
 addParameter(p, 'led', 'false', @islogical);
-addParameter(p, 'closeFig', false, @islogical);
+addParameter(p, 'closeFig', 0);
 addParameter(p, 'returnCoordinates', false, @islogical);
 parse(p, data, varargin{:});
+
+data = filter_hot_pixels(data);
 
 led = p.Results.led;
 closeFig = p.Results.closeFig;
 retCoord = p.Results.returnCoordinates;
 
 if led == 1
-    fig = LEDimage(data);
+%     fig = LEDimage(data);
+    fig = figure;
+    imagesc(data);
 else
     fig = QDM_figure(data);
 end
