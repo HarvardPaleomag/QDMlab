@@ -1,5 +1,11 @@
 function globalFraction = globalFraction_estimator(binDataNorm)
-    
+% globalFraction_estimator lets you test different globalFraction values.
+%
+% Parameters
+% ----------
+%   binDataNorm: double
+%       The reshaped measurement data. If you dont know how to get it, you can use `QDMreshape` or `prepare_raw_data`. 
+
     %% remove non fitting pixels
     % transform data back into picel by pixel col by col data
     nFreq = size(binDataNorm, 3);
@@ -28,8 +34,8 @@ function globalFraction = globalFraction_estimator(binDataNorm)
     ax3 = axes('Parent',f,'position',[0.7 0.3  0.25 0.54]);
 
     [x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
-    plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1)
-    hold(ax1, 'on')
+    plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
+    hold(ax1, 'on');
     plot(ax1, globalMean, 'b:')
     p1 = plot(ax1, squeeze(binDataNorm(y1,x1,:)),'lineWidth',1);
     title(ax1, 'min(min) pixel')
