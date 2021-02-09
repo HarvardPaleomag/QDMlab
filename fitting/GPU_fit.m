@@ -46,7 +46,9 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %     nucSpinPol: bool (false)
 %         this is used for nuclear spin polarization -> NMR. Calls the
 %         function guessNucSpinPol. Uses code in original state (< Nov 2020).
-
+%     diamond: str (N14)
+%         The type of diamond. Choses the type of fitting.
+%
 % Notes
 % -----
 % dataStack:     2 dimentional wwith xy pixels, frequencies
@@ -68,6 +70,8 @@ arguments
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
     kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 1
+    kwargs.diamond (1,1) {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 1
+
 end
 
 tStart = tic;

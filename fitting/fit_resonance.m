@@ -49,7 +49,9 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %         The ammount of smoothing if gaussianFilter == 1
 %     nucSpinPol: int (0)
 %         Not quite sure this is a remnant of the prev. code
-                       
+%     diamond: str (N14)
+%         The type of diamond. Choses the type of fitting.
+
 arguments
     expData struct
     binSize double
@@ -63,10 +65,16 @@ arguments
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
+    kwargs.diamond (1,1) {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 1
 end
 
 disp('<> --------------------------------------------------------------------')
 tStart = tic;
+
+%% check type/diamond combination
+if type ~= 2 && strcmp(kwargs.diamon, 'N15')
+    disp('<>   ERROR: Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet')
+end
 
 fit = struct();
 dataStack = expData.(sprintf('imgStack%i',nRes));
@@ -210,7 +218,12 @@ end
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
 
 % final GPU fits
-model_id = ModelID.ESR3RT;
+if strcmp(kwargs.diamon, 'N15')
+    model_id = ModelID.ESR3RT;
+else
+    model_id = ModelID.ESR15N;
+end
+
 max_n_iterations = 100;
 
 %% FINAL GPU FIT
