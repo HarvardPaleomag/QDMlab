@@ -70,7 +70,7 @@ arguments
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
     kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 1
-    kwargs.diamond (1,1) {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 1
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 
 end
 
@@ -147,6 +147,7 @@ for fileNum=startN:1:endN
             
         [Resfit, guess, badPixel] = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
+            'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'nucSpinPol', kwargs.nucSpinPol,...
             'checkPlot', kwargs.checkPlot);
@@ -158,8 +159,12 @@ for fileNum=startN:1:endN
     Resonance1 = fits.(['left' pol]).resonance; 
     Width1 = fits.(['left' pol]).width; 
     ContrastA1 = fits.(['left' pol]).contrastA; 
-    ContrastB1 = fits.(['left' pol]).contrastB; 
-    ContrastC1 = fits.(['left' pol]).contrastC; 
+    ContrastB1 = fits.(['left' pol]).contrastB;
+    
+    if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastC'))
+        ContrastC1 = fits.(['left' pol]).contrastC;
+    end
+    
     Baseline1 = fits.(['left' pol]).baseline; 
     Freqs1 = fits.(['left' pol]).freq; 
     chiSquares1 = fits.(['left' pol]).chiSquares;
@@ -169,9 +174,13 @@ for fileNum=startN:1:endN
     Resonance2 = fits.(['right' pol]).resonance; 
     Width2 = fits.(['right' pol]).width; 
     ContrastA2 = fits.(['right' pol]).contrastA; 
-    ContrastB2 = fits.(['right' pol]).contrastB; 
-    ContrastC2 = fits.(['right' pol]).contrastC; 
-    Baseline2 = fits.(['right' pol]).baseline; 
+    ContrastB2 = fits.(['right' pol]).contrastB;
+
+    if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastC'))
+        ContrastC2 = fits.(['right' pol]).contrastC;
+    end
+    
+    Baseline2 = fits.(['right' pol]).baseline;
     Freqs2 = fits.(['right' pol]).freq; 
     chiSquares2 = fits.(['right' pol]).chiSquares; 
     p2 = fits.(['right' pol]).p;
@@ -194,12 +203,21 @@ for fileNum=startN:1:endN
     FitCvg = ones(sizeY,sizeX); %just to remove errors. This matrix is useless as is now.
     if kwargs.save
         fprintf('<>      INFO: saving data of %s\n',dataFile);
-        save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
-            'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
+        if strcmp(kwargs.diamond, 'N14')
+            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+                'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
+                'Freqs1', 'chiSquares1', 'p1','freq1',...
+                'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
+                'Freqs2', 'chiSquares2', 'p2','freq2',...
+                'binSize','type','gaussianFit', 'FitCvg');
+        elseif strcmp(kwargs.diamond, 'N15')
+            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
-            'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
+            'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
             'binSize','type','gaussianFit', 'FitCvg');
+        end
         
         if LEDimgFlg==1
             saveas(f5, [LEDimgFile 'CROPBIN.png'],'png');
