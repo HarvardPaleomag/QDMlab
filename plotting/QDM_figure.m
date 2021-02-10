@@ -19,6 +19,7 @@ if kwargs.fig == 'none'
 else
     map_figure = kwargs.fig;
 end
+data = filter_hot_pixels(data);
 
 if kwargs.ax == 'none'
     ax = axes('Parent',map_figure);
@@ -38,11 +39,11 @@ med = nanmedian(data,'all'); st = nanstd(data,[],'all'); mx = max(abs(data), [],
 axis off
 hold(ax,'on');
 
-% prefilter data for hot pixels
-data = filter_hot_pixels(data, 'cutOff', 12);
-
-% Create image
-imagesc(data,'Parent',ax,'CDataMapping','scaled');
+% Create imagev
+pcolor(data,'Parent',ax);
+shading flat;
+set(ax, 'ydir', 'reverse');
+% imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
 title({'QDM DATA'});
