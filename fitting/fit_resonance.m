@@ -82,10 +82,6 @@ dataStack = expData.(sprintf('imgStack%i',nRes));
 %% output setup
 badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
 
-%% fittiing related
-tolerance = 1e-20;
-max_n_iterations = 100;
-
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the 
@@ -186,28 +182,33 @@ if kwargs.type == 1 %% old local/gaussian guess
 %     initialGuess(1,:) = initialGuess(1,:)+res1;
 end
 %% GPU pre fits
+
+%% fittiing related
+tolerance = 1e-10;
+
 if kwargs.type == 2
-    
-    % initial parameters
-    initialPreGuess = get_initial_guess(gpudata, freq);  
-    
-    % single gaus fit for initial parameters
-    model_id = ModelID.GAUSS_1D;
-    [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                       model_id, initialPreGuess, tolerance, 100, ...
-                       [], EstimatorID.MLE, xValues);
-    initialGuess = parameters_to_guess(initialGuess);
-
     badPixels = struct();
+    % initial parameters
+    initialPreGuess = get_initial_guess(gpudata, freq); 
+    
+    if strcmp(kwargs.diamond, 'N14')
+        % single gaus fit for initial parameters
+        model_id = ModelID.GAUSS_1D;
+        [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
+                           model_id, initialPreGuess, tolerance, 200, ...
+                           [], EstimatorID.MLE, xValues);
+        initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
+        badPixels.chi = chiSquares;
+        badPixels.state = states;
+    elseif strcmp(kwargs.diamond, 'N15')
+        initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
+    end
     badPixels.initialPreGuess = initialPreGuess;
-    badPixels.chi = chiSquares;
-    badPixels.state = states;
-
 end
 
 if size(badPixels,2) > 0
     s = size(binDataNorm);
-    if kwargs.type == 2
+    if kwargs.type == 2 && strcmp(kwargs.diamond, 'N14')
         badPre = numel(nonzeros(badPixels.state));
         fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', badPre, s(1)*s(2));
     else
@@ -217,23 +218,27 @@ end
 
 fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
 
-% final GPU fits
-if strcmp(kwargs.diamon, 'N15')
+%% FINAL GPU FIT
+if strcmp(kwargs.diamond, 'N14')
     model_id = ModelID.ESR3RT;
-else
+elseif strcmp(kwargs.diamond, 'N15')
     model_id = ModelID.ESR15N;
 end
 
-max_n_iterations = 100;
+max_n_iterations = 1000;
 
-%% FINAL GPU FIT
-
-fprintf('<>   %i: starting GPU fit\n', nRes);
+fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
 
-fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY);
+% failed fits for pixel with extrem chiSquared or values outside of the
+% measurement freq. range
+states(chiSquares > 1e-4) = 1;
+states(parameters(1,:) > max(freq)) = 1;
+states(parameters(1,:) < min(freq)) = 1;
+
+fit = reshape_fits(initialPreGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
 fit.freq = freq;
 fit.binSize = binSize;
 
@@ -246,7 +251,7 @@ end
 
 if kwargs.checkPlot
     fprintf('<>>>>>> INFO: close figure to continue\n');
-    fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize);
+    fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, kwargs.diamond);
     waitfor(fig)
 end
 
@@ -255,102 +260,94 @@ end
 %% fitting helper functions
 function initialGuess =  get_initial_guess(gpudata, freq)
     initialGuess = zeros(4, size(gpudata,2), 'single');
-    n = 5; % cut off outer points
+    n = 10; % cut off outer points
     gpudata = gpudata(n:end-n,:);
     
     % amplitude
     mx = nanmax(gpudata);
     mn = nanmin(gpudata);
-    initialGuess(1,:) = -2*((mx-mn)./mx);
+    initialGuess(1,:) = -abs(2*((mx-mn)./mx));
     
     % center frequency
-    l = 10; % lowest n values
+    l = 7; % lowest n values
     [~, idx] = sort(gpudata);
-    idx = int16(median(idx(1:l,:)));
+    
+    mxidx = max(idx(1:10,:));
+    mnidx = min(idx(1:10,:));
+    idx = int16(mean(cat(1, mxidx,mnidx)));
+%     idx = int16(mean(idx(1:l,:)));
+    
     center = zeros(1, numel(idx));
     
     parfor i = 1:numel(idx)
-        center(i) = freq(idx(i));
+        center(i) = freq(idx(i)+n);
     end
     
     initialGuess(2,:) = center;
+    
     % width
     initialGuess(3,:) = 0.003;
     % offset 
     initialGuess(4,:) = 1.002;
 end
-function initialGuess = get_initial_guess_OLD(gpudata, freq)
-    initialGuess = zeros(4, size(gpudata,2), 'single');
-    n = 5;
-    freq = freq(n:end-n);
-    for i = 1:size(gpudata,2)
-        data = gpudata(n:end-n,i);
-        mx = nanmax(data);
-        mn = nanmin(data);
-        
-        [~, idx] = sort(data);
-        idx = sort(idx(1:10));
-        idx = int16(median(idx));
-        
-        initialGuess(1,i) = -2*(mx-mn)/mx; % amplitude
-        initialGuess(2,i) = freq(idx); % center
-        initialGuess(3,i) = 0.003; % width
-        initialGuess(4,i) = 1.002;%mean(data); % offset 
+
+
+function guess = parameters_to_guess(parameters, diamond)
+    if strcmp(diamond, 'N14')
+        guess = zeros(6, size(parameters,2)); 
+        guess(1,:) = parameters(2,:); % location
+        guess(2,:) = 0.0004; % width
+        guess(3,:) = -parameters(1,:); % amplitude (contrast)
+        guess(4,:) = -parameters(1,:); % amplitude (contrast)
+        guess(5,:) = -parameters(1,:); % amplitude (contrast)
+        guess(6,:) = parameters(4,:)-1; % baseline
+        guess = single(guess);
+    elseif strcmp(diamond, 'N15')
+        guess = zeros(5, size(parameters,2)); 
+        guess(1,:) = parameters(2,:); % location
+        guess(2,:) = 0.0004; % width
+        guess(3,:) = -parameters(1,:); % amplitude (contrast)
+        guess(4,:) = -parameters(1,:); % amplitude (contrast)
+        guess(5,:) = parameters(4,:)-1; % baseline
+        guess = single(guess);
     end
 end
 
-function guess = parameters_to_guess(parameters)
-    guess = zeros(6, size(parameters,2)); 
-    guess(1,:) = parameters(2,:); % location
-    guess(2,:) = 0.0004; % width
-    guess(3,:) = -parameters(1,:); % amplitude (contrast)
-    guess(4,:) = -parameters(1,:); % amplitude (contrast)
-    guess(5,:) = -parameters(1,:); % amplitude (contrast)
-    guess(6,:) = parameters(4,:)-1; % baseline
-    guess = single(guess);
-end
-
-function fit = reshape_fits(initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY)
+function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, diamond)
     
     % initialize struct
     fit = struct(); 
     
     fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
-
-
+    
     %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
-    output = zeros(6,sizeY,sizeX);
-    output(1,:,:) = reshape(parameters(1,:),[sizeY,sizeX]);
-    output(2,:,:) = reshape(parameters(2,:),[sizeY,sizeX]);
-    output(3,:,:) = reshape(parameters(3,:),[sizeY,sizeX]);
-    output(4,:,:) = reshape(parameters(4,:),[sizeY,sizeX]);
-    output(5,:,:) = reshape(parameters(5,:),[sizeY,sizeX]);
-    output(6,:,:) = reshape(parameters(6,:),[sizeY,sizeX]);
-    fit.parameters = output; 
-
-    ig = zeros(6,sizeY,sizeX);
-    ig(1,:,:) = reshape(initialGuess(1,:),[sizeY,sizeX]);
-    ig(2,:,:) = reshape(initialGuess(2,:),[sizeY,sizeX]);
-    ig(3,:,:) = reshape(initialGuess(3,:),[sizeY,sizeX]);
-    ig(4,:,:) = reshape(initialGuess(4,:),[sizeY,sizeX]);
-    ig(5,:,:) = reshape(initialGuess(5,:),[sizeY,sizeX]);
-    ig(6,:,:) = reshape(initialGuess(6,:),[sizeY,sizeX]);
-    fit.initialGuess = ig;
-
+%     fit.preGuess = reshape(preGuess, [], sizeY, sizeX); % initial guess
+    fit.initialGuess = reshape(initialGuess, [], sizeY, sizeX); % initial guess
+    fit.parameters = reshape(parameters, [], sizeY, sizeX);     % fitted parameters
+        
     % matricies with 2 dimensions for x and y pixels:
 
-    fit.resonance = squeeze(output(1,:,:));
-    fit.width = squeeze(output(2,:,:));    
-    fit.contrastA = squeeze(output(3,:,:));
-    fit.contrastB = squeeze(output(4,:,:));
-    fit.contrastC = squeeze(output(5,:,:));
+    fit.resonance = squeeze(fit.parameters(1,:,:));
+    fit.width = squeeze(fit.parameters(2,:,:));    
+    fit.contrastA = squeeze(fit.parameters(3,:,:));
+    fit.contrastB = squeeze(fit.parameters(4,:,:));
     
-    fit.baseline = squeeze(output(6,:,:)+1);
-    fit.states = reshape(states,[sizeY,sizeX]);
+    % check for diamond type: N14 has 6 parameters, N15 has only 5
+    nParams = size(initialGuess,1);
+
+    if nParams == 6 % for N14 diamonds
+        fit.contrastC = squeeze(fit.parameters(5,:,:));    
+        fit.baseline = squeeze(fit.parameters(6,:,:)+1);
+    else % for N15 diamonds
+        fit.baseline = squeeze(fit.parameters(5,:,:)+1);
+    end
+    
+    fit.states = ~reshape(states,[sizeY,sizeX]);
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
     fit.nRes = nRes;
     
     fit.p = parameters;
     fit.g = initialGuess;
+    fit.pg = parameters_to_guess(preGuess, diamond);
 end
