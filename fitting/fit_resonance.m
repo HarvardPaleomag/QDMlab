@@ -65,14 +65,14 @@ arguments
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
-    kwargs.diamond (1,1) {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 1
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 1
 end
 
 disp('<> --------------------------------------------------------------------')
 tStart = tic;
 
 %% check type/diamond combination
-if type ~= 2 && strcmp(kwargs.diamon, 'N15')
+if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
     disp('<>   ERROR: Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet')
 end
 
