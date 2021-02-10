@@ -260,7 +260,7 @@ end
 %% fitting helper functions
 function initialGuess =  get_initial_guess(gpudata, freq)
     initialGuess = zeros(4, size(gpudata,2), 'single');
-    n = 10; % cut off outer points
+    n = 5; % cut off outer points
     gpudata = gpudata(n:end-n,:);
     
     % amplitude
@@ -272,8 +272,8 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     l = 7; % lowest n values
     [~, idx] = sort(gpudata);
     
-    mxidx = max(idx(1:10,:));
-    mnidx = min(idx(1:10,:));
+    mxidx = max(idx(1:l,:));
+    mnidx = min(idx(1:l,:));
     idx = int16(mean(cat(1, mxidx,mnidx)));
 %     idx = int16(mean(idx(1:l,:)));
     
