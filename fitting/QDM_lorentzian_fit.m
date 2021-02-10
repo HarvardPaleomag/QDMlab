@@ -21,6 +21,8 @@ function fits = QDM_lorentzian_fit(dataFolders, binSizes, kwargs)
 %             measurements before fitting
 %         type: [0,1,2] (0)
 %             use global (0) or local (1) guesses for the fit
+%         diamond: str ('N14')
+%             The type of diamond. Choses the type of fitting.
 %         smoothDegree: int (2)
 %             gaussian smoothing before fit
 %         gaussianFit: bool (false)
@@ -47,6 +49,7 @@ arguments
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
     kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 1
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
 
 % check if there is more than one folder
@@ -73,6 +76,7 @@ for dataFolder = dataFolders
           'fieldPolarity',kwargs.fieldPolarity, ...
           'type', kwargs.type,...
           'globalFraction', kwargs.globalFraction,...
+          'diamond', kwargs.diamond,...
           'gaussianFit', kwargs.gaussianFit,...
           'gaussianFilter', kwargs.gaussianFilter,...
           'forceGuess', kwargs.forceGuess,...
