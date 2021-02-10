@@ -103,7 +103,7 @@ if kwargs.gaussianFilter ~= 0
     binDataNorm = imfilter(binDataNorm, gFilter, 'symmetric', 'conv');
 end
 
-fprintf('<>   %i: starting parameter estimation\n', nRes);
+fprintf('<>   %i: starting parameter estimation (%s)\n', nRes, kwargs.diamond);
 
 %% global spectra subtraction
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
