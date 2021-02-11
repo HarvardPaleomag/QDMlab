@@ -1,0 +1,5 @@
+fitting
+=======
+
+.. automodule:: fitting
+   :members:

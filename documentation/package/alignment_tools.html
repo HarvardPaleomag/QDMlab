@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>alignment_tools</title>
+    
+
+    <link rel="stylesheet" href="../_static/css/redactor.css" type="text/css" />
+    
+    
+    <link rel="index" title="Index" href="../genindex.html"/>
+    <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="QDM-toolkit 2021.0.1 documentation" href="../index.html"/>
+    <link rel="next" title="analysis" href="analysis.html"/>
+    <link rel="prev" title="Quickstart" href="../usage/quickstart.html"/> 
+</head>
+
+<body role="document">
+     
+
+    
+<a href="#" id="js-navigation-toggle" class="navigation-toggle">
+    <i class="mdi mdi-menu"></i><i class="mdi mdi-close"></i>
+</a>
+
+<section class="site-sidebar">
+
+<nav>
+
+
+    <a href="../index.html" class="branding-link">
+    
+        QDM-toolkit
+    
+    
+    
+        
+        
+    
+    </a>
+
+    
+<section role="search">
+    <form action="../search.html" method="get" class="site-searchform">
+        <input type="text" name="q" placeholder="Search docs" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+</section>
+
+
+
+    <section class="site-nav">
+    
+    
+        <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Functions:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">alignment_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="map_editing.html">map_editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="picking_tools.html">picking_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+    
+    </section>
+
+</nav>
+
+</section>
+
+    <main class="site-main" role="main">
+        
+
+
+
+
+
+
+
+
+
+
+
+<nav class="site-breadcrumbs">
+    <ul>
+    
+        <li>
+            <a href="../index.html">Docs</a> /
+        </li>
+        
+        <li class="site-breadcrumbs__leaf">alignment_tools</li>
+    
+    </ul>
+</nav>
+        <section class="site-content">
+            <div class="container">
+                
+  <div class="section" id="alignment-tools">
+<h1>alignment_tools<a class="headerlink" href="#alignment-tools" title="Permalink to this headline">¶</a></h1>
+<p>These functions are generally used to align QDM images  with one another.</p>
+<span class="target" id="module-alignment_tools"></span><dl class="mat function">
+<dt id="alignment_tools.align_images">
+<code class="sig-prename descclassname">alignment_tools.</code><code class="sig-name descname">align_images</code><span class="sig-paren">(</span><em class="sig-param">nFolders</em>, <em class="sig-param">transFormFile</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alignment_tools.align_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to aling a set of images. Function will automatically align the
+images first and you can check if it is ok. If not the complex alignment
+will be called.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="alignment_tools.get_image_tform2">
+<code class="sig-prename descclassname">alignment_tools.</code><code class="sig-name descname">get_image_tform2</code><span class="sig-paren">(</span><em class="sig-param">fixedData</em>, <em class="sig-param">movingData</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alignment_tools.get_image_tform2" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes reference data and calculate tform, rframe that tranforms target data
+to match the reference in the reference frame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixedData</strong> – QDM/LED data</p></li>
+<li><p><strong>movingData</strong> – QDM/LED data
+data to be matched to the refernce data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>optional parameters:</dt><dd><dl class="simple">
+<dt>checkPlot: bool</dt><dd><p>default: false
+Adds a plot to check alignment if true</p>
+</dd>
+<dt>title: char</dt><dd><p>Adds a title to the checkPlot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="alignment_tools.get_image_tform_complex">
+<code class="sig-prename descclassname">alignment_tools.</code><code class="sig-name descname">get_image_tform_complex</code><span class="sig-paren">(</span><em class="sig-param">fixedData</em>, <em class="sig-param">movingData</em>, <em class="sig-param">varargin</em><span class="sig-paren">)</span><a class="headerlink" href="#alignment_tools.get_image_tform_complex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function lets you pick several points on a reference image and the target
+image. It calculates a transformation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixedData</strong> – QDM/LED data</p></li>
+<li><p><strong>movingData</strong> – QDM/LED data
+data to be matched to the refernce data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>optional parameters:</dt><dd><dl class="simple">
+<dt>checkPlot: bool</dt><dd><p>default: false
+Adds a plot to check alignment if true</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="alignment_tools.get_tform_multi">
+<code class="sig-prename descclassname">alignment_tools.</code><code class="sig-name descname">get_tform_multi</code><span class="sig-paren">(</span><em class="sig-param">fixedFile</em>, <em class="sig-param">nMovingFolders</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alignment_tools.get_tform_multi" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fixedFile</strong> – str
+Path to the reference image. Needs to be a file not folder</p></li>
+<li><p><strong>nMovingFolders</strong> – cell(str)
+A cell with all folders that contain the data to be aligned.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>optional parameters:</dt><dd><dl class="simple">
+<dt>tform_file: str</dt><dd><p>default: ‘none’
+Location for the file the transformation map is stored in for
+later use</p>
+</dd>
+<dt>binning: int</dt><dd><p>default: 2
+binning used in fit</p>
+</dd>
+<dt>reverse: bool</dt><dd><p>if true:  refernce - tform -&gt; target
+if false: target   - tform -&gt; reference</p>
+</dd>
+<dt>checkPlot: bool</dt><dd><p>default: false
+If true creates an overlay image of reference/target for each
+file in target_fodlers matching the filename of reference_file</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a map with the filname as the key and the transform as the value. Can
+be accessed like <cite>nTransForms(fname) = iTransForm</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="alignment_tools.get_transformed_maps">
+<code class="sig-prename descclassname">alignment_tools.</code><code class="sig-name descname">get_transformed_maps</code><span class="sig-paren">(</span><em class="sig-param">nFolders</em>, <em class="sig-param">varargin</em><span class="sig-paren">)</span><a class="headerlink" href="#alignment_tools.get_transformed_maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>These codes (1) register the maps and (2) analizes a user selected magnetic
+pattern for changes from one map to the next.(folders, varargin)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nFolders</strong> (<em>list</em>) – list of absolute path to each data folder. First entry in the list
+is used as reference image.
+Note: calculations in the order the folders are given</p></li>
+<li><p><strong>fileName</strong> (<em>str ['Bz_uc0']</em>) – name of the .mat file to be used.</p></li>
+<li><p><strong>transFormFile</strong> (<em>str ['none']</em>) – absolute path of a file where previously calculated transformations
+are in. If file does not exist the file will be created so that
+you dont have to do this every time.</p></li>
+<li><p><strong>removeHotPixel</strong> (<em>double [0]</em>) – <p>Uses ‘filter_hot_pixel’ function. All filtering is done pre
+tranfornation.</p>
+<p>if false: hotpixels will not be removed
+else:     removeHotPixel determines how many standard deviations</p>
+<blockquote>
+<div><p>have to be exceeded for the pixel to be filtered</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>includeHotPixel</strong> (<em>bool [0]</em>) – uses ‘filter_hot_pixel’ function
+if true: hotpixels is included in the calculation of the mean
+if false: hotpixels is NOT included in the calculation of the mean</p></li>
+<li><p><strong>winSize</strong> (<em>int [4]</em>) – Window size around the hot pixel for mean calculation (e.g. 4 -&gt;
+4x4 window)</p></li>
+<li><p><strong>chi</strong> (<em>bool [0]</em>) – if true: chi^2 values are used to filter (sum of target chi^2)
+if false: data is filtered by data values</p></li>
+<li><p><strong>fixedIdx</strong> (<em>int [1]</em>) – index of the reference LED image. This will fixed while the other
+image is transformed.</p></li>
+<li><p><strong>reverse</strong> (<em>bool [0]</em>) – NOT IMPLEMENTED YET
+if true:  refernce - tform -&gt; target
+if false: target   - tform -&gt; reference</p></li>
+</ul>
+</dd>
+</dl>
+<p>See also, filter_hot_pixels</p>
+</dd></dl>
+
+</div>
+
+
+            </div>
+
+        </section>
+
+        
+            <nav class="site-bottom-navigation" role="navigation">
+            
+                <a href="analysis.html" class="btn btn--primary btn--next right"
+                    title="analysis" accesskey="n">
+                    Next
+                </a>
+            
+            
+                <a href="../usage/quickstart.html" class="btn btn--primary btn--prev"
+                    title="Quickstart" accesskey="p">
+                    Previous
+                </a>
+            
+            </nav>
+        
+
+        
+            <div class="source-link">
+            
+                
+                    <a href="../_sources/package/alignment_tools.rst.txt" rel="nofollow">
+                        <i class="mdi mdi-code-tags"></i>
+                        View page source
+                    </a>
+                
+            
+            </div>
+        
+
+
+
+    </main>
+
+    <footer class="site-footer">
+<div class="container">
+
+    <div role="contentinfo">
+        <p>
+                &copy; Copyright 2021, Mike Volk, Roger Fu, Raisa Trubko.
+        </p>
+    </div>
+        <p>Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+        <a href="https://github.com/testthedocs/sphinx_ttd_theme">theme</a>
+        provided by <a href="https://testthedocs">TestTheDocs</a>. 
+
+</div>
+</footer>
+
+    
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'2021.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/theme-min.js"></script> 
+</body>
+</html>

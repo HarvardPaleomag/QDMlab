@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>analysis</title>
+    
+
+    <link rel="stylesheet" href="../_static/css/redactor.css" type="text/css" />
+    
+    
+    <link rel="index" title="Index" href="../genindex.html"/>
+    <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="QDM-toolkit 2021.0.1 documentation" href="../index.html"/>
+    <link rel="next" title="fitting" href="fitting.html"/>
+    <link rel="prev" title="alignment_tools" href="alignment_tools.html"/> 
+</head>
+
+<body role="document">
+     
+
+    
+<a href="#" id="js-navigation-toggle" class="navigation-toggle">
+    <i class="mdi mdi-menu"></i><i class="mdi mdi-close"></i>
+</a>
+
+<section class="site-sidebar">
+
+<nav>
+
+
+    <a href="../index.html" class="branding-link">
+    
+        QDM-toolkit
+    
+    
+    
+        
+        
+    
+    </a>
+
+    
+<section role="search">
+    <form action="../search.html" method="get" class="site-searchform">
+        <input type="text" name="q" placeholder="Search docs" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+</section>
+
+
+
+    <section class="site-nav">
+    
+    
+        <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Functions:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="alignment_tools.html">alignment_tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="map_editing.html">map_editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="picking_tools.html">picking_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+    
+    </section>
+
+</nav>
+
+</section>
+
+    <main class="site-main" role="main">
+        
+
+
+
+
+
+
+
+
+
+
+
+<nav class="site-breadcrumbs">
+    <ul>
+    
+        <li>
+            <a href="../index.html">Docs</a> /
+        </li>
+        
+        <li class="site-breadcrumbs__leaf">analysis</li>
+    
+    </ul>
+</nav>
+        <section class="site-content">
+            <div class="container">
+                
+  <div class="section" id="module-analysis">
+<span id="analysis"></span><h1>analysis<a class="headerlink" href="#module-analysis" title="Permalink to this headline">¶</a></h1>
+<dl class="mat function">
+<dt id="analysis.estimate_coercivity">
+<code class="sig-prename descclassname">analysis.</code><code class="sig-name descname">estimate_coercivity</code><span class="sig-paren">(</span><em class="sig-param">nFolders</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#analysis.estimate_coercivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>These codes (1) register the maps and (2) analizes a user selected magnetic
+pattern for changes from one map to the next.(folders, varargin)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folders</strong> (<em>list</em>) – list of absolute path to each data folder. First entry in the list
+is used as reference image.
+Note: calculations in the order the folders are given</p></li>
+<li><p><strong>fileName</strong> (<em>str ('Bz_uc0.mat')</em>) – name of the .mat file to be used.</p></li>
+<li><p><strong>transFormFile</strong> (<em>str ('none')</em>) – absolute path of a file where previously calculated transformations
+are in. If file does not exist the file will be created so that
+you dont have to do this every time.</p></li>
+<li><p><strong>removeHotPixel</strong> (<em>bool (0)</em>) – if True hotpixels will be removed
+if False hotpixels will not be removed</p></li>
+<li><p><strong>includeHotPixel</strong> (<em>bool (0)</em>) – <div class="line-block">
+<div class="line">if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel</div>
+<div class="line">if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel</div>
+</div>
+</p></li>
+<li><p><strong>selectionThreshold</strong> (<em>numeric (0.5)</em>) – <div class="line-block">
+<div class="line">defines the Threshold above which the mask is created.</div>
+<div class="line"><strong>Example:</strong> selectionThreshold = 0.5</div>
+<div class="line"><code class="code docutils literal notranslate"><span class="pre">maskSelection</span> <span class="pre">=</span> <span class="pre">[1</span> <span class="pre">2</span> <span class="pre">0;</span> <span class="pre">1</span> <span class="pre">1</span> <span class="pre">2;</span> <span class="pre">0</span> <span class="pre">1</span> <span class="pre">1]</span></code>  -&gt;</div>
+<div class="line"><code class="code docutils literal notranslate"><span class="pre">mask</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">=</span> <span class="pre">[0</span> <span class="pre">1</span> <span class="pre">0;</span> <span class="pre">1</span> <span class="pre">0</span> <span class="pre">1;</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">1]</span></code></div>
+</div>
+</p></li>
+<li><p><strong>upCont</strong> (<em>cell</em>) – Cellarray of upward continuation distances for each of the files.
+Needs to be in same order.</p></li>
+<li><p><strong>filter</strong> (<em>str</em>) – Uses filter_hot_pixels to clean the maps before calculating the
+results.
+Note: ‘includeHotPixel’ is false by default</p></li>
+<li><p><strong>freeHand</strong> (<em>bool (0)</em>) – Instead of using a rectangular selection use freehand drawn</p></li>
+<li><p><strong>freeHandFilter</strong> (<em>bool (0)</em>) – <div class="line-block">
+<div class="line">If true: the selectionThreshold is used to create the mask from the maskSelection.</div>
+<div class="line">If false: the mask = maskSelection</div>
+</div>
+</p></li>
+<li><p><strong>fixedIdx</strong> (<em>int (1)</em>) – index of the reference LED image. This will fixed while the other
+image is transformed.</p></li>
+<li><p><strong>chi</strong> – <div class="line-block">
+<div class="line">if true the chi2 value is used to filter and not the data itself</div>
+<div class="line"><strong>Note:</strong> the chi2 value is calculated from the sum(pos1, pos2, neg1,neg2) chi values.</div>
+</div>
+</p></li>
+<li><p><strong>nROI</strong> (<em>cell</em>) – <div class="line-block">
+<div class="line">cell with region of interest.</div>
+<div class="line"><strong>Note:</strong> the ROI and the selection are not necessarily the same.|
+If the ROI was selected with freeHand then ROI == selection. Otherwise it is a rectangle around the selection.</div>
+</div>
+</p></li>
+<li><p><strong>reverse</strong> (<em>bool ==&gt; CURRENTLY NOT SUPPORTED</em>) – default: false
+if true:  refernce - tform -&gt; target
+if false: target   - tform -&gt; reference</p></li>
+<li><p><strong>bootStrapError</strong> (<em>int, bool (1)</em>) – This uses a boot strapping approach to estimate errors. It will
+shift the mask by ‘pixelError’ ‘bootStrapError’ times. The
+result value is calculated from the mean of all calculations and an
+error is estimated.
+If ‘bootStrapError’ == 1 only one value is calculated -&gt; no error
+estimation.
+Note: if bootStrapError == 1, ‘pixelError’ should be 0
+otherwise the mask is shifted and the result will be wrong.</p></li>
+<li><p><strong>pixelError</strong> (<em>int (0)</em>) – Used for bootstrapping an error estimate.
+The number of pixels the mask will be randomly shifted to estimate
+an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>struct with 7 cells for each result (iFiles,</em></p></li>
+<li><p><em>pPixels, pPixelRats, iPixelThreshs,</em></p></li>
+<li><p><em>sumDiffs, errs, maskSums, iMasks, transData).</em></p></li>
+<li><p><em>Each is a cell with result{i,j} with ith mask and jth file</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            </div>
+
+        </section>
+
+        
+            <nav class="site-bottom-navigation" role="navigation">
+            
+                <a href="fitting.html" class="btn btn--primary btn--next right"
+                    title="fitting" accesskey="n">
+                    Next
+                </a>
+            
+            
+                <a href="alignment_tools.html" class="btn btn--primary btn--prev"
+                    title="alignment_tools" accesskey="p">
+                    Previous
+                </a>
+            
+            </nav>
+        
+
+        
+            <div class="source-link">
+            
+                
+                    <a href="../_sources/package/analysis.rst.txt" rel="nofollow">
+                        <i class="mdi mdi-code-tags"></i>
+                        View page source
+                    </a>
+                
+            
+            </div>
+        
+
+
+
+    </main>
+
+    <footer class="site-footer">
+<div class="container">
+
+    <div role="contentinfo">
+        <p>
+                &copy; Copyright 2021, Mike Volk, Roger Fu, Raisa Trubko.
+        </p>
+    </div>
+        <p>Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+        <a href="https://github.com/testthedocs/sphinx_ttd_theme">theme</a>
+        provided by <a href="https://testthedocs">TestTheDocs</a>. 
+
+</div>
+</footer>
+
+    
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'2021.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/theme-min.js"></script> 
+</body>
+</html>
