@@ -1,4 +1,32 @@
-function globalFraction = globalFraction_estimator(binDataNorm)
+function globalFraction = globalFraction_estimator(expData, kwargs)
+% globalFraction_estimator lets you test different globalFraction values.
+%
+% Parameters
+% ----------
+%     required
+%     ========
+%     expData: path, struct
+%         The path to 'run0000n.mat' or the structure retured from load(run0000n.mat)
+%
+%     optional
+%     ========
+%     binSize: int
+%         binning size (can be 1)
+%     nRes: int
+%         number of resonance. Low frequencies = 1, High frequencies = 2
+    
+    %% load/prepare data
+    arguments
+        expData
+        kwargs.binSize = 2
+        kwargs.nRes = 1
+    end
+    
+    if isstring(expData)
+        expData = load(expData);
+    end
+    
+    [binDataNorm, freq] = prepare_raw_data(expData, kwargs.binSize, kwargs.nRes);
     
     %% remove non fitting pixels
     % transform data back into picel by pixel col by col data
@@ -28,8 +56,8 @@ function globalFraction = globalFraction_estimator(binDataNorm)
     ax3 = axes('Parent',f,'position',[0.7 0.3  0.25 0.54]);
 
     [x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
-    plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1)
-    hold(ax1, 'on')
+    plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
+    hold(ax1, 'on');
     plot(ax1, globalMean, 'b:')
     p1 = plot(ax1, squeeze(binDataNorm(y1,x1,:)),'lineWidth',1);
     title(ax1, 'min(min) pixel')
