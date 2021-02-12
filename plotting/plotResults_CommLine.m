@@ -53,27 +53,24 @@ chi2Pos1 = reshape(chi2Pos1, size(B111ferro));
 chi2Pos2 = reshape(chi2Pos2, size(B111ferro));
 chi2Neg1 = reshape(chi2Neg1, size(B111ferro));
 chi2Neg2 = reshape(chi2Neg2, size(B111ferro));
- 
+
+fitFailed = posB111Output.fitFailed | negB111Output.fitFailed;
 rng = .03;
-% ledImg = load( [ myDir 'LED_afterRun.csv'] );
+
 ledImg = load(ledImgPath);
 
-FitCvgBoth = negB111Output.FitCvg .* posB111Output.FitCvg;
 
 
 %% SAVE results for plotting later
 B111dataToPlot.negDiff = negDiff; B111dataToPlot.posDiff = posDiff; 
 B111dataToPlot.B111ferro = B111ferro; B111dataToPlot.B111para = B111para;
-B111dataToPlot.ledImg = ledImg; B111dataToPlot.FitCvgBoth = FitCvgBoth; 
 B111dataToPlot.chi2Pos1 = chi2Pos1; B111dataToPlot.chi2Pos2 = chi2Pos2; 
 B111dataToPlot.chi2Neg1 = chi2Neg1; B111dataToPlot.chi2Neg2 = chi2Neg2;
-B111dataToPlot.negDiff = negDiff; B111dataToPlot.posDiff = posDiff; 
-B111dataToPlot.B111ferro = B111ferro; B111dataToPlot.B111para = B111para;
-B111dataToPlot.ledImg = ledImg; B111dataToPlot.FitCvgBoth = FitCvgBoth; 
+B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed; 
 save(fullfile(myDir, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
 
 %% PLOTS
-r1 = mean2(B111para(FitCvgBoth==1))-rng;    r2 = mean2(B111para(FitCvgBoth==1))+rng;
+r1 = nanmean(B111para(fitFailed))-rng;    r2 = nanmean(B111para(fitFailed))+rng;
  
 f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap jet; title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
 f2=figure; imagesc( (posDiff) ); axis equal tight; caxis([r1 r2]); colorbar; colormap jet; title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
