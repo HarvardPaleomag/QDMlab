@@ -10,8 +10,8 @@ arguments
     data double
     freq double
     % keyword arguments
-    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = false
+    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = false
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.minPeakDistance (1,1) {mustBeNumeric} = 0
 end

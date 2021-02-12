@@ -50,8 +50,8 @@ arguments
     freqs double
 
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan]
 end

@@ -5,7 +5,7 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 %
 % Parameters
 % ----------
-%   nFolders: str
+%   nFolders: cell, char
 %
 %   transFormFile: path
 %   fixedIdx: int [1]
@@ -16,14 +16,14 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 %
 
 arguments
-    nFolders cell {foldersMustExist(nFolders)}
-    transFormFile
-    kwargs.fixedIdx = 1
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 1
+    nFolders char {foldersMustExist(nFolders)}
+    transFormFile char
+    kwargs.fixedIdx int16 = 1
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.freeHand)} = 1
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
-    kwargs.sequence (1,1) {mustBeMember(kwargs.sequence, [1, 0])} = 0
-    kwargs.reverse (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
+    kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
+    kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
 end
 
 nFolders = correct_cell_shape(nFolders);
