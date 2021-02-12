@@ -111,9 +111,9 @@ for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};  
     iFile = fullfile(iFolder, filesep, fileName);
-    
-    fprintf('<> loading << %s >> target file for transformation\n', iFile(end-50:end))
-    
+
+    fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
+
     nFiles{end+1} = iFile;
     
     target = load(iFile);
@@ -168,7 +168,7 @@ for i = 1:size(nFolders, 2)
         transData = targetData;
         transLed = targetLed;
     else
-        fprintf('<>   transforming: target data & LED  << ... %s >>\n', iFile(end-50:end))
+        fprintf('<>   transforming: target data & LED  << ... %s >>\n', iFile(end-size(iFile,2)/2:end))
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
     end
