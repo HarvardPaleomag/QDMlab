@@ -110,11 +110,10 @@ end
 
 % define optional function parameters
 fileName = kwargs.fileName;
+fileName = check_suffix(fileName);
+
 nROI = kwargs.nROI;
 
-if ~endsWith(fileName, '.mat')
-    fileName = [fileName, '.mat'];
-end
 %%
 % fix shape for nFolders
 nFolders = correct_cell_shape(nFolders);
