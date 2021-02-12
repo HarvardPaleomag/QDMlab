@@ -256,9 +256,10 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     idx = int16(median(idx(1:l,:)));
     center = zeros(1, numel(idx));
     
-    parfor i = 1:numel(idx)
-        center(i) = freq(idx(i));
-    end
+    center = freq(idx);
+%     parfor i = 1:numel(idx)
+%         center(i) = freq(idx(i));
+%     end
     
     initialGuess(2,:) = center;
     % width
