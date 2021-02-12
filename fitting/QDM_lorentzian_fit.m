@@ -1,39 +1,34 @@
-function fits = QDM_lorentzian_fit(dataFolders, binSizes, kwargs)
-% calculate_B111 uses GPU_fit to calculate the field values for each pixel
+function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
+% :code:`QDM_lorentzian_fit` uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
 % 
 % Parameters
 % ----------
-%     positional
-%     ==========
-%         dataFolder:
-%         binSize:
-% 
-%     optional
-%     ========
-%         fieldPolarity: (0)
-%             0 = neg & pos, 
-%             1 = neg, 
-%             2 = pos, 
-%             4 = nppn
-%         globalFraction: numeric (0.5)
-%             Amount of global ilumination signal to be subtracted from the 
-%             measurements before fitting
-%         type: [0,1,2] (0)
-%             use global (0) or local (1) guesses for the fit
-%         smoothDegree: int (2)
-%             gaussian smoothing before fit
-%         gaussianFit: bool (false)
-%         gaussianFilter: numeric (0)
-%         nucSpinPol: bool (false)
-%         save: bool (true)
-%         : bool (false)
-%             show diagnostics plots
-%         plotGuessSpectra: bool (1)
-%         forceGuess: bool (0)
+%   nFolders:
+%   binSize:
+%   fieldPolarity: (0)
+%     0 = neg & pos,
+%     1 = neg,
+%     2 = pos,
+%     4 = nppn
+%   globalFraction: numeric (0.5)
+%     Amount of global ilumination signal to be subtracted from the
+%     measurements before fitting
+%   type: [0,1,2] (0)
+%     use global (0) or local (1) guesses for the fit
+%   smoothDegree: int (2)
+%     gaussian smoothing before fit
+%   gaussianFit: bool (false)
+%   gaussianFilter: numeric (0)
+%   nucSpinPol: bool (false)
+%   save: bool (true)
+%   show diagnostics plots
+%   plotGuessSpectra: bool (1)
+%   forceGuess: bool (0)
+%
 
 arguments
-    dataFolders
+    nFolders cell {foldersMustExist(nFolders)}
     binSizes double
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
@@ -50,7 +45,7 @@ arguments
 end
 
 % check if there is more than one folder
-dataFolders = correct_cell_shape(dataFolders);
+nFolders = correct_cell_shape(nFolders);
 
 % check if there is one or more binSize
 if isnumeric(binSizes)
@@ -64,7 +59,7 @@ else
   type='np  ';
 end
 
-for dataFolder = dataFolders
+for dataFolder = nFolders
     dataFolder = dataFolder{:};
     for n=1:size(binSizes,2)
       binSize=binSizes(n);

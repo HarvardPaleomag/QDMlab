@@ -24,6 +24,7 @@ specZBL = specData-globalmeanBL; %ZBL=zero baseline
 corrected = zeros(size(data));
 
 debug = zeros([size(data,1) size(data,2)]);
+
 for i=1:size(data,1)
     for j=1:size(data,2)
         leftBL = mean(data(i,j,1:5));

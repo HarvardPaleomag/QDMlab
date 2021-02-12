@@ -2,15 +2,28 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 % Function to aling a set of images. Function will automatically align the
 % images first and you can check if it is ok. If not the complex alignment
 % will be called.
+%
+% Parameters
+% ----------
+%   nFolders: str
+%
+%   transFormFile: path
+%   fixedIdx: int [1]
+%   checkPlot: bool [1]
+%   fileName: str ['Bz_uc0.mat']
+%   sequence: bool [0]
+%   reverse: bool [0]
+%
 
 arguments
-    nFolders cell
+    nFolders cell {foldersMustExist(nFolders)}
     transFormFile
     kwargs.fixedIdx = 1
-    kwargs.checkPlot = 1
-    kwargs.fileName = 'Bz_uc0.mat'
-    kwargs.sequence = 0
-    kwargs.reverse = 0
+    kwargs.checkPlot (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 1
+    kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
+                          fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
+    kwargs.sequence (1,1) {mustBeMember(kwargs.sequence, [1, 0])} = 0
+    kwargs.reverse (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -67,12 +80,12 @@ for iFolder = nFolders
     elseif isfield(moving, 'newLED')
         movingLed = moving.newLED;
     end
-    
+
     if reverse
         disp(['<>   INFO: reversed alignment (fixed -> moving)'])
         disp(['<>   ', fixedFile, '->'])
         disp(['<>   ', movingPath])
-        [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'check', true);        
+        [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'check', true);
     else
         disp(['<>   ', movingPath, '->'])
         disp(['<>   ', fixedFile])
@@ -91,10 +104,10 @@ for iFolder = nFolders
                 close
         end
     end
-    
+
     nTransForms([movingPath]) = tForm;
     nRefFrames([movingPath]) = refFrame;
-    
+
     if sequence
         fixedLed = movingLed;
         fixedFile = movingPath;
