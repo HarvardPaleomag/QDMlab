@@ -114,9 +114,9 @@ end
 
 
 %% prepare GPUfit data
-sweeplength = size(dataStack,1);
-imgpts = sizeX*sizeY; % number of (x,y) pixels
-gpudata = reshape(binDataNorm,[imgpts,sweeplength]); % make it into 2d matrix
+sweepLength = size(dataStack,1);
+imgPts = sizeX*sizeY; % number of (x,y) pixels
+gpudata = reshape(binDataNorm,[imgPts,sweepLength]); % make it into 2d matrix
 gpudata = transpose(gpudata); %transpose to make it 51 x pixels
 gpudata = single(gpudata);
 xValues = single(freq');
@@ -124,7 +124,7 @@ xValues = single(freq');
 %% GUESS INITIAL FIT PARAMETERS
 %% gloabl guess
 if kwargs.type == 0 % reshape into [6 x numpoints]
-    initialGuess = reshape(initialGuess,[imgpts,6]);
+    initialGuess = reshape(initialGuess,[imgPts,6]);
     initialGuess = transpose(initialGuess);
 end
 %% local guess -> guess parameter for each pixel
@@ -177,7 +177,7 @@ if kwargs.type == 1 %% old local/gaussian guess
             end
         end
     end
-    initialGuess = reshape(initialGuess,[imgpts,6]);
+    initialGuess = reshape(initialGuess,[imgPts,6]);
     initialGuess = transpose(initialGuess);
 %     initialGuess(1,:) = initialGuess(1,:)+res1;
 end
@@ -186,11 +186,13 @@ end
 %% fittiing related
 tolerance = 1e-10;
 
+
+
 if kwargs.type == 2
-    badPixels = struct();
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq); 
-    
+    %initiate badPixels structure
+    badPixels = struct();
     if strcmp(kwargs.diamond, 'N14')
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
@@ -202,17 +204,18 @@ if kwargs.type == 2
         badPixels.state = states;
     elseif strcmp(kwargs.diamond, 'N15')
         initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
+        badPixels.state = zeros(size(initialPreGuess));
     end
     badPixels.initialPreGuess = initialPreGuess;
 end
 
-if size(badPixels,2) > 0
-    s = size(binDataNorm);
+nBadPixels = numel(nonzeros(badPixels.state));
+
+if nBadPixels > 1
     if kwargs.type == 2 && strcmp(kwargs.diamond, 'N14')
-        badPre = numel(nonzeros(badPixels.state));
-        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', badPre, s(1)*s(2));
+        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', nBadPixels, imgPts);
     else
-        fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', size(badPixels,2), s(1)*s(2));
+        fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', nBadPixels, imgPts);
     end
 end
 
@@ -246,7 +249,7 @@ fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
 
 if numel(nonzeros(states)) > 0
     badPre =  numel(nonzeros(states));
-    fprintf('<>      WARNING: %i / %i pixels failed the final fit. See fit.states!\n', badPre, s(1)*s(2));
+    fprintf('<>      WARNING: %i / %i pixels failed the final fit. See fit.states!\n', badPre, imgPts);
 end
 
 if kwargs.checkPlot
