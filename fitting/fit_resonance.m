@@ -1,32 +1,30 @@
 function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, kwargs)
 % fits a single resonance frequency (i.e. low/high frequency range) of
-% either positive or negative field
+% either positive or negative field.
 %
-%   1. prepare_raw_data
-%   2. gaussian filter (imfilter) if `gaussienFilter` == 1
-%   3. correction of global data
-%   4. global_guess if type ~= 2
-%   5. reshapes data for gpufit -> all pixels in a row
-%   6. type = 1: guess peaks
-%      type = 2: a. get_initial_guess -> creates pre guess for single gaussian GPU fit
-%                b. gpu_fit (GAUSS_1D)
-%                c. parameters_to_guess calculates the initial guess from the fitted parameters of 6.b.
-%   7. gpu_fit calculates lorentzian fits %todo add option for N15
-%   8. reshape_fits creates the (y,x) sized array out of the fitted parameters
-%  (9.) checkPlot of fits -> needs to be closed to proceed
+% hint
+% ----
+%  This is what the function does:
+%
+%  1. :code:`prepare_raw_data`
+%  2. gaussian filter (:code:`imfilter`) if `gaussianFilter` == 1
+%  3. Global illumination correction with :code:`correct_global`
+%  4. global_guess if `type` ~= 2
+%  5. reshapes data for gpufit -> all pixels in a row
+%  6. if *type* == 1: guess peaks; if *type* == 2: **(a)** get_initial_guess -> creates pre guess for single gaussian GPU fit; **(b)** gpu_fit (GAUSS_1D); **(c)** parameters_to_guess calculates the initial guess from the fitted parameters of 6.b.
+%  7. :code:`gpu_fit` calculates lorentzian fits
+%  8. :code:`reshape_fits` creates the (y,x) sized array out of the fitted parameters
+%  9. *checkPlot* of fits -> needs to be closed to proceed
+%
 %
 % Parameters
 % ----------
-%     required
-%     ========
 %     expData: struct
-%         Data of load(run0000n.mat)
+%         Data of :code:`load(run0000n.mat)`
 %     binSize: int
 %         binning size (can be 1)
 %     nRes: int
 %         number of resonance. Low frequencies = 1, High frequencies = 2
-%     keyword
-%     =======
 %     type: int (2)
 %         type of initial guess:
 %         1: global
@@ -35,14 +33,14 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %     globalFraction: double (0.5)
 %         Ammount of global signal to be corrected for (see. correct_global)
 %     forceGuess: int (0)
-%         Used for forcing a guess (NOT IMP{LEMENTED) %todo
+%         Used for forcing a guess (NOT IMPLEMENTED)
 %     checkPlot: int (0)
 %         Creates an interactive plot to check the fits
 %     gaussianFit: int (0)
-%         In case the type = local and the MATLAB function find_peaks does
-%         not find 3 peaks:
-%             if 0: the global guess will be used for that pixel
-%             if 1: a gaussian fit is used to find peak positions
+%         In case the :code:`type = local` and the MATLAB function find_peaks does
+%         not find 3 peaks.
+%         **if 0**: the global guess will be used for that pixel
+%         **if 1**: a gaussian fit is used to find peak positions
 %     gaussianFilter: int (0)
 %         Determines if a gaussian filter is applied before fitting
 %     smoothDegree: int (2)
@@ -84,7 +82,7 @@ badPixels = struct('x',{},'y',{},'nRes', {}, 'fitFlg', {}, 'fName',{});
 
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
-% is how to get the 
+% is how to get the
 [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
 sizeX = size(binDataNorm,2); % binned image x-dimensions
@@ -128,7 +126,7 @@ if kwargs.type == 0 % reshape into [6 x numpoints]
     initialGuess = transpose(initialGuess);
 end
 %% local guess -> guess parameter for each pixel
-if kwargs.type == 1 %% old local/gaussian guess 
+if kwargs.type == 1 %% old local/gaussian guess
     fprintf('<>   %i: local guess estimation\n', nRes);
 
     sizeX = size(binData,2); % binned image x-dimensions
@@ -137,15 +135,15 @@ if kwargs.type == 1 %% old local/gaussian guess
     %% generating the initialguess for fitting
     % iterate over all pixels with index (x,y)
     for x = 1:sizeX
-        for y = 1:sizeY 
-            pixelData = squeeze(binDataNorm(y,x,:)); 
+        for y = 1:sizeY
+            pixelData = squeeze(binDataNorm(y,x,:));
 
             %% Nuclear Spin polarization
             % default = 0
             if kwargs.nucSpinPol
-                initialGuess(y,x,:) = guessNucSpinPol(pixelData, freq);    
+                initialGuess(y,x,:) = guessNucSpinPol(pixelData, freq);
 
-            %% no Nuclear Spin Polarization    
+            %% no Nuclear Spin Polarization
             else
                 % try getting peak positions from smoothed data
                 % LEFT
@@ -160,7 +158,7 @@ if kwargs.type == 1 %% old local/gaussian guess
                     badPixels(end+1).x = x; % new entry
                     badPixels(size(badPixels, 2)).y = y;
                     badPixels(size(badPixels, 2)).nRes = nRes;
-                    badPixels(size(badPixels, 2)).fitFlg = fitFlg;                    
+                    badPixels(size(badPixels, 2)).fitFlg = fitFlg;
                 end
 
                 % replace guess with new guess if fitFlg is not global
@@ -262,7 +260,7 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     initialGuess = zeros(4, size(gpudata,2), 'single');
     n = 5; % cut off outer points
     gpudata = gpudata(n:end-n,:);
-    
+
     % amplitude
     mx = nanmax(gpudata);
     mn = nanmin(gpudata);
@@ -278,16 +276,16 @@ function initialGuess =  get_initial_guess(gpudata, freq)
 %     idx = int16(mean(idx(1:l,:)));
     
     center = zeros(1, numel(idx));
-    
+
     parfor i = 1:numel(idx)
         center(i) = freq(idx(i)+n);
     end
-    
+
     initialGuess(2,:) = center;
     
     % width
     initialGuess(3,:) = 0.003;
-    % offset 
+    % offset
     initialGuess(4,:) = 1.002;
 end
 
@@ -316,8 +314,8 @@ end
 function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, diamond)
     
     % initialize struct
-    fit = struct(); 
-    
+    fit = struct();
+
     fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
     
     %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
@@ -346,7 +344,7 @@ function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquar
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
     fit.nRes = nRes;
-    
+
     fit.p = parameters;
     fit.g = initialGuess;
     fit.pg = parameters_to_guess(preGuess, diamond);
