@@ -1,51 +1,41 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, varargin)
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
-% 
+%
 % Parameters
 % ----------
-%     positional
-%     ----------
 %     nFolders:list
 %         list of absolute path to each data folder. First entry in the list
 %         is used as reference image.
 %         Note: calculations in the order the folders are given
-% 
-%     optional parameters
-%     -------------------
-%     fileName: str
-%         name of the .mat file to be used. 
-%         default: 'Bz_uc0'
-%     transFormFile: str
-%         default: 'none'
+%     fileName: str ['Bz_uc0']
+%         name of the .mat file to be used.
+%     transFormFile: str ['none']
 %         absolute path of a file where previously calculated transformations
 %         are in. If file does not exist the file will be created so that
 %         you dont have to do this every time.
-%     removeHotPixel: double
-%         default: bool, false
+%     removeHotPixel: double [0]
 %         Uses 'filter_hot_pixel' function. All filtering is done pre
 %         tranfornation.
+%
 %         if false: hotpixels will not be removed
-%         else: removeHotPixel determines how many standard deviations 
-%               have to be exceeded for the pixel to be filtered
-%     includeHotPixel: bool 
-%         default: false
+%         else:     removeHotPixel determines how many standard deviations
+%                   have to be exceeded for the pixel to be filtered
+%     includeHotPixel: bool [0]
 %           uses 'filter_hot_pixel' function
 %         if true: hotpixels is included in the calculation of the mean
 %         if false: hotpixels is NOT included in the calculation of the mean
-%     winSize: int
-%         default: 4
+%     winSize: int [4]
 %         Window size around the hot pixel for mean calculation (e.g. 4 ->
 %         4x4 window)
-%     chi: bool
+%     chi: bool [0]
 %         if true: chi^2 values are used to filter (sum of target chi^2)
 %         if false: data is filtered by data values
-%     fixedIdx: int
-%         default: 1
+%     fixedIdx: int [1]
 %         index of the reference LED image. This will fixed while the other
 %         image is transformed.
-%     reverse: bool - NOT IMPLEMENTED YET
-%         default: false
+%     reverse: bool [0]
+%         NOT IMPLEMENTED YET
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
 %
@@ -109,13 +99,13 @@ end
 % cycle through all folders
 for i = 1:size(nFolders, 2)
     % create filename
-    iFolder = nFolders{i};  
+    iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
 
     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
     nFiles{end+1} = iFile;
-    
+
     target = load(iFile);
 
     if contains(fileName, 'B111')
@@ -125,7 +115,7 @@ for i = 1:size(nFolders, 2)
         targetData = target.Bz;
         targetLed = target.newLED;
     end
-    
+
     % pre filtering
     targetData = filter_hot_pixels(targetData);
 
@@ -175,11 +165,11 @@ for i = 1:size(nFolders, 2)
 
     % create struct for the the transformed data of this file
     fileTransForm = struct;
-    
+
     fileTransForm.refFile = refFile;
     fileTransForm.refData = refData;
     fileTransForm.refLed = refLed;
-    
+
     fileTransForm.fileName = iFile;
     fileTransForm.targetLed = targetLed;
     fileTransForm.targetData = targetData;
@@ -193,7 +183,7 @@ for i = 1:size(nFolders, 2)
 
     % save the result in the trans_data container for later use
     transformedData(iFile) = fileTransForm;
-    
+
     %%% create checkplots
     if inParse.Results.checkPlot
         if i ~= fixedIdx

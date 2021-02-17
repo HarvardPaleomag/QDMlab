@@ -1,7 +1,7 @@
 function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
 % :code:`QDM_lorentzian_fit` uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
-% 
+%
 % Parameters
 % ----------
 %   nFolders:
@@ -42,6 +42,7 @@ arguments
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
 
 % check if there is more than one folder
@@ -68,6 +69,7 @@ for dataFolder = nFolders
           'fieldPolarity',kwargs.fieldPolarity, ...
           'type', kwargs.type,...
           'globalFraction', kwargs.globalFraction,...
+          'diamond', kwargs.diamond,...
           'gaussianFit', kwargs.gaussianFit,...
           'gaussianFilter', kwargs.gaussianFilter,...
           'forceGuess', kwargs.forceGuess,...
@@ -99,4 +101,3 @@ for dataFolder = nFolders
 end
 
 end
-

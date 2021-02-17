@@ -1,7 +1,7 @@
 function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
-% 
+%
 % Parameters
 % ----------
 %     folders: list
@@ -41,14 +41,13 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         index of the reference LED image. This will fixed while the other
 %         image is transformed.
 %     chi:
-%         if true the chi2 value is used to filter and not the data itself
-%         Note: the chi2 value is calculated from the sum(pos1, pos2, neg1,
-%               neg2) chi values.
+%         | if true the chi2 value is used to filter and not the data itself
+%         | **Note:** the chi2 value is calculated from the sum(pos1, pos2, neg1,neg2) chi values.
 %     nROI: cell
-%         cell with region of interest.
-%         Note: the ROI and the selection are not necessarily the same. If
-%         the ROI was selected with freeHand then ROI == selection. Otherwise
-%         it is a rectangle around the selection.
+%         | cell with region of interest.
+%         | **Note:** the ROI and the selection are not necessarily the same.|
+%           If the ROI was selected with freeHand then ROI == selection.
+%           Otherwise it is a rectangle around the selection.
 %     reverse: bool ==> CURRENTLY NOT SUPPORTED
 %         default: false
 %         if true:  refernce - tform -> target
@@ -66,11 +65,11 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
 %         an error.
-% 
+%
 % Returns
 % -------
 %     struct with 7 cells for each result (iFiles,
-%     pPixels, pPixelRats, iPixelThreshs, 
+%     pPixels, pPixelRats, iPixelThreshs,
 %     sumDiffs, errs, maskSums, iMasks, transData).
 %     Each is a cell with result{i,j} with ith mask and jth file:
 %
@@ -234,10 +233,10 @@ for j = 1:size(nFiles, 2)
             disp('  WARNING mask too close to edge, skipping ... ')
             continue
         end
-        
+
         dx = 0; dy = 0;
         % calculate parameters
-        
+
         for n = 1:kwargs.bootStrapN
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
@@ -245,7 +244,7 @@ for j = 1:size(nFiles, 2)
                 dx = randi([-kwargs.pixelError, kwargs.pixelError]);
                 dy = randi([-kwargs.pixelError, kwargs.pixelError]);
             end
-            
+
             mask = shift_matrix(iMask, dx, dy);
             mData = iFileData.transData .* mask;
             mDataCut = limit_mask(mData);
@@ -261,7 +260,7 @@ for j = 1:size(nFiles, 2)
             thresh = mDataCut >= kwargs.selectionThreshold * max(mDataCut, [], 'all');
             iPixelThresh = [iPixelThresh, numel(nonzeros(thresh))];
         end
-        
+
         % Pixel above threshold
         thresh = mDataCut >= mean(d0Select,'all') + kwargs.selectionThreshold * std(d0Select, 0, 'all');
         iPixelThresh = numel(nonzeros(thresh));
