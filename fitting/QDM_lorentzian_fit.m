@@ -65,40 +65,46 @@ end
 for dataFolder = dataFolders
     dataFolder = dataFolder{:};
     for n=1:size(binSizes,2)
-      binSize=binSizes(n);
-    %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
-      fits = GPU_fit(dataFolder, binSize,...
-          'fieldPolarity',kwargs.fieldPolarity, ...
-          'type', kwargs.type,...
-          'globalFraction', kwargs.globalFraction,...
-          'diamond', kwargs.diamond,...
-          'gaussianFit', kwargs.gaussianFit,...
-          'gaussianFilter', kwargs.gaussianFilter,...
-          'forceGuess', kwargs.forceGuess,...
-          'checkPlot', kwargs.checkPlot,...
-          'smoothDegree', kwargs.smoothDegree,...
-          'nucSpinPol', kwargs.nucSpinPol,...
-          'save', kwargs.save);
+        binSize=binSizes(n);
+        %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
+        fits = GPU_fit(dataFolder, binSize,...
+                        'fieldPolarity',kwargs.fieldPolarity, ...
+                        'type', kwargs.type,...
+                        'globalFraction', kwargs.globalFraction,...
+                        'diamond', kwargs.diamond,...
+                        'gaussianFit', kwargs.gaussianFit,...
+                        'gaussianFilter', kwargs.gaussianFilter,...
+                        'forceGuess', kwargs.forceGuess,...
+                        'checkPlot', kwargs.checkPlot,...
+                        'smoothDegree', kwargs.smoothDegree,...
+                        'nucSpinPol', kwargs.nucSpinPol,...
+                        'save', kwargs.save);
 
-      plotResults_CommLine(dataFolder,type)
-      foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
 
-      %foldername=[num2str(bin) 'x' num2str(bin) 'Binned_' num2str(GF)];
-      mkdir(fullfile(dataFolder, foldername));
-      movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-      if strcmp(type, 'nppn')
+        % fit convergance, if the fit failed for whatever reason, the value for this pixel is 0 will be
+
+        fitFailed = fits.leftNeg.states | fits.rightNeg.states | fits.leftPos.states | fits.rightPos.states;
+        fits.fitFailed = fitFailed;
+
+        plotResults_CommLine(dataFolder,type)
+        foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+
+        %foldername=[num2str(bin) 'x' num2str(bin) 'Binned_' num2str(GF)];
+        mkdir(fullfile(dataFolder, foldername));
+        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        if strcmp(type, 'nppn')
         movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
         movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-      end
-      movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, foldername))
-      movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, foldername))
-      copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, foldername))
+        end
+        movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, foldername))
+        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, foldername))
     end
 end
 

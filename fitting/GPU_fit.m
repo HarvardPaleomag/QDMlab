@@ -186,7 +186,6 @@ for fileNum=startN:1:endN
     p2 = fits.(['right' pol]).p;
     freq2 = fits.(['right' pol]).freq;
 
-    
     %% TAKE THE DIFFERENCE OF THE RESONANCES:
     ResDiff = (Resonance2 - Resonance1)/2;
     ResSum = (Resonance2 + Resonance1)/2;
@@ -198,6 +197,12 @@ for fileNum=startN:1:endN
         dB = ResDiff/gamma;
     end
     
+    % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
+    fitFailed = fits.(['left' pol]).states | fits.(['right' pol]).states;
+    fitSucess = ~fitFailed;
+    fits.fitSucess = fitSucess;
+    fits.fitFailed = fitFailed;
+
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
     FitCvg = ones(sizeY,sizeX); %just to remove errors. This matrix is useless as is now.
@@ -209,14 +214,14 @@ for fileNum=startN:1:endN
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
-                'binSize','type','gaussianFit', 'FitCvg');
+                'binSize','type','gaussianFit', 'fitFailed');
         elseif strcmp(kwargs.diamond, 'N15')
             save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
-            'binSize','type','gaussianFit', 'FitCvg');
+            'binSize','type','gaussianFit', 'fitFailed');
         end
         
         if LEDimgFlg==1
