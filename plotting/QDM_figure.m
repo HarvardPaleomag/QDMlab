@@ -19,7 +19,10 @@ if kwargs.fig == 'none'
 else
     map_figure = kwargs.fig;
 end
-data = filter_hot_pixels(data);
+
+if ~all(all(data > 5))
+    data = filter_hot_pixels(data);
+end
 
 if kwargs.ax == 'none'
     ax = axes('Parent',map_figure);
@@ -32,9 +35,6 @@ if kwargs.filter_hot_pixels
 end
 
 %%
-
-med = nanmedian(data,'all'); st = nanstd(data,[],'all'); mx = max(abs(data), [], 'all');
-
 % Create axes
 axis off
 hold(ax,'on');
@@ -51,9 +51,19 @@ title({'QDM DATA'});
 box(ax,'on');
 axis(ax,'tight');
 
-
 % Set the remaining axes properties
-set(ax,'CLim',[-1 1] * (med + 4*st));
+med = nanmedian(data,'all'); st = nanstd(data,[],'all'); 
+mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
+
+if ~all(data>0)
+    fprintf('<>    setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med + 4*st, med, st);
+    set(ax,'CLim',[-1 1] * (med + 4*st));
+else
+    delta = mx-mn;
+    set(ax,'CLim',[med-delta/10 med+delta/10]);
+    fprintf('<>    setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n',med-delta/2, med+delta/2, med, mn, mx);
+end
+
 axis equal, axis tight, axis xy
 
 if iscell(kwargs.nROI)
