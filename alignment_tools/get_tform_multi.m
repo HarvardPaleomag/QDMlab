@@ -29,10 +29,10 @@ arguments
     fixedFile
     nMovingFolders
     kwargs.transFormFile = 'none'
-    kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
 	kwargs.binning (1,1) {mustBePositive} = 2;
-    kwargs.laser  (1,1) {mustBeMember(kwargs.laser, [1, 0])} = 0
+    kwargs.laser  (1,1) {mustBeBoolean(kwargs.laser)} = 0
 end
 
 transFormFile = kwargs.transFormFile;

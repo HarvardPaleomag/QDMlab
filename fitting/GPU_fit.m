@@ -1,76 +1,78 @@
 function fits = GPU_fit(dataFolder, binSize, kwargs)
-%{
-Parameters
-----------
-    dataFolder: char
-        location of the data folder
-    binSize: int
-        number of pixels to be binned into one.
-        Uses 'BinImage' function
 
-    optional
-    ========
-    fielpolarity: int 
-        default: 0 
-        0: both polarities
-        1: first polarity only
-        2: second polarity only
-        4: Neg Pos Pos Neg
-    type: int
-        default: 0
-        0: ONLY global guess parameters
-        1: local guess parameters
-           use 'gaussianFit' to get peak positions if findpeaks fails
-        2: local guess using a gaussian pre fit
-        3: manual guess parameters %redundant???
-            todo:(set values in guess1 and guess2 matricies)
-    forceGuess: bool (false)
-    gaussianFit: bool (false)
-        Only used if the findpeaks function fails to find 3 peaks.
-        if true: uses a gaussian fit to estimate the center peak of the
-                 triplet. 
-        if false: uses the locations from the global estimation
-    gaussianFilter: numeric (0)
-        if 0: no filter is applied
-        if != 0: applies gaussian filter with a standard deviation of
-                'gaussianFilter'. Previous versions of the code used 0.5.
-    checkPlot: bool (false)
-        display the fitted resonances. useful to establish the initial guesses for diagnostics
-    smoothDegree: int(2)
-    globalFraction: double (0.5)
-        amount of global illumination signal to subtract from data. 
-        Calls 'correct_global' function
-    save: bool (true)
-        if true the results are saved to 'dataFolder'
+% Parameters
+% ----------
+%     dataFolder: char
+%         location of the data folder
+%     binSize: int
+%         number of pixels to be binned into one.
+%         Uses 'BinImage' function
 
-    nucSpinPol: bool (false)
-        this is used for nuclear spin polarization -> NMR. Calls the
-        function guessNucSpinPol. Uses code in original state (< Nov 2020).
+%     optional
+%     ========
+%     fielpolarity: int 
+%         default: 0 
+%         0: both polarities
+%         1: first polarity only
+%         2: second polarity only
+%         4: Neg Pos Pos Neg
+%     type: int
+%         default: 0
+%         0: ONLY global guess parameters
+%         1: local guess parameters
+%            use 'gaussianFit' to get peak positions if findpeaks fails
+%         2: local guess using a gaussian pre fit
+%         3: manual guess parameters %redundant???
+%             todo:(set values in guess1 and guess2 matricies)
+%     forceGuess: bool (false)
+%     gaussianFit: bool (false)
+%         Only used if the findpeaks function fails to find 3 peaks.
+%         if true: uses a gaussian fit to estimate the center peak of the
+%                  triplet. 
+%         if false: uses the locations from the global estimation
+%     gaussianFilter: numeric (0)
+%         if 0: no filter is applied
+%         if != 0: applies gaussian filter with a standard deviation of
+%                 'gaussianFilter'. Previous versions of the code used 0.5.
+%     checkPlot: bool (false)
+%         display the fitted resonances. useful to establish the initial guesses for diagnostics
+%     smoothDegree: int(2)
+%     globalFraction: double (0.5)
+%         amount of global illumination signal to subtract from data. 
+%         Calls 'correct_global' function
+%     save: bool (true)
+%         if true the results are saved to 'dataFolder'
 
-Notes
------
-dataStack:     2 dimentional wwith xy pixels, frequencies
-data:          3 dimentional with y pixels, x pixels, frequencies
-binData:       3 dimentional with binned y pixels, binned x pixels, frequencies
-binDataNorm:   3 dimentional with normalized binned x pixels, normalized binned, y pixels, frequencies
-   if gaussianFilter: 3 dimentional with gaussian blurred normalized binned y pixels, gaussian blurred normalized binned, x pixels, frequencies
+%     nucSpinPol: bool (false)
+%         this is used for nuclear spin polarization -> NMR. Calls the
+%         function guessNucSpinPol. Uses code in original state (< Nov 2020).
+%     diamond: str (N14)
+%         The type of diamond. Choses the type of fitting.
+%
+% Notes
+% -----
+% dataStack:     2 dimentional wwith xy pixels, frequencies
+% data:          3 dimentional with y pixels, x pixels, frequencies
+% binData:       3 dimentional with binned y pixels, binned x pixels, frequencies
+% binDataNorm:   3 dimentional with normalized binned x pixels, normalized binned, y pixels, frequencies
+%    if gaussianFilter: 3 dimentional with gaussian blurred normalized binned y pixels, gaussian blurred normalized binned, x pixels, frequencies
     
-%}
-% arguments
 arguments
     dataFolder char
     binSize double
-    kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2, 4])} = 0
+    kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
-    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
+    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeMember(kwargs.nucSpinPol, [1, 0])} = 0
-    kwargs.save (1,1) {mustBeMember(kwargs.save, [1, 0])} = 1
+    kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
+    kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
+
 tStart = tic;
 fieldPolarity = kwargs.fieldPolarity;
 gaussianFit = kwargs.gaussianFit;
@@ -122,10 +124,11 @@ for fileNum=startN:1:endN
     %%%
     LEDimgFile = 'laser.csv';
     
+    loadStart = tic;
     fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
     expData = load(fullfile(dataFolder, dataFile));
 
-    fprintf('<>      loading of file %i/%i complete\n', fileNum, size(startN:1:endN, 2));
+    fprintf('<>      loading of file %i/%i complete (%.1f s)\n', fileNum, size(startN:1:endN, 2), toc(loadStart));
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
@@ -143,6 +146,7 @@ for fileNum=startN:1:endN
             
         [Resfit, guess, badPixel] = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
+            'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'nucSpinPol', kwargs.nucSpinPol,...
             'checkPlot', kwargs.checkPlot);
@@ -154,8 +158,12 @@ for fileNum=startN:1:endN
     Resonance1 = fits.(['left' pol]).resonance; 
     Width1 = fits.(['left' pol]).width; 
     ContrastA1 = fits.(['left' pol]).contrastA; 
-    ContrastB1 = fits.(['left' pol]).contrastB; 
-    ContrastC1 = fits.(['left' pol]).contrastC; 
+    ContrastB1 = fits.(['left' pol]).contrastB;
+    
+    if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastC'))
+        ContrastC1 = fits.(['left' pol]).contrastC;
+    end
+    
     Baseline1 = fits.(['left' pol]).baseline; 
     Freqs1 = fits.(['left' pol]).freq; 
     chiSquares1 = fits.(['left' pol]).chiSquares;
@@ -165,9 +173,13 @@ for fileNum=startN:1:endN
     Resonance2 = fits.(['right' pol]).resonance; 
     Width2 = fits.(['right' pol]).width; 
     ContrastA2 = fits.(['right' pol]).contrastA; 
-    ContrastB2 = fits.(['right' pol]).contrastB; 
-    ContrastC2 = fits.(['right' pol]).contrastC; 
-    Baseline2 = fits.(['right' pol]).baseline; 
+    ContrastB2 = fits.(['right' pol]).contrastB;
+
+    if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastC'))
+        ContrastC2 = fits.(['right' pol]).contrastC;
+    end
+    
+    Baseline2 = fits.(['right' pol]).baseline;
     Freqs2 = fits.(['right' pol]).freq; 
     chiSquares2 = fits.(['right' pol]).chiSquares; 
     p2 = fits.(['right' pol]).p;
@@ -190,12 +202,21 @@ for fileNum=startN:1:endN
     FitCvg = ones(sizeY,sizeX); %just to remove errors. This matrix is useless as is now.
     if kwargs.save
         fprintf('<>      INFO: saving data of %s\n',dataFile);
-        save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
-            'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
+        if strcmp(kwargs.diamond, 'N14')
+            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+                'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
+                'Freqs1', 'chiSquares1', 'p1','freq1',...
+                'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
+                'Freqs2', 'chiSquares2', 'p2','freq2',...
+                'binSize','type','gaussianFit', 'FitCvg');
+        elseif strcmp(kwargs.diamond, 'N15')
+            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
-            'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
+            'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
             'binSize','type','gaussianFit', 'FitCvg');
+        end
         
         if LEDimgFlg==1
             saveas(f5, [LEDimgFile 'CROPBIN.png'],'png');

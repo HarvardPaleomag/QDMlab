@@ -1,5 +1,21 @@
 function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
-% prepares the 
+% [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+% prepares the raw data for GPU fitting
+% 1. reshapes the data into from (x*y) -> (y,x) array
+% 2. Bins data: (imresize)
+% 3. Normalizes
+%
+% Parameters
+% ----------
+%     required
+%     ========
+%     expData: struct
+%         Data of load(run0000n.mat)
+%     binSize: int
+%         binning size (can be 1)
+%     nRes: int
+%         number of resonance. Low frequencies = 1, High frequencies = 2
+
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
 if nRes == 1
@@ -22,15 +38,11 @@ if isfield(expData, 'imgStack3')
     dataStack = [dataStacka; dataStackb];
 end
 
-data = zeros(expData.imgNumRows, expData.imgNumCols, expData.numFreqs);
-
-% crop
-data = data(spanYTrans,spanXTrans,:);
-
 % reshape and transpose each image
-for y = 1:expData.numFreqs
-    data(:,:,y) = transpose(reshape(dataStack(y, :), [expData.imgNumCols, expData.imgNumRows]));
-end
+% NOTE: I guess the data is written pixel by pixel, starting left top
+% then row by row -> freq x col * rows (i.e. [51, 2304000])
+data = reshape(dataStack, [], expData.imgNumCols, expData.imgNumRows); % reshape into freq x col x rows
+data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
 
 % binning
 fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);

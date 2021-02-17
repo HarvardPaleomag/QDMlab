@@ -1,11 +1,10 @@
 function [Bout] = UpCont(Bin,dh,fs)
-
-%   ----------------------------------------------------------------------------------------------
-%   Parameters:
+% Parameters
+% ----------
 %       Bin    -> B component map
 %       dh     -> distance to upward continue the field map
 %       fs     -> Sampling frequency in 1/m
-%   ----------------------------------------------------------------------------------------------
+
 
 EXPAND=1;
 FOVERSAMPL=2;                               % Algorithm refines sampling in the frequency domain by

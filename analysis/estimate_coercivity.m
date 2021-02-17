@@ -1,39 +1,30 @@
 function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
-% 
+%
 % Parameters
 % ----------
-%     positional
-%     ----------
-%     folders:list
+%     folders: list
 %         list of absolute path to each data folder. First entry in the list
 %         is used as reference image.
 %         Note: calculations in the order the folders are given
-% 
-%     optional parameters
-%     -------------------
-%     fileName: str
+%     fileName: str ['Bz_uc0.mat']
 %         name of the .mat file to be used.
-%         default: 'Bz_uc0.mat'
-%     transFormFile: str
-%         default: 'none'
+%     transFormFile: str ['none']
 %         absolute path of a file where previously calculated transformations
 %         are in. If file does not exist the file will be created so that
 %         you dont have to do this every time.
-%     removeHotPixel: bool
-%         default: false
+%     removeHotPixel: bool [0]
 %         if True hotpixels will be removed
 %         if False hotpixels will not be removed
-%     includeHotPixel: bool (0)
-%         if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel
-%         if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel
-%     selectionThreshold: numeric
-%         default: 0.5
-%         defines the Threshold above which the mask is created.
-%         Example:
-%             maskSelection = [1 2 0; 1 1 2; 0 1 1]  selectionThreshold = 0.5 ->
-%             mask          = [0 1 0; 1 0 1; 0 0 1]
+%     includeHotPixel: bool [0]
+%         | if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel
+%         | if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel
+%     selectionThreshold: numeric [0.5]
+%         | defines the Threshold above which the mask is created.
+%         | **Example:** selectionThreshold = 0.5
+%         | :code:`maskSelection = [1 2 0; 1 1 2; 0 1 1]`  ->
+%         | :code:`mask          = [0 1 0; 1 0 1; 0 0 1]`
 %     upCont: cell
 %         Cellarray of upward continuation distances for each of the files.
 %         Needs to be in same order.
@@ -41,89 +32,91 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         Uses filter_hot_pixels to clean the maps before calculating the
 %         results.
 %         Note: 'includeHotPixel' is false by default
-%     freeHand: bool
-%         default: false
+%     freeHand: bool [0]
 %         Instead of using a rectangular selection use freehand drawn
-%     freeHandFilter: bool
-%         default: false
-%         If true: the selectionThreshold is used to create the mask
-%                  from the maskSelection.
-%         If false: the mask = maskSelection
-%     fixedIdx: int
-%         default: 1
+%     freeHandFilter: bool [0]
+%         | If true: the selectionThreshold is used to create the mask from the maskSelection.
+%         | If false: the mask = maskSelection
+%     fixedIdx: int [1]
 %         index of the reference LED image. This will fixed while the other
 %         image is transformed.
 %     chi:
-%         if true the chi2 value is used to filter and not the data itself
-%         Note: the chi2 value is calculated from the sum(pos1, pos2, neg1,
-%               neg2) chi values.
+%         | if true the chi2 value is used to filter and not the data itself
+%         | **Note:** the chi2 value is calculated from the sum(pos1, pos2, neg1,neg2) chi values.
 %     nROI: cell
-%         cell with region of interest.
-%         Note: the ROI and the selection are not necessarily the same. If
-%         the ROI was selected with freeHand then ROI == selection. Otherwise
-%         it is a rectangle around the selection.
+%         | cell with region of interest.
+%         | **Note:** the ROI and the selection are not necessarily the same.|
+%           If the ROI was selected with freeHand then ROI == selection.
+%           Otherwise it is a rectangle around the selection.
 %     reverse: bool ==> CURRENTLY NOT SUPPORTED
 %         default: false
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
-%     bootStrapError: int, bool
-%         default: 1
+%     bootStrapError: int, bool [1]
 %         This uses a boot strapping approach to estimate errors. It will
-%         shift the mask by 'bootStrapPixels' 'bootStrapError' times. The
+%         shift the mask by 'pixelError' 'bootStrapError' times. The
 %         result value is calculated from the mean of all calculations and an
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%         Note: if bootStrapError == 1, 'bootStrapPixels' should be 0
+%         Note: if bootStrapError == 1, 'pixelError' should be 0
 %         otherwise the mask is shifted and the result will be wrong.
-%     bootStrapPixels: int
-%         default: 0
+%     pixelError: int [0]
+%         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
 %         an error.
-% 
+%
 % Returns
 % -------
 %     struct with 7 cells for each result (iFiles,
-%     pPixels, pPixelRats, iPixelThreshs, 
+%     pPixels, pPixelRats, iPixelThreshs,
 %     sumDiffs, errs, maskSums, iMasks, transData).
 %     Each is a cell with result{i,j} with ith mask and jth file:
+%
+% hint
+% ----
+%     **Example:** Here we have a cell of folders, containing QDM images ('B111dataToPlot', 'Bz_uc0').
+%     literal blocks::
+%         >> nFolders = {'home/NRM, 'home/10mT','home/20mT','home/30mT'};
+%
+%     The most simple way to estimate the coercivity is to call:
+%     literal blocks::
+%         >> estimate_coercivity(nFolders)
+%
+%     This calls the function with the default parameters (the values in square brackets *[]*).     
 
 
 arguments
-    nFolders
-    kwargs.fileName = 'Bz_uc0.mat'
+    nFolders char {foldersMustExist(nFolders)}
+    kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
+                          fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = 0
+    kwargs.upCont = {0}
     kwargs.removeHotPixels = 0
     kwargs.includeHotPixel = 0
-    kwargs.reverse  (1,1) {mustBeMember(kwargs.reverse, [1, 0])} = 0
-    kwargs.freeHand  (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 0
-    kwargs.freeHandFilter (1,1) {mustBeMember(kwargs.freeHandFilter, [1, 0])} = 0
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = 0
+    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = 0
     kwargs.selectionThreshold (1,1) {mustBeNumeric} = 0.25
-    kwargs.checkPlot  (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.nROI = 0
     kwargs.chi = 0
     kwargs.winSize (1,1) = 4
     kwargs.bootStrapN = 1
-    kwargs.bootStrapPixels = 4
+    kwargs.pixelError = 4
 end
 
 % define optional function parameters
 fileName = kwargs.fileName;
+fileName = check_suffix(fileName);
+
 nROI = kwargs.nROI;
 
-if ~endsWith(fileName, '.mat')
-    fileName = [fileName, '.mat'];
-end
 %%
 % fix shape for nFolders
 nFolders = correct_cell_shape(nFolders);
 %%
-
-% ERROR estimation
-nMonteCarlo = 1000; % number of shifts around the mask to estimate errors
-pixelError = 3; % maximum number of pixel that the alignment could be wrong
 
 % generate reference file name
 fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
@@ -135,6 +128,7 @@ fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
                   'fixedIdx', kwargs.fixedIdx, 'removeHotPixels', kwargs.removeHotPixels,...
                   'includeHotPixel', kwargs.includeHotPixel,  'chi', kwargs.chi, ...
                   'winSize', kwargs.winSize, 'reverse', kwargs.reverse, ...
+                  'upCont', kwargs.upCont,...
                   'checkPlot', kwargs.checkPlot);
 
 % load the reference data
@@ -239,18 +233,18 @@ for j = 1:size(nFiles, 2)
             disp('  WARNING mask too close to edge, skipping ... ')
             continue
         end
-        
+
         dx = 0; dy = 0;
         % calculate parameters
-        
+
         for n = 1:kwargs.bootStrapN
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
             if kwargs.bootStrapN
-                dx = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
-                dy = randi([-kwargs.bootStrapPixels, kwargs.bootStrapPixels]);
+                dx = randi([-kwargs.pixelError, kwargs.pixelError]);
+                dy = randi([-kwargs.pixelError, kwargs.pixelError]);
             end
-            
+
             mask = shift_matrix(iMask, dx, dy);
             mData = iFileData.transData .* mask;
             mDataCut = limit_mask(mData);
@@ -266,7 +260,7 @@ for j = 1:size(nFiles, 2)
             thresh = mDataCut >= kwargs.selectionThreshold * max(mDataCut, [], 'all');
             iPixelThresh = [iPixelThresh, numel(nonzeros(thresh))];
         end
-        
+
         % Pixel above threshold
         thresh = mDataCut >= mean(d0Select,'all') + kwargs.selectionThreshold * std(d0Select, 0, 'all');
         iPixelThresh = numel(nonzeros(thresh));
