@@ -107,6 +107,9 @@ for iFolder = nMovingFolders
         movingLed = moving;
         movingLed = movingLed - min(movingLed, [], 'all');
     end
+    if movingLed == fixedLed
+        
+    end
     
     if reverse
         [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'checkPlot', checkPlot);
