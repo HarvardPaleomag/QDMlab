@@ -1,3 +1,8 @@
+d = subtract_blank('D:\data\N15data\Jul21_2020_FOV1\4x4Binned', 'D:\data\N15data\Jul21_2020_FOV1\4x4Binned')
+dkeys = d.keys();
+k = dkeys{1};
+d(k)
+%% more testing
 a = 'D:\data\mike\NRM';
 b = 'D:\data\mike\NRM';
 %%
