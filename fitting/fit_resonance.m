@@ -74,7 +74,6 @@ if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
     disp('<>   ERROR: Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet')
 end
 
-fit = struct();
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
 %% output setup
