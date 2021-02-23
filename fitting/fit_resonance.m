@@ -188,8 +188,6 @@ end
 %% fittiing related
 tolerance = 1e-10;
 
-
-
 if kwargs.type == 2
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq); 
@@ -271,7 +269,7 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     % amplitude
     mx = nanmax(gpudata);
     mn = nanmin(gpudata);
-    initialGuess(1,:) = -abs(2*((mx-mn)./mx));
+    initialGuess(1,:) = -abs(((mx-mn)./mx));
     
     % center frequency
     l = 7; % lowest n values
@@ -299,7 +297,7 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     % width
     initialGuess(3,:) = 0.003;
     % offset
-    initialGuess(4,:) = 1.002;
+    initialGuess(4,:) = mx;
 end
 
 
