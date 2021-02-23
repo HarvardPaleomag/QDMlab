@@ -1,8 +1,11 @@
-function [] = plotResults_CommLine(dataFolder, type, kwargs)
+function [] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
 
 arguments
     dataFolder
+    folderName
     type
+    fits
+    binSize
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
 end
 
