@@ -228,7 +228,7 @@ elseif strcmp(kwargs.diamond, 'N15')
     model_id = ModelID.ESR15N;
 end
 
-max_n_iterations = 1000;
+max_n_iterations = 10000;
 
 fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 % run Gpufit - Res 1
