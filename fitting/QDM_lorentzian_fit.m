@@ -33,7 +33,7 @@ arguments
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
-    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
+    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.25
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = 0
