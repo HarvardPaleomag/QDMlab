@@ -135,7 +135,7 @@ if ferroorpara == 'ferro'
         disp([num2str(Nreplacements) ' entries in B111ferro replaced by ' num2str(bkg)])
         
         saveas(gcf,[pathname originalfilename '_Hole.png'])
-        save([pathname originalfilename '_Hole.mat'],'B111ferro', 'B111para', 'FitCvgBoth', 'ledImg', 'negDiff', 'posDiff', '-mat')
+        save([pathname originalfilename '_Hole.mat'],'B111ferro', 'B111para', 'ledImg', 'negDiff', 'posDiff', '-mat')
         disp(sprintf(['\nSaving ' pathname originalfilename '_Hole.mat...\n']))
     else
         figure;
@@ -302,7 +302,7 @@ else
         disp([num2str(Nreplacements) ' entries in B111para replaced by ' num2str(bkg)])
         
         saveas(gcf,[pathname originalfilename '_Hole.png'])
-        save([pathname originalfilename '_Hole.mat'],'B111ferro', 'B111para', 'FitCvgBoth', 'ledImg', 'negDiff', 'posDiff', '-mat')
+        save([pathname originalfilename '_Hole.mat'],'B111ferro', 'B111para', 'ledImg', 'negDiff', 'posDiff', '-mat')
         disp(sprintf(['\nSaving ' pathname originalfilename '_Hole.mat...\n']))
     else
         figure;

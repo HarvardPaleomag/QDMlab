@@ -25,7 +25,7 @@ end
 disp([num2str(Nreplacements) ' entries in B111ferro replaced by 0'])
 
 if exist('ledImg','var')
-        save([filepath '/' 'B111dataToPlot_truncated' '.mat'],'B111ferro','B111para','FitCvgBoth','ledImg','negDiff','posDiff');
+        save([filepath '/' 'B111dataToPlot_truncated' '.mat'],'B111ferro','B111para','ledImg','negDiff','posDiff');
     else
         save([filepath '/' 'B111dataToPlot_truncated' '.mat'],'B111ferro','B111para');
 end

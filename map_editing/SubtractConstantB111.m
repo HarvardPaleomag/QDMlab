@@ -51,7 +51,7 @@ if strcmp(ferroorpara,'ferro')
     caxis([-1 1]*max(abs(caxis)));
     colorbar
     
-    save([filepath '/B111dataToPlotSub.mat'],'negDiff','posDiff', 'B111ferro', 'B111para', 'ledImg', 'FitCvgBoth');
+    save([filepath '/B111dataToPlotSub.mat'],'negDiff','posDiff', 'B111ferro', 'B111para', 'ledImg');
 else
         %choose value for subtraction
     disp(sprintf('Cropping area selection:  (+) saturate color scale, (-) desaturate color scale, \n(*) or (/) restore original color scale'));
@@ -91,7 +91,7 @@ else
     caxis([-1 1]*max(abs(caxis)));
     colorbar
     
-    save([filepath '/B111dataToPlotSub.mat'],'negDiff','posDiff', 'B111ferro', 'B111para', 'ledImg', 'FitCvgBoth');
+    save([filepath '/B111dataToPlotSub.mat'],'negDiff','posDiff', 'B111ferro', 'B111para', 'ledImg');
 end
 
 

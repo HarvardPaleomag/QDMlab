@@ -204,7 +204,7 @@ for fileNum=startN:1:endN
 
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
-    FitCvg = ones(sizeY,sizeX); %just to remove errors. This matrix is useless as is now.
+
     if kwargs.save
         fprintf('<>      INFO: saving data of %s\n',dataFile);
         if strcmp(kwargs.diamond, 'N14')

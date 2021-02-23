@@ -40,5 +40,5 @@ end
 
 disp([num2str(Nreplacements) ' entries in B111ferro and B111para replaced by 0'])
 
-save([pathname longfilename(1:end-4) '_truncated.mat'],'B111ferro', 'B111para', 'FitCvgBoth', 'ledImg', 'negDiff', 'posDiff', '-mat');
+save([pathname longfilename(1:end-4) '_truncated.mat'],'B111ferro', 'B111para', 'ledImg', 'negDiff', 'posDiff', '-mat');
 disp(sprintf(['\nSaving ' pathname longfilename(1:end-4) '_truncated.mat...\n']))
