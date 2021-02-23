@@ -54,7 +54,8 @@ chi2Pos2 = reshape(chi2Pos2, size(B111ferro));
 chi2Neg1 = reshape(chi2Neg1, size(B111ferro));
 chi2Neg2 = reshape(chi2Neg2, size(B111ferro));
 
-fitFailed = posB111Output.fitFailed | negB111Output.fitFailed;
+fitSuccess = posB111Output.fitSuccess | negB111Output.fitSuccess;
+fitFailed = ~fitSuccess;
 rng = .03;
 
 ledImg = load(ledImgPath);
@@ -70,7 +71,7 @@ B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed;
 save(fullfile(myDir, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
 
 %% PLOTS
-r1 = nanmean(B111para(fitFailed))-rng;    r2 = nanmean(B111para(fitFailed))+rng;
+r1 = nanmean(B111para(fitSuccess))-rng;    r2 = nanmean(B111para(fitSuccess))+rng;
  
 f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap jet; title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
 f2=figure; imagesc( (posDiff) ); axis equal tight; caxis([r1 r2]); colorbar; colormap jet; title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');

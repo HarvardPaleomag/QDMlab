@@ -49,6 +49,11 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %         Not quite sure this is a remnant of the prev. code
 %     diamond: str (N14)
 %         The type of diamond. Choses the type of fitting.
+%
+%  state definitions: CONVERGED = 0, MAX_ITERATION = 1, 
+%                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3, 
+%                     GPU_NOT_READY = 4, 
+%                     X2 > 1e-4, fRes > +- max(frequency)
 
 arguments
     expData struct
@@ -234,9 +239,9 @@ fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
-states(chiSquares > 1e-4) = 1;
-states(parameters(1,:) > max(freq)) = 1;
-states(parameters(1,:) < min(freq)) = 1;
+states(chiSquares > 1e-4) = 5;
+states(parameters(1,:) > max(freq)) = 6;
+states(parameters(1,:) < min(freq)) = 6;
 
 fit = reshape_fits(initialPreGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
 fit.freq = freq;
@@ -348,7 +353,7 @@ function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquar
         fit.baseline = squeeze(fit.parameters(5,:,:)+1);
     end
     
-    fit.states = ~reshape(states,[sizeY,sizeX]);
+    fit.states = reshape(states,[sizeY,sizeX]);
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
     fit.nRes = nRes;

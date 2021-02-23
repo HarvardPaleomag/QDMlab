@@ -8,7 +8,7 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     binSize = fit.binSize;
     
     fitData = fit.resonance;
-    fitData(~fit.states) = nan;
+    fitData(fit.states~=0) = nan;
 %     fitData = filter_hot_pixels(fitData, 'cutOff', 20,'chi', fitOld.chiSquares, 'winSize',nan);
 %     fitData = filter_hot_pixels(fitData, 'winSize',nan);
     res = imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
