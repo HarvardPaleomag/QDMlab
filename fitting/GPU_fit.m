@@ -199,8 +199,8 @@ for fileNum=startN:1:endN
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
     fitFailed = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
     fitSuccess = ~fitFailed;
-    fits.fitSucess = fitSuccess;
-    fits.fitFailed = fitFailed;
+    fits.(['fitSuccess' pol]) = fitSuccess;
+    fits.(['fitFailed' pol]) = fitFailed;
 
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions

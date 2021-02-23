@@ -74,26 +74,30 @@ for dataFolder = nFolders
                         'smoothDegree', kwargs.smoothDegree,...
                         'nucSpinPol', kwargs.nucSpinPol,...
                         'save', kwargs.save);
-
-        plotResults_CommLine(dataFolder,type)
-        foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+                    
+        fits.kwargs = kwargs;
+        fits.nFolder = dataFolder;
+        
+        folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+        mkdir(fullfile(dataFolder, folderName));
+        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
 
         %foldername=[num2str(bin) 'x' num2str(bin) 'Binned_' num2str(GF)];
-        mkdir(fullfile(dataFolder, foldername));
-        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
+        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
         if strcmp(type, 'nppn')
-        movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
+        movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
         end
-        movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, foldername))
-        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, foldername))
+%         movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, folderName))
+%         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
 end
 
