@@ -33,7 +33,7 @@ arguments
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
-    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
+    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.25
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = 0
@@ -54,11 +54,8 @@ if isnumeric(binSizes)
 end
 
 % select field polarity
-if kwargs.fieldPolarity == 4
-  type='nppn';
-else
-  type='np  ';
-end
+fp = containers.Map({0 1 2 4},{'np  ' 'n   ' 'p   ' 'nppn'});
+type = fp(kwargs.fieldPolarity);
 
 for dataFolder = nFolders
     dataFolder = dataFolder{:};
@@ -77,32 +74,30 @@ for dataFolder = nFolders
                         'smoothDegree', kwargs.smoothDegree,...
                         'nucSpinPol', kwargs.nucSpinPol,...
                         'save', kwargs.save);
-
-
-        % fit convergance, if the fit failed for whatever reason, the value for this pixel is 0 will be
-
-        fitFailed = fits.leftNeg.states | fits.rightNeg.states | fits.leftPos.states | fits.rightPos.states;
-        fits.fitFailed = fitFailed;
-
-        plotResults_CommLine(dataFolder,type)
-        foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+                    
+        fits.kwargs = kwargs;
+        fits.nFolder = dataFolder;
+        
+        folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+        mkdir(fullfile(dataFolder, folderName));
+        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
 
         %foldername=[num2str(bin) 'x' num2str(bin) 'Binned_' num2str(GF)];
-        mkdir(fullfile(dataFolder, foldername));
-        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
+        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
         if strcmp(type, 'nppn')
-        movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, foldername))
+        movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
+        movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
         end
-        movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, foldername))
-        movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, foldername))
-        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, foldername))
+%         movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
+%         movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, folderName))
+%         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
 end
 
