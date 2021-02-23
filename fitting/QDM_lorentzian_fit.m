@@ -54,11 +54,8 @@ if isnumeric(binSizes)
 end
 
 % select field polarity
-if kwargs.fieldPolarity == 4
-  type='nppn';
-else
-  type='np  ';
-end
+fp = containers.Map({0 1 2 4},{'np  ' 'n   ' 'p   ' 'nppn'});
+type = fp(kwargs.fieldPolarity);
 
 for dataFolder = nFolders
     dataFolder = dataFolder{:};
@@ -77,12 +74,6 @@ for dataFolder = nFolders
                         'smoothDegree', kwargs.smoothDegree,...
                         'nucSpinPol', kwargs.nucSpinPol,...
                         'save', kwargs.save);
-
-
-        % fit convergance, if the fit failed for whatever reason, the value for this pixel is 0 will be
-
-        fitFailed = fits.leftNeg.states | fits.rightNeg.states | fits.leftPos.states | fits.rightPos.states;
-        fits.fitFailed = fitFailed;
 
         plotResults_CommLine(dataFolder,type)
         foldername=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
