@@ -95,9 +95,9 @@ for dataFolder = nFolders
 %         movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
+        copyfile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, folderName))
-%         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
 end
 
