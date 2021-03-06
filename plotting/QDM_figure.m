@@ -7,6 +7,7 @@ arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.nROI = 'none';
+    kwargs.fitSuccess = 'none';
     kwargs.filter_hot_pixels = 0
 end
 
@@ -34,12 +35,15 @@ if kwargs.filter_hot_pixels
     data = filter_hot_pixels(data, 'cutOff', kwargs.filter_hot_pixels, 'winSize', nan);
 end
 
+if ~strcmp(kwargs.fitSuccess, 'none')
+    data(~kwargs.fitSuccess) = nan;
+end
 %%
 % Create axes
 axis off
 hold(ax,'on');
 
-% Create imagev
+% Create image
 pcolor(data,'Parent',ax);
 shading flat;
 set(ax, 'ydir', 'reverse');

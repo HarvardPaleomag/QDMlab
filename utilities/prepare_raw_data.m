@@ -33,8 +33,13 @@ spanYTrans = 1:expData.imgNumRows;
 % check for 101 frequencies. File includes imgStack3
 if isfield(expData, 'imgStack3')      
     % combine 1&2 or 3&4
-    dataStacka = expData.(sprintf('imgStack%i',nRes)); 
-    dataStackb = expData.(sprintf('imgStack%i',nRes+1));
+    if nRes == 1
+        a = 1; b = 2;
+    else
+        a = 3; b = 4;
+    end
+    dataStacka = expData.(sprintf('imgStack%i',a)); 
+    dataStackb = expData.(sprintf('imgStack%i',b));
     dataStack = [dataStacka; dataStackb];
 end
 
