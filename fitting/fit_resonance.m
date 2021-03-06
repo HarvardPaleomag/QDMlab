@@ -53,7 +53,7 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %  state definitions: CONVERGED = 0, MAX_ITERATION = 1, 
 %                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3, 
 %                     GPU_NOT_READY = 4, 
-%                     X2 > 1e-4, fRes > +- max(frequency)
+%                     X2 > 1e-4 = 5, fRes > +- max(frequency) = 6
 
 arguments
     expData struct
@@ -116,7 +116,7 @@ end
 
 
 %% prepare GPUfit data
-sweepLength = size(dataStack,1);
+sweepLength = size(freq,2);
 imgPts = sizeX*sizeY; % number of (x,y) pixels
 gpudata = reshape(binDataNorm,[imgPts,sweepLength]); % make it into 2d matrix
 gpudata = transpose(gpudata); %transpose to make it 51 x pixels
@@ -213,7 +213,7 @@ nBadPixels = numel(nonzeros(badPixels.state));
 
 if nBadPixels > 1
     if kwargs.type == 2 && strcmp(kwargs.diamond, 'N14')
-        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', nBadPixels, imgPts);
+        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See fits.states\n', nBadPixels, imgPts);
     else
         fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', nBadPixels, imgPts);
     end

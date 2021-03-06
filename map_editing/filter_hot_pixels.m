@@ -33,8 +33,8 @@ function filteredData = filter_hot_pixels(data, kwargs)
 arguments
    data
    kwargs.cutOff = 'none';
-   kwargs.includeHotPixel mustBeBoolean{kwargs.includeHotPixel} = 0
-   kwargs.checkPlot mustBeBoolean{kwargs.checkPlot}= 0
+   kwargs.includeHotPixel  = 0
+   kwargs.checkPlot = 0
    kwargs.chi = 0
    kwargs.winSize = 3
 end
