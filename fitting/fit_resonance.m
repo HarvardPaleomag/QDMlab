@@ -49,6 +49,11 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %         Not quite sure this is a remnant of the prev. code
 %     diamond: str (N14)
 %         The type of diamond. Choses the type of fitting.
+%
+%  state definitions: CONVERGED = 0, MAX_ITERATION = 1, 
+%                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3, 
+%                     GPU_NOT_READY = 4, 
+%                     X2 > 1e-4, fRes > +- max(frequency)
 
 arguments
     expData struct
@@ -183,8 +188,6 @@ end
 %% fittiing related
 tolerance = 1e-10;
 
-
-
 if kwargs.type == 2
     % initial parameters
     initialPreGuess = get_initial_guess(gpudata, freq); 
@@ -194,7 +197,7 @@ if kwargs.type == 2
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
         [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                           model_id, initialPreGuess, tolerance, 200, ...
+                           model_id, initialPreGuess, tolerance, 1000, ...
                            [], EstimatorID.MLE, xValues);
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         badPixels.chi = chiSquares;
@@ -225,7 +228,7 @@ elseif strcmp(kwargs.diamond, 'N15')
     model_id = ModelID.ESR15N;
 end
 
-max_n_iterations = 1000;
+max_n_iterations = 10000;
 
 fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 % run Gpufit - Res 1
@@ -234,9 +237,9 @@ fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
-states(chiSquares > 1e-4) = 1;
-states(parameters(1,:) > max(freq)) = 1;
-states(parameters(1,:) < min(freq)) = 1;
+states(chiSquares > 1e-4) = 5;
+states(parameters(1,:) > max(freq)) = 6;
+states(parameters(1,:) < min(freq)) = 6;
 
 fit = reshape_fits(initialPreGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
 fit.freq = freq;
@@ -266,7 +269,7 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     % amplitude
     mx = nanmax(gpudata);
     mn = nanmin(gpudata);
-    initialGuess(1,:) = -abs(2*((mx-mn)./mx));
+    initialGuess(1,:) = -abs(((mx-mn)./mx));
     
     % center frequency
     l = 7; % lowest n values
@@ -294,7 +297,7 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     % width
     initialGuess(3,:) = 0.003;
     % offset
-    initialGuess(4,:) = 1.002;
+    initialGuess(4,:) = mx;
 end
 
 
@@ -348,7 +351,7 @@ function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquar
         fit.baseline = squeeze(fit.parameters(5,:,:)+1);
     end
     
-    fit.states = ~reshape(states,[sizeY,sizeX]);
+    fit.states = reshape(states,[sizeY,sizeX]);
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
     fit.nRes = nRes;
