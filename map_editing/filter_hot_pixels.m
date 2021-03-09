@@ -62,7 +62,7 @@ if ~strcmp(cutOff, 'none')
 
         %calculate the standard deviation of all pixels
         dStd = nanstd(chi, 0, 'all');
-        disp(['<>           using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
+        disp(['<>             using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
 
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
@@ -88,6 +88,7 @@ filteredPixels = zeros(dshape);
 dataMedian = nanmedian(abs(data), 'all');
 
 % replace poixels with nan if specified
+
 if isnan(winSize)
     % set pixel value to nan
     filteredData(aboveStd) = nan;
