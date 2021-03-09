@@ -30,7 +30,7 @@ arguments
    kwargs.includeHotPixel  = 0
    kwargs.checkPlot = 0
    kwargs.chi = 0
-   kwargs.winSize = 3
+   kwargs.winSize = nan
    kwargs.remove_failed_pixels = true;
 end
 
@@ -53,16 +53,33 @@ for i = 1:size(nFiles,2)
     end
     
     if kwargs.chi
+        % check if cutOff is defined
+        if strcmp(kwargs.cutOff, 'none')
+            fprintf('<>   WARNING: ''cutOff'' is set to ''none''. Threshold will not be defined according to the chi values.\n')
+            fprintf('              please set: e.g. ''cutOff'', 5\n')
+        end
         chi = expData.chi2Neg1 + expData.chi2Neg2 + expData.chi2Pos1 + expData.chi2Pos2;
     else
         chi =0;
     end
     
+    % apply filter
     filterData = filter_hot_pixels(filterData, 'cutOff',kwargs.cutOff, ...
                                      'includeHotPixel', kwargs.includeHotPixel,...
                                      'chi',chi,'winSize', kwargs.winSize);
     
+	% save data with new fileName
     suffix = sprintf('_thresh(%s).mat', num2str(kwargs.cutOff));
     iFileNew = strrep(iFile,'.mat', string(suffix));
     fprintf('<>     SAVING: filtered data for file << %s >>\n', iFileNew);
+    
+	if is_B111(expData)
+        expData.B111ferro_unfiltered = expData.B111ferro;
+        expData.B111ferro = filterData;
+    else
+        expData.Bz_unfiltered = expData.Bz;
+        expData.Bz = filterData;
+    end
+    
+    save(iFileNew, '-struct', 'expData')
 end
