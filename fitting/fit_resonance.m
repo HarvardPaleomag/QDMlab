@@ -190,7 +190,7 @@ tolerance = 1e-10;
 
 if kwargs.type == 2
     % initial parameters
-    initialPreGuess = get_initial_guess(gpudata, freq);
+    initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
 
     %initiate badPixels structure
     badPixels = struct();
@@ -262,7 +262,7 @@ end
 end
 
 %% fitting helper functions
-function initialGuess =  get_initial_guess(gpudata, freq)
+function initialGuess =  get_initial_guess(gpudata, freq, diamond)
     initialGuess = zeros(4, size(gpudata,2), 'single');
 %     n = 1; % cut off outer points
 %     gpudata = gpudata(n:end-n,:);
@@ -273,41 +273,33 @@ function initialGuess =  get_initial_guess(gpudata, freq)
     initialGuess(1,:) = -abs(((mx-mn)./mx));
     
     % center frequency
-    l = 7; % lowest n values
     [~, idx] = sort(gpudata);
-    
+    l = 7; % lowest n values
     mxidx = max(idx(1:l,:));
-    mnidx = min(idx(1:l,:));
-%     idx__ = int16(mean(cat(1, mxidx,mnidx)));
-%     cIdx = zeros(1,size(idx,2));
-%     for p = 1:size(idx,2)
-%         idx_ = idx(:,p);
-%         i0 = idx_(1);
-%         for i = 2:size(idx_)
-%             if abs(i-i0) >= 5
-%                 i1 = idx_(i);
-%                 cIdx(p) = int16((i0+i1)/2);
-%                 break
+    mnidx = min(idx(1:l,:)); 
+    
+    if strcmp(diamond, 'N15')
+        cIdx = int16((mxidx+mnidx)/2);
+    else
+        cIdx = int16(mean(cat(1, mxidx,mnidx)));
+%         cIdx = zeros(1,size(idx,2));
+%         for p = 1:size(idx,2)
+%             idx_ = idx(:,p);
+%             i0 = idx_(1);
+%             for i = 2:size(idx_)
+%                 if abs(i-i0) >= 5
+%                     i1 = idx_(i);
+%                     cIdx(p) = int16((i0+i1)/2);
+%                     break
+%                 end
 %             end
 %         end
-%     end
+    end
 
-    cIdx = int16((mxidx+mnidx)/2);
-%     idx = int16(mean(idx(1:l,:)));
     
     center = freq(cIdx);
-%     center = zeros(1, numel(idx));
-
-%     parfor i = 1:numel(idx)
-%         center(i) = freq(idx(i)+n);
-%     end
-
     initialGuess(2,:) = center;
-    
-%     parfor i = 1:numel(idx)
-%         center(i) = freq(idx(i));
-%     end
-    
+   
     % width
     initialGuess(3,:) = 0.0015;
     % offset
