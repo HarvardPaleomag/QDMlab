@@ -46,12 +46,12 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         ax3 = subplot(1,3,3);
         cla()
         rows = size(binDataNorm,1);
-        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.-','DisplayName','data')
+        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.','DisplayName','data')
         hold on
         idx = xy2index(x, y,rows);
         plot(freq, 1+model_GPU(fit.p(:,idx), freq, 'diamond', diamond), 'b','DisplayName','Fit')
         plot(freq, 1+model_GPU(fit.g(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
-        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'c:','DisplayName','pre guess')
+        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
         ylabel('Intensity')
         xlabel('f (Hz)')
         legend('Location','southwest', 'NumColumns',3)
