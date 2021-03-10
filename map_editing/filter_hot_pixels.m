@@ -17,10 +17,11 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     chi: array
 %         if chi is provided the data will be filtered according to the chi
 %         values.
-%     winSize: int
+%     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
 %         if nan: values are replaced by nan
+%         if 0: values are replaced by 0
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
 
@@ -89,65 +90,71 @@ dataMedian = nanmedian(abs(data), 'all');
 
 % replace poixels with nan if specified
 
-if isnan(winSize)
+% if isnan(winSize)
     % set pixel value to nan
-    filteredData(aboveStd) = nan;
-    filteredPixels(aboveStd) = 1;
-% otherwise calculate the mean over winSize
-else
-    for row = 1:dshape(1)
-        for col = 1:dshape(2)
-            % pixels that exceed the mean + 4 std deviations are replaced by
-            % the mean of a square of pixels 7x7 pixels
-            if aboveStd(row, col)
-                % set pixel to 1 to check which pixel were removed
-                filteredPixels(row, col) = 1;
+filteredData(aboveStd) = nan;
 
-                if includeHotPixel == false
-                    % set pixel value to nan
-                    filteredData(row,col) = nan;
-                end
-
-                % set maximum and minimum of average square
-                minrow = row-winSize;
-                maxrow = row+winSize;
-
-                mincol = col-winSize;
-                maxcol = col+winSize;
-
-                % deal with edge cases by reducing the window
-                if minrow < 1
-                    minrow = 1;
-                end
-
-                if mincol < 1 
-                    mincol = 1;
-                end
-
-
-                if maxrow > dshape(1)
-                    maxrow = dshape(1);
-                end
-
-                if maxcol > dshape(2)
-                    maxcol = dshape(2);
-                end
-
-                % get the average window
-                window = filteredData(minrow:maxrow, mincol:maxcol);
-            
-                % calculate the mean 
-                % if include_hot_pixel without using the pixel itself
-                new_val = nanmean(window, 'all');
-
-                filteredData(row,col) = new_val;
-
-            end
-        end
-    end
+if winSize == 0
+    filteredData(aboveStd) = 0;
+elseif ~isnan(winSize)
+    filteredData = fillmissing(filteredData,'movmean',winSize);
 end
+%     filteredPixels(aboveStd) = 1;
+% otherwise calculate the mean over winSize
+% else
+%     for row = 1:dshape(1)
+%         for col = 1:dshape(2)
+%             % pixels that exceed the mean + 4 std deviations are replaced by
+%             % the mean of a square of pixels 7x7 pixels
+%             if aboveStd(row, col)
+%                 % set pixel to 1 to check which pixel were removed
+%                 filteredPixels(row, col) = 1;
+% 
+%                 if includeHotPixel == false
+%                     % set pixel value to nan
+%                     filteredData(row,col) = nan;
+%                 end
+% 
+%                 % set maximum and minimum of average square
+%                 minrow = row-winSize;
+%                 maxrow = row+winSize;
+% 
+%                 mincol = col-winSize;
+%                 maxcol = col+winSize;
+% 
+%                 % deal with edge cases by reducing the window
+%                 if minrow < 1
+%                     minrow = 1;
+%                 end
+% 
+%                 if mincol < 1 
+%                     mincol = 1;
+%                 end
+% 
+% 
+%                 if maxrow > dshape(1)
+%                     maxrow = dshape(1);
+%                 end
+% 
+%                 if maxcol > dshape(2)
+%                     maxcol = dshape(2);
+%                 end
+% 
+%                 % get the average window
+%                 window = filteredData(minrow:maxrow, mincol:maxcol);
+%             
+%                 % calculate the mean 
+%                 % if include_hot_pixel without using the pixel itself
+%                 new_val = nanmean(window, 'all');
+% 
+%                 filteredData(row,col) = new_val;
+% 
+%             end
+%         end
+%     end
+% end
 
-n_pixels = sum(sum(filteredPixels));
+n_pixels = numel(nonzeros(aboveStd));
 
 if strcmp(cutOff, 'none')
     fprintf('<>     FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
