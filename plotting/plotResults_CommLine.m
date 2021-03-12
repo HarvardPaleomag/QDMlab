@@ -62,10 +62,10 @@ ledImg = load(ledImgPath);
 
 
 %% SAVE results for plotting later
-B111dataToPlot.negDiff = negDiff; B111dataToPlot.posDiff = posDiff; 
-B111dataToPlot.B111ferro = B111ferro; B111dataToPlot.B111para = B111para;
-B111dataToPlot.chi2Pos1 = chi2Pos1; B111dataToPlot.chi2Pos2 = chi2Pos2; 
-B111dataToPlot.chi2Neg1 = chi2Neg1; B111dataToPlot.chi2Neg2 = chi2Neg2;
+B111dataToPlot.negDiff = double(negDiff); B111dataToPlot.posDiff = double(posDiff); 
+B111dataToPlot.B111ferro = double(B111ferro); B111dataToPlot.B111para = double(B111para);
+B111dataToPlot.chi2Pos1 = double(chi2Pos1); B111dataToPlot.chi2Pos2 = double(chi2Pos2); 
+B111dataToPlot.chi2Neg1 = double(chi2Neg1); B111dataToPlot.chi2Neg2 = double(chi2Neg2);
 B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed; 
 save(fullfile(myDir, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
 
