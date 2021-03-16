@@ -5,13 +5,8 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % 
 % Parameters
 % ----------
-%     positional
-%     ----------
 %     data:
 %         data matrix to be filtered
-%     
-%     optional parameters
-%     -------------------
 %     cutOff: 
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -55,9 +50,9 @@ data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
-    fprintf('<>   FILTER: data where data/chi is %i standard deviations above the median\n', cutOff)
+    fprintf('<>     FILTER: data where data/chi is %i standard deviations above the median\n', cutOff)
 
-    if chi ~= 0
+    if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
         chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
         chi(chiFilter) = nan;
@@ -67,7 +62,7 @@ if ~strcmp(cutOff, 'none')
 
         %calculate the standard deviation of all pixels
         dStd = nanstd(chi, 0, 'all');
-        disp(['<>           using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
+        disp(['<>             using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
 
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
@@ -93,6 +88,7 @@ filteredPixels = zeros(dshape);
 dataMedian = nanmedian(abs(data), 'all');
 
 % replace poixels with nan if specified
+
 if isnan(winSize)
     % set pixel value to nan
     filteredData(aboveStd) = nan;
@@ -154,9 +150,9 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    fprintf('<>   FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    fprintf('<>     FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
 else
-    fprintf('<>   FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
+    fprintf('<>     FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
 end
 
 %% checkplot
