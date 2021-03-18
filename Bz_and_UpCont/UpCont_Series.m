@@ -1,6 +1,6 @@
 %function [] = QDMfileviewer()
 
-UCarray=[10 20 30 40 50]*1e-6;%upward continuations in microns
+UCarray=[5 10 15]*1e-6;%upward continuations in microns
 %UCarray=[10 20 30 40 60 80 100]*1e-6;%upward continuations in microns
 %UCarray=[60]*1e-6;%upward continuations in microns
 %UCarray=[10,20,35,50,75,100,150]*1e-6;

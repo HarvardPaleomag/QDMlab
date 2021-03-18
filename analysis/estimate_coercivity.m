@@ -87,7 +87,7 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 
 
 arguments
-    nFolders char {foldersMustExist(nFolders)}
+    nFolders cell {foldersMustExist(nFolders)}
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
