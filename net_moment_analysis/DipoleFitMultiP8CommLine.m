@@ -84,6 +84,8 @@ addParameter(inParams, 'boxwidth', 100e-6)
 addParameter(inParams, 'STATISTICS', 0)
 addParameter(inParams, 'NSTAT', 50)
 addParameter(inParams, 'DISPLAY', 0)
+addParameter(inParams, 'IMAGEFOLDER',0)
+addParameter(inParams, 'SOURCENAME',0)
 
 parse(inParams,MORDER,INFILE, XY, CROPFACT, DOWNSMPL, NRUNS, QUAD, outputtrue,plottrue,varargin{:});
 
@@ -99,6 +101,8 @@ boxwidth=inParams.Results.boxwidth;
 STATISTICS=inParams.Results.STATISTICS;
 NSTAT=inParams.Results.NSTAT;
 DISPLAY=inParams.Results.DISPLAY;
+IMAGEFOLDER=inParams.Results.IMAGEFOLDER;
+SOURCENAME=inParams.Results.SOURCENAME;
 
 rng('shuffle')
 
@@ -475,7 +479,15 @@ while counter
         colorbar
         title('Residuals');
     end
-    saveas(gcf,[filepath '/Fit_' name '_M' num2str(MORDER) '_x' num2str(round(XY(1))) 'y' num2str(round(XY(2))) '.png'])
+    if IMAGEFOLDER
+        if SOURCENAME
+            saveas(gcf,[IMAGEFOLDER '/Fit_' name '_M' num2str(MORDER) '_' SOURCENAME '.png'])
+        else
+            disp('Saving to IMAGEFOLDER directory requires a SOURCENAME parameter.');
+        end
+    else
+        saveas(gcf,[filepath '/Fit_' name '_M' num2str(MORDER) '_x' num2str(round(XY(1))) 'y' num2str(round(XY(2))) '.png'])
+    end
     
     %resids=sqrt(sum(sum(residex.^2))/numel(residex))
     resids=sqrt(sum(sum(residex.^2))/sum(sum(scanCropped.^2)));
