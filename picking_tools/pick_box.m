@@ -74,7 +74,8 @@ while n
             fprintf('<>      creating coordinates of box #%i (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy)
             nRects{end+1} = max(round([x0, y0, dx, dy]), 0);
         else
-            iMask = createMask(iRect);
+            iMask = zeros(size(data));
+            iMask(y0:y1,x0:x1)=1;
             m = limit_mask(iMask);
             fprintf('<>      creating mask for box #%i (%ix%i : %i pixel)\n', n, size(m,2), size(m,1), numel(m))
             nRects{end+1} = iMask;

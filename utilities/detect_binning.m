@@ -4,8 +4,8 @@ function binning = detect_binning(inData)
 if isfield(inData, 'ledImg')
     led = inData.ledImg;
     data = inData.B111ferro;
-elseif isfield(data, 'newLED')
-    led = data.newLED;
+elseif isfield(inData, 'newLED')
+    led = inData.newLED;
     data = inData.Bz;
 end
     

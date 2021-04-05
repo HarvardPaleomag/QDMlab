@@ -16,10 +16,10 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 %
 
 arguments
-    nFolders char {foldersMustExist(nFolders)}
+    nFolders cell {foldersMustExist(nFolders)}
     transFormFile char
     kwargs.fixedIdx int16 = 1
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.freeHand)} = 1
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 1
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
