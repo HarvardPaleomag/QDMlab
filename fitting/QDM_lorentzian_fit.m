@@ -30,7 +30,7 @@ function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
 %
 
 arguments
-    nFolders char {foldersMustExist(nFolders)}
+    nFolders {foldersMustExist(nFolders)}
     binSizes double
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
