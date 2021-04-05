@@ -1,8 +1,11 @@
-function [] = plotResults_CommLine(dataFolder, type, kwargs)
+function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
 
 arguments
     dataFolder
+    folderName
     type
+    fits
+    binSize
     kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
 end
 
@@ -12,6 +15,11 @@ myDir = dataFolder;
 
 ledFiles = dir(fullfile(myDir,'led.csv'));   %grab the first / only CSV
 ledImgPath = fullfile(myDir, ledFiles(1).name);
+ledImg = load(ledImgPath);
+
+laserFiles = dir(fullfile(myDir,'laser.jpg'));   %grab the first / only CSV
+laserImgPath = fullfile(myDir, laserFiles(1).name);
+laserImg = imread(laserImgPath);
 
 gamma = 0.0028;
  
@@ -54,12 +62,9 @@ chi2Pos2 = reshape(chi2Pos2, size(B111ferro));
 chi2Neg1 = reshape(chi2Neg1, size(B111ferro));
 chi2Neg2 = reshape(chi2Neg2, size(B111ferro));
 
+%% determine overall fit Success
 fitFailed = posB111Output.fitFailed | negB111Output.fitFailed;
-rng = .03;
-
-ledImg = load(ledImgPath);
-
-
+fitSuccess = ~fitFailed;
 
 %% SAVE results for plotting later
 B111dataToPlot.negDiff = double(negDiff); B111dataToPlot.posDiff = double(posDiff); 
@@ -67,17 +72,33 @@ B111dataToPlot.B111ferro = double(B111ferro); B111dataToPlot.B111para = double(B
 B111dataToPlot.chi2Pos1 = double(chi2Pos1); B111dataToPlot.chi2Pos2 = double(chi2Pos2); 
 B111dataToPlot.chi2Neg1 = double(chi2Neg1); B111dataToPlot.chi2Neg2 = double(chi2Neg2);
 B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed; 
-save(fullfile(myDir, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
+save(fullfile(myDir, folderName, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
+
+fits.negDiff = negDiff; fits.posDiff = posDiff; 
+fits.B111ferro = B111ferro; fits.B111para = B111para;
+fits.ledImg = ledImg; fits.laserImg = laserImg; 
+fits.fitFailed = fitFailed; fits.fitSuccess = fitSuccess; 
 
 %% PLOTS
-r1 = nanmean(B111para(fitFailed))-rng;    r2 = nanmean(B111para(fitFailed))+rng;
+rng = .03;
+
+r1 = nanmean(B111para(fitSuccess))-rng;    r2 = nanmean(B111para(fitSuccess))+rng;
  
 f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap jet; title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
+saveas(f1, fullfile(myDir, folderName,  'negCurrent.png'),'png');
+
 f2=figure; imagesc( (posDiff) ); axis equal tight; caxis([r1 r2]); colorbar; colormap jet; title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
+saveas(f2, fullfile(myDir, folderName,  'posCurrent.png'),'png');
+
 f3=figure; imagesc( B111ferro ); axis equal tight; caxis(-.1 + [-rng rng]); colorbar; colormap jet; title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
+saveas(f3, fullfile(myDir, folderName,  'ferromagImg.png'),'png');
+
 f4=figure; imagesc(ledImg); axis equal tight; colorbar; colormap gray; caxis auto; title('LED image'); set(gca,'YDir','normal');
+saveas(f4, fullfile(myDir, folderName,  'ledImg.png'),'png');
+
 f5=figure; imagesc( B111para ); axis equal tight; caxis([r1 r2]); colorbar; colormap jet; title('Positive + negative para B_{111} (gauss)'); set(gca,'YDir','normal');
- 
+saveas(f5, fullfile(myDir, folderName,  'paramagImg.png'),'png');
+
 f6=figure('Name','data','units','normalized','outerposition',[0 0 1 1]); set(gca,'YDir','normal');
 s1 = subplot(2,2,1); imagesc( (negDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s1,jet); title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
 s2 = subplot(2,2,2); imagesc( (posDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s2,jet); title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
@@ -86,7 +107,11 @@ s4 = subplot(2,2,4); imagesc( (ledImg) ,'hittest', 'off'); axis equal tight; col
 sgtitle(', B111 points up and out of page');
 ax = [s1,s2,s3];
 linkaxes(ax);
+saveas(f6, fullfile(myDir, folderName, 'allPlots.png'),'png');
 
+map = [ 1 1 1; 1 0 0];
+f7=figure; imagesc( fitFailed ); axis equal tight; colormap(map); title('failed Pixels'); set(gca,'YDir','normal');
+saveas(f7, fullfile(myDir, folderName,  'fitFailed.png'),'png');
 
 if kwargs.checkPlot
     fig = figure('Name', 'spectra');
@@ -103,12 +128,7 @@ if kwargs.checkPlot
     drawnow;
 end
 
-saveas(f1, fullfile(myDir, 'negCurrent.png'),'png');
-saveas(f2, fullfile(myDir, 'posCurrent.png'),'png');
-saveas(f3, fullfile(myDir, 'ferromagImg.png'),'png');
-saveas(f4, fullfile(myDir, 'ledImg.png'),'png');
-saveas(f5, fullfile(myDir, 'paramagImg.png'),'png');
-saveas(f6, fullfile(myDir, 'allPlots.png'),'png');
+
 end
 function clickFitFcn(hObj, event, binSize, posB111Output, negB111Output, points, ax, fig)
     % Get click coordinate

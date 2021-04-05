@@ -197,10 +197,10 @@ for fileNum=startN:1:endN
     end
     
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
-    fitFailed = fits.(['left' pol]).states | fits.(['right' pol]).states;
-    fitSucess = ~fitFailed;
-    fits.fitSucess = fitSucess;
-    fits.fitFailed = fitFailed;
+    fitFailed = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
+    fitSuccess = ~fitFailed;
+    fits.(['fitSuccess' pol]) = fitSuccess;
+    fits.(['fitFailed' pol]) = fitFailed;
 
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
@@ -213,14 +213,14 @@ for fileNum=startN:1:endN
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
-                'binSize','type','gaussianFit', 'fitFailed');
+                'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
         elseif strcmp(kwargs.diamond, 'N15')
             save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
-            'binSize','type','gaussianFit', 'fitFailed');
+            'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
         end
         
         if LEDimgFlg==1

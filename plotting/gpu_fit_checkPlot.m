@@ -1,6 +1,5 @@
 function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
-    fig = figure;
-    set(gcf,'position',[250,500,1500,250])
+    fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
 
     ax1 = subplot(1,3,1);
     
@@ -8,7 +7,7 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     binSize = fit.binSize;
     
     fitData = fit.resonance;
-    fitData(~fit.states) = nan;
+    fitData(fit.states~=0) = nan;
 %     fitData = filter_hot_pixels(fitData, 'cutOff', 20,'chi', fitOld.chiSquares, 'winSize',nan);
 %     fitData = filter_hot_pixels(fitData, 'winSize',nan);
     res = imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
@@ -47,12 +46,12 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         ax3 = subplot(1,3,3);
         cla()
         rows = size(binDataNorm,1);
-        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.-','DisplayName','data')
+        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.','DisplayName','data')
         hold on
         idx = xy2index(x, y,rows);
         plot(freq, 1+model_GPU(fit.p(:,idx), freq, 'diamond', diamond), 'b','DisplayName','Fit')
         plot(freq, 1+model_GPU(fit.g(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
-        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'c:','DisplayName','pre guess')
+        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
         ylabel('Intensity')
         xlabel('f (Hz)')
         legend('Location','southwest', 'NumColumns',3)

@@ -7,7 +7,9 @@ arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.nROI = 'none';
-    kwargs.filter_hot_pixels = 0
+    kwargs.fitSuccess = 'none';
+    kwargs.filter_hot_pixels = 0;
+    kwargs.title = 'QDM DATA';
 end
 
 if kwargs.fig == 'none'
@@ -34,25 +36,28 @@ if kwargs.filter_hot_pixels
     data = filter_hot_pixels(data, 'cutOff', kwargs.filter_hot_pixels, 'winSize', nan);
 end
 
+if ~strcmp(kwargs.fitSuccess, 'none')
+    data(~kwargs.fitSuccess) = nan;
+end
 %%
 % Create axes
 axis off
 hold(ax,'on');
 
-% Create imagev
+% Create image
 pcolor(data,'Parent',ax);
 shading flat;
 set(ax, 'ydir', 'reverse');
 % imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
-title({'QDM DATA'});
+title(kwargs.title);
 
 box(ax,'on');
 axis(ax,'tight');
 
 % Set the remaining axes properties
-med = nanmedian(data,'all'); st = nanstd(data,[],'all'); 
+med = abs(nanmedian(data,'all')); st = nanstd(data,[],'all'); 
 mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
 
 if ~all(data>0)

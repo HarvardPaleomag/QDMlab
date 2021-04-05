@@ -49,6 +49,11 @@ function [fit, initialGuess, badPixels] = fit_resonance(expData, binSize, nRes, 
 %         Not quite sure this is a remnant of the prev. code
 %     diamond: str (N14)
 %         The type of diamond. Choses the type of fitting.
+%
+%  state definitions: CONVERGED = 0, MAX_ITERATION = 1, 
+%                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3, 
+%                     GPU_NOT_READY = 4, 
+%                     X2 > 1e-4 = 5, fRes > +- max(frequency) = 6
 
 arguments
     expData struct
@@ -74,7 +79,6 @@ if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
     disp('<>   ERROR: Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet')
 end
 
-fit = struct();
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
 %% output setup
@@ -112,7 +116,7 @@ end
 
 
 %% prepare GPUfit data
-sweepLength = size(dataStack,1);
+sweepLength = size(freq,2);
 imgPts = sizeX*sizeY; % number of (x,y) pixels
 gpudata = reshape(binDataNorm,[imgPts,sweepLength]); % make it into 2d matrix
 gpudata = transpose(gpudata); %transpose to make it 51 x pixels
@@ -184,18 +188,17 @@ end
 %% fittiing related
 tolerance = 1e-10;
 
-
-
 if kwargs.type == 2
     % initial parameters
-    initialPreGuess = get_initial_guess(gpudata, freq); 
+    initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
+
     %initiate badPixels structure
     badPixels = struct();
     if strcmp(kwargs.diamond, 'N14')
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
         [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-                           model_id, initialPreGuess, tolerance, 200, ...
+                           model_id, initialPreGuess, tolerance, 1000, ...
                            [], EstimatorID.MLE, xValues);
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         badPixels.chi = chiSquares;
@@ -211,7 +214,7 @@ nBadPixels = numel(nonzeros(badPixels.state));
 
 if nBadPixels > 1
     if kwargs.type == 2 && strcmp(kwargs.diamond, 'N14')
-        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See badPixels.states\n', nBadPixels, imgPts);
+        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See fits.states\n', nBadPixels, imgPts);
     else
         fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', nBadPixels, imgPts);
     end
@@ -235,9 +238,9 @@ fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
-states(chiSquares > 1e-4) = 1;
-states(parameters(1,:) > max(freq)) = 1;
-states(parameters(1,:) < min(freq)) = 1;
+states(chiSquares > 1e-4) = 5;
+states(parameters(1,:) > max(freq)) = 6;
+states(parameters(1,:) < min(freq)) = 6;
 
 fit = reshape_fits(initialPreGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
 fit.freq = freq;
@@ -259,43 +262,48 @@ end
 end
 
 %% fitting helper functions
-function initialGuess =  get_initial_guess(gpudata, freq)
+function initialGuess =  get_initial_guess(gpudata, freq, diamond)
     initialGuess = zeros(4, size(gpudata,2), 'single');
-    n = 5; % cut off outer points
-    gpudata = gpudata(n:end-n,:);
+%     n = 1; % cut off outer points
+%     gpudata = gpudata(n:end-n,:);
 
     % amplitude
     mx = nanmax(gpudata);
     mn = nanmin(gpudata);
-    initialGuess(1,:) = -abs(2*((mx-mn)./mx));
+    initialGuess(1,:) = -abs(((mx-mn)./mx));
     
     % center frequency
-    l = 7; % lowest n values
     [~, idx] = sort(gpudata);
-    
+    l = 7; % lowest n values
     mxidx = max(idx(1:l,:));
-    mnidx = min(idx(1:l,:));
-    idx = int16(mean(cat(1, mxidx,mnidx)));
-%     idx = int16(mean(idx(1:l,:)));
+    mnidx = min(idx(1:l,:)); 
     
-    center = freq(idx+n);
-%     center = zeros(1, numel(idx));
+    if strcmp(diamond, 'N15')
+        cIdx = int16((mxidx+mnidx)/2);
+    else
+        cIdx = int16(mean(cat(1, mxidx,mnidx)));
+%         cIdx = zeros(1,size(idx,2));
+%         for p = 1:size(idx,2)
+%             idx_ = idx(:,p);
+%             i0 = idx_(1);
+%             for i = 2:size(idx_)
+%                 if abs(i-i0) >= 5
+%                     i1 = idx_(i);
+%                     cIdx(p) = int16((i0+i1)/2);
+%                     break
+%                 end
+%             end
+%         end
+    end
 
-%     parfor i = 1:numel(idx)
-%         center(i) = freq(idx(i)+n);
-%     end
-
+    
+    center = freq(cIdx);
     initialGuess(2,:) = center;
-    
-    center = freq(idx);
-%     parfor i = 1:numel(idx)
-%         center(i) = freq(idx(i));
-%     end
-    
+   
     % width
-    initialGuess(3,:) = 0.003;
+    initialGuess(3,:) = 0.0015;
     % offset
-    initialGuess(4,:) = 1.002;
+    initialGuess(4,:) = mx;
 end
 
 
@@ -349,7 +357,7 @@ function fit = reshape_fits(preGuess, initialGuess, parameters, states, chiSquar
         fit.baseline = squeeze(fit.parameters(5,:,:)+1);
     end
     
-    fit.states = ~reshape(states,[sizeY,sizeX]);
+    fit.states = reshape(states,[sizeY,sizeX]);
     fit.chiSquares = reshape(chiSquares,[sizeY,sizeX]);
     fit.n_iterations = reshape(n_iterations,[sizeY,sizeX]);
     fit.nRes = nRes;
