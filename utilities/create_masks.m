@@ -1,12 +1,11 @@
 function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
 %%
-% transForms and refFrames are now in data coordinates
 arguments
     data
     selectionThreshold
     kwargs.nROI = false;
-    kwargs.freeHand  (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 0
-    kwargs.freeHandFilter (1,1) {mustBeMember(kwargs.freeHandFilter, [1, 0])} = 0
+    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = false
+    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = false
 end
 nROI = kwargs.nROI;
 
@@ -45,7 +44,7 @@ else
 %         axis xy; axis equal; axis tight; shading flat;
 
         % The masked data now gets filtered to create the final mask
-        iMaskData = selData >= selectionThreshold * nanmax(selData, [], 'all');
+        iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
         m = limit_mask(nROI{iSelect});
         fprintf('<>      creating mask #%i containing %i/%i pixel (%.2f %%)\n', iSelect, numel(nonzeros(iMaskData)), numel(m), numel(nonzeros(iMaskData))/numel(m)*100)
 

@@ -57,7 +57,7 @@ box(ax,'on');
 axis(ax,'tight');
 
 % Set the remaining axes properties
-med = abs(nanmedian(data,'all')); st = nanstd(data,[],'all'); 
+med = abs(median(data,'all','omitnan')); st = std(data,[],'all','omitnan'); 
 mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
 
 if ~all(data>0)

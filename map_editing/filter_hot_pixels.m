@@ -85,7 +85,7 @@ filteredData = data;
 % initiate filtered pixel array for plotting
 filteredPixels = zeros(dshape);
 
-dataMedian = nanmedian(abs(data), 'all');
+dataMedian = median(abs(data), 'all', 'omitnan');
 
 % replace poixels with nan if specified
 
