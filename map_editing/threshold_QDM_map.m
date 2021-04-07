@@ -1,9 +1,9 @@
-function threshold_QDM_map(nFiles, kwargs)
+function threshold_QDM_map(kwargs)
 % threshold_QDM_map(nFiles, kwargs) loads a file, removes all pixels above
 % a threshold and saves it with '_thresh' tag.
 % Parameters
 % ----------
-%     nFolders: cell
+%     nFiles: cell
 %     cutOff: int [4]
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -19,22 +19,26 @@ function threshold_QDM_map(nFiles, kwargs)
 %         if nan: values are replaced by nan
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
+%     threshold; double [5]
+%
 %     remove_failed_pixels: bool [true]
 %         removes all pixels that were tagges as 'failed' (after version
 %         2021.1.beta3)
 
 
 arguments
-   nFiles;
+   kwargs.nFiles = 'none';
    kwargs.cutOff = 'none';
    kwargs.includeHotPixel  = 0
    kwargs.checkPlot = 0
    kwargs.chi = 0
    kwargs.winSize = nan
    kwargs.remove_failed_pixels = true;
+   kwargs.threshold = 5;
 end
 
-nFiles = correct_cell_shape(nFiles);
+% checks and detects if a path was given otherwise you can select one
+nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off')
 
 for i = 1:size(nFiles,2)
     iFile = nFiles{i};
@@ -66,7 +70,8 @@ for i = 1:size(nFiles,2)
     % apply filter
     filterData = filter_hot_pixels(filterData, 'cutOff',kwargs.cutOff, ...
                                      'includeHotPixel', kwargs.includeHotPixel,...
-                                     'chi',chi,'winSize', kwargs.winSize);
+                                     'chi',chi,'winSize', kwargs.winSize,...
+                                     'threshold', kwargs.threshold);
     
 	% save data with new fileName
     suffix = sprintf('_thresh(%s).mat', num2str(kwargs.cutOff));

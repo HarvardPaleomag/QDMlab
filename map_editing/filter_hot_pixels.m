@@ -7,6 +7,8 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % ----------
 %     data:
 %         data matrix to be filtered
+%     threshold: double [5]
+%         values higher than this will be replaced
 %     cutOff: 
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -32,6 +34,7 @@ arguments
    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= 0
    kwargs.chi = 0
    kwargs.winSize = 3
+   kwargs.threshold = 5
 end
 
 % define optional arguments
@@ -45,7 +48,7 @@ winSize = kwargs.winSize;
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) >= 5;
+aboveStd = abs(data) >= kwargs.threshold;
 data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
