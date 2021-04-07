@@ -60,7 +60,7 @@ function globalFraction = globalFraction_estimator(expData, kwargs)
     [x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
     plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
     hold(ax1, 'on');
-    plot(ax1, globalMean, 'b:')
+    plot(ax1, globalMean, 'b:','lineWidth',1)
     p1 = plot(ax1, squeeze(binDataNorm(y1,x1,:)),'lineWidth',1);
     title(ax1, 'min(min) pixel')
     xlim(ax1, [0 numel(freq)]);
@@ -71,39 +71,45 @@ function globalFraction = globalFraction_estimator(expData, kwargs)
     [x2,y2] = index2xy(randInt, nCol, 'type', 'binDataNorm');
     p2_data = plot(ax2, squeeze(binDataNorm(y2,x2,:)), 'k','lineWidth',1);
     hold(ax2, 'on');
-    plot(ax2, globalMean, 'b:');
+    globalPlot = plot(ax2, globalMean, 'b:','lineWidth',1);
     p2 = plot(ax2, squeeze(binDataNorm(y2,x2,:)),'lineWidth',1);
     title(ax2, sprintf('random pixel [%i] (%i,%i)',randInt,x2,y2));
     xlim(ax2, [0 numel(freq)]);
+    legend([p2_data, globalPlot, p2], 'data', 'global', 'corrected','Location','southeast')
+    legend('boxoff')
     
     [x3,y3] = index2xy(iMax, nCol, 'type', 'binDataNorm');
     plot(ax3, squeeze(binDataNorm(y3,x3,:)), 'k','lineWidth',1);
     hold(ax3, 'on');
-    plot(ax3, globalMean, 'b:');
+    plot(ax3, globalMean, 'b:','lineWidth',1);
     p3 = plot(ax3, squeeze(binDataNorm(y3,x3,:)),'lineWidth',1);
     title(ax3, 'max(min) pixel');
     xlim(ax3, [0 numel(freq)]);
-
+    
     
     %% sliders
     % select pixel option
     nPixels = size(binDataNorm,1) * size(binDataNorm,2);
     idx = uicontrol(f, ...
-        'Units', 'normalized', 'Position',[0.1 0.85 0.85 0.1],...
+        'Units', 'normalized', 'Position',[0.15 0.85 0.8 0.1],...
         'Style','slider','Min',1,'Max',nPixels,'SliderStep',[1/nPixels nCol/nPixels]);
     idx.Value = randInt;
     label1 = uicontrol('style','text', ...
-                       'Units', 'normalized', 'Position',[0.0 0.85 0.1 0.1]);
+                       'HorizontalAlignment', 'right', ...,
+                       'FontSize',12,...
+                       'Units', 'normalized', 'Position',[0.04 0.855 0.1 0.1]);
     label1.String = 'index';
     
     sld = uicontrol(f, ...
-                'Units', 'normalized', 'Position',[0.1 0.05 0.85 0.1],...
+                'Units', 'normalized', 'Position',[0.15 0.05 0.8 0.1],...
                 'Style','slider','Min',0,'Max',1,'SliderStep',[0.01 0.10]);
     sld.Value = 0;
     label1 = uicontrol('style','text', ...
-                       'Units', 'normalized', 'Position',[0.0 0.05 0.1 0.1])
-    label1.String = 'globalFraction';
-    
+                       'HorizontalAlignment', 'right', ...
+                       'FontSize',12,...
+                       'Units', 'normalized', 'Position',[0.04 0.055 0.1 0.1])
+    label1.String = 'globalFraction [0.00]';
+
     % listeners for callback
     addlistener(sld, 'Value', 'PostSet',@(src,event) updatePlot(src, event, binDataNorm, globalMean, x1,x2,x3,y1,y2,y3, p1,p2,p3,f));
     addlistener(idx, 'Value', 'PostSet',@(src,event) updateRand(src, event, binDataNorm, globalMean, x2,y2,p2,p2_data,nCol,sld));
@@ -131,7 +137,9 @@ function globalFraction = globalFraction_estimator(expData, kwargs)
         set(p1,'ydata',squeeze(dmin));
         set(p2, 'ydata', squeeze(drand));
         set(p3, 'ydata', squeeze(dmax));
-        set(f, 'Name', sprintf('global correction: %.3f', glob));
+        set(f, 'Name', sprintf('global correction: %.2f', glob));
+        set(label1, 'String', sprintf('globalFraction [%.2f]', glob));
+
         drawnow;
     end
 end
