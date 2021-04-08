@@ -12,7 +12,7 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     cutOff: 
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
-%         optional, default = 4
+%         optional, default = 'none'
 %     includeHotPixel:
 %         if true: the mean will be calculated including the hot pixel
 %         if false: the mean is calculated after setting the pixel to nan

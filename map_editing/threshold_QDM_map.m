@@ -3,8 +3,8 @@ function threshold_QDM_map(kwargs)
 % a threshold and saves it with '_thresh' tag.
 % Parameters
 % ----------
-%     nFiles: cell
-%     cutOff: int [4]
+%     nFolders: cell
+%     cutOff: int ['none']
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
 %     includeHotPixel: bool [false]
