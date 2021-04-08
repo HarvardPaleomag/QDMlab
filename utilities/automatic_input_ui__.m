@@ -8,7 +8,7 @@ arguments
     kwargs.MultiSelect = 'off';
 end
 
-if nFolders == 'none'
+if strcmp(nFolders, 'none')
 	nFolders = {};
 
     if strcmp(kwargs.type, 'dir')
