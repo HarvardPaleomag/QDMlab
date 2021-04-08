@@ -155,35 +155,35 @@ for fileNum=startN:1:endN
         badPixels.([side pol]) = badPixel;
     end
 
-    Resonance1 = double(fits.(['left' pol]).resonance); 
-    Width1 = double(fits.(['left' pol]).width); 
-    ContrastA1 = double(fits.(['left' pol]).contrastA); 
-    ContrastB1 = double(fits.(['left' pol]).contrastB);
+    Resonance1 = fits.(['left' pol]).resonance; 
+    Width1 = fits.(['left' pol]).width; 
+    ContrastA1 = fits.(['left' pol]).contrastA; 
+    ContrastB1 = fits.(['left' pol]).contrastB;
     
     if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastC'))
         ContrastC1 = fits.(['left' pol]).contrastC;
     end
     
-    Baseline1 = double(fits.(['left' pol]).baseline); 
-    Freqs1 = double(fits.(['left' pol]).freq); 
-    chiSquares1 = double(fits.(['left' pol]).chiSquares);
-    p1 = double(fits.(['left' pol]).p);
-    freq1 = double(fits.(['left' pol]).freq);
+    Baseline1 = fits.(['left' pol]).baseline; 
+    Freqs1 = fits.(['left' pol]).freq; 
+    chiSquares1 = fits.(['left' pol]).chiSquares;
+    p1 = fits.(['left' pol]).p;
+    freq1 = fits.(['left' pol]).freq;
     
-    Resonance2 = doubel(fits.(['right' pol]).resonance); 
-    Width2 = double(fits.(['right' pol]).width); 
-    ContrastA2 = double(fits.(['right' pol]).contrastA); 
-    ContrastB2 = double(fits.(['right' pol]).contrastB);
+    Resonance2 = fits.(['right' pol]).resonance; 
+    Width2 = fits.(['right' pol]).width; 
+    ContrastA2 = fits.(['right' pol]).contrastA; 
+    ContrastB2 = fits.(['right' pol]).contrastB;
 
     if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastC'))
         ContrastC2 = fits.(['right' pol]).contrastC;
     end
     
-    Baseline2 = double(fits.(['right' pol]).baseline);
-    Freqs2 = double(fits.(['right' pol]).freq); 
-    chiSquares2 = double(fits.(['right' pol]).chiSquares); 
-    p2 = double(fits.(['right' pol]).p);
-    freq2 = double(fits.(['right' pol]).freq);
+    Baseline2 = fits.(['right' pol]).baseline;
+    Freqs2 = fits.(['right' pol]).freq; 
+    chiSquares2 = fits.(['right' pol]).chiSquares; 
+    p2 = fits.(['right' pol]).p;
+    freq2 = fits.(['right' pol]).freq;
 
     %% TAKE THE DIFFERENCE OF THE RESONANCES:
     ResDiff = (Resonance2 - Resonance1)/2;
