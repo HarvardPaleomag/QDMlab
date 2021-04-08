@@ -235,6 +235,8 @@ fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+% make parameters double again
+parameters = double(parameters);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
