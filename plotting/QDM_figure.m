@@ -1,10 +1,9 @@
-function  map_figure = QDM_figure(data, kwargs)
-%CREATEFIGURE(cdata1)
+function map_figure = QDM_figure(data, kwargs)
 % Create figure
 % Parameter
 % ---------
 %     fig: figure ['none'];
-%         figure object will be used if passed to function. Otherwise one 
+%         figure object will be used if passed to function. Otherwise one
 %         will be created
 %     ax: axis ['none']
 %         axis object will be used if passed to function, otherwise created
@@ -22,9 +21,9 @@ function  map_figure = QDM_figure(data, kwargs)
 %     cbTitle: ['       B_z (T)'];
 %         Title of the color bar.
 %     axis: ['on']
-%         if 'on' x/y labels and box around plot are created, 
+%         if 'on' x/y labels and box around plot are created,
 %         if 'off' x/y labels and box around plot will NOT created
-    
+
 arguments
     data
     kwargs.fig = 'none';
@@ -39,9 +38,9 @@ end
 
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
-        map_figure = figure('Name','QDM map','units','normalized','outerposition',[0.2 0.2 0.6 0.6]);
+        map_figure = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.6, 0.6]);
     else
-        map_figure = ancestor(kwargs.ax,{'figure'},'toplevel');
+        map_figure = ancestor(kwargs.ax, {'figure'}, 'toplevel');
     end
 else
     map_figure = kwargs.fig;
@@ -52,7 +51,7 @@ if ~all(all(data > 5))
 end
 
 if kwargs.ax == 'none'
-    ax = axes('Parent',map_figure);
+    ax = axes('Parent', map_figure);
 else
     ax = kwargs.ax;
 end
@@ -64,35 +63,38 @@ end
 if ~strcmp(kwargs.fitSuccess, 'none')
     data(~kwargs.fitSuccess) = nan;
 end
+
 %%
 % Create axes
 axis off
-hold(ax,'on');
+hold(ax, 'on');
 
 % Create image
-pcolor(data,'Parent',ax);
+pcolor(data, 'Parent', ax);
 colormap(jet);
 shading flat;
 set(ax, 'ydir', 'reverse');
 % imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
-title(kwargs.title,'Fontsize',12);
+title(kwargs.title, 'Fontsize', 12);
 
-box(ax,'on');
-axis(ax,'tight');
+box(ax, 'on');
+axis(ax, 'tight');
 
 % Set the remaining axes properties
-med = abs(median(data,'all','omitnan')); st = std(data,[],'all','omitnan'); 
-mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
+med = abs(median(data, 'all', 'omitnan'));
+st = std(data, [], 'all', 'omitnan');
+mx = max(abs(data), [], 'all');
+mn = min(abs(data), [], 'all');
 
-if ~all(data>0)
-    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med + 4*st, med, st);
-    set(ax,'CLim',[-1 1] * (med + 4*st));
+if ~all(data > 0)
+    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med+4*st, med, st);
+    set(ax, 'CLim', [-1, 1]*(med + 4 * st));
 else
-    delta = mx-mn;
-    set(ax,'CLim',[med-delta/10 med+delta/10]);
-    fprintf('<>   setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n',med-delta/2, med+delta/2, med, mn, mx);
+    delta = mx - mn;
+    set(ax, 'CLim', [med - delta / 10, med + delta / 10]);
+    fprintf('<>   setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n', med-delta/2, med+delta/2, med, mn, mx);
 end
 
 axis equal, axis tight, axis xy
@@ -107,4 +109,4 @@ end
 
 % Create colorbar
 cb = colorbar(ax);
-title(cb,kwargs.cbTitle,'Fontsize',12);
+title(cb, kwargs.cbTitle, 'Fontsize', 12);
