@@ -32,13 +32,13 @@ arguments
    kwargs.includeHotPixel  = 0
    kwargs.checkPlot = 0
    kwargs.chi = 0
-   kwargs.winSize = nan
+   kwargs.winSize = 3
    kwargs.remove_failed_pixels = true;
    kwargs.threshold = 5;
 end
 
 % checks and detects if a path was given otherwise you can select one
-nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off')
+nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off');
 
 for i = 1:size(nFiles,2)
     iFile = nFiles{i};
