@@ -1,7 +1,30 @@
 function  map_figure = QDM_figure(data, kwargs)
 %CREATEFIGURE(cdata1)
 % Create figure
-
+% Parameter
+% ---------
+%     fig: figure ['none'];
+%         figure object will be used if passed to function. Otherwise one 
+%         will be created
+%     ax: axis ['none']
+%         axis object will be used if passed to function, otherwise created
+%         at runtime.
+%     nROI: ['none']
+%         adds ROI to the plot if passed
+%     fitSuccess: array ['none']
+%         If fitSuccess array is passed all pixels that have failed will be
+%         replaced by nan
+%     filter_hot_pixels: [0]
+%         If value (n) >0 pixels will be filtered according to the data
+%         with n standard deviations and replaced by nan.
+%     title: ['QDM DATA']
+%         Title of the axis
+%     cbTitle: ['       B_z (T)'];
+%         Title of the color bar.
+%     axis: ['on']
+%         if 'on' x/y labels and box around plot are created, 
+%         if 'off' x/y labels and box around plot will NOT created
+    
 arguments
     data
     kwargs.fig = 'none';
