@@ -10,6 +10,8 @@ arguments
     kwargs.fitSuccess = 'none';
     kwargs.filter_hot_pixels = 0;
     kwargs.title = 'QDM DATA';
+    kwargs.cbTitle = '       B_z (T)';
+    kwargs.axis = 'on';
 end
 
 if kwargs.fig == 'none'
@@ -46,12 +48,13 @@ hold(ax,'on');
 
 % Create image
 pcolor(data,'Parent',ax);
+colormap(jet);
 shading flat;
 set(ax, 'ydir', 'reverse');
 % imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
-title(kwargs.title);
+title(kwargs.title,'Fontsize',12);
 
 box(ax,'on');
 axis(ax,'tight');
@@ -61,20 +64,24 @@ med = abs(median(data,'all','omitnan')); st = std(data,[],'all','omitnan');
 mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
 
 if ~all(data>0)
-    fprintf('<>    setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med + 4*st, med, st);
+    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med + 4*st, med, st);
     set(ax,'CLim',[-1 1] * (med + 4*st));
 else
     delta = mx-mn;
     set(ax,'CLim',[med-delta/10 med+delta/10]);
-    fprintf('<>    setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n',med-delta/2, med+delta/2, med, mn, mx);
+    fprintf('<>   setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n',med-delta/2, med+delta/2, med, mn, mx);
 end
 
 axis equal, axis tight, axis xy
+
+if strcmp(kwargs.axis, 'off')
+    axis off
+end
 
 if iscell(kwargs.nROI)
     add_ROI(kwargs.nROI, 'ax', ax)
 end
 
 % Create colorbar
-colorbar(ax);
-
+cb = colorbar(ax);
+title(cb,kwargs.cbTitle,'Fontsize',12);
