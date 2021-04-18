@@ -1,3 +1,29 @@
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+function subtractedData = subtract_blank(varargin)
+%{
+
+%}
+close all
+
+inParse = inputParser;
+addParameter(inParse, 'nFolders', false);
+addParameter(inParse, 'blankFile', false);
+addParameter(inParse, 'checkPlot', false);
+addParameter(inParse, 'save', true);
+
+parse(inParse, varargin{:});
+
+nFolders = inParse.Results.nFolders;
+blankFile = inParse.Results.blankFile;
+checkPlot = inParse.Results.checkPlot;
+=======
+=======
+>>>>>>> missing_scripts
+>>>>>>>
 function subtractedData = subtract_blank(nFolders, blankFolder, kwargs)
 % function subtractedData = subtract_blank(kwargs)
 % Subtracts a blank map from the Data
@@ -31,6 +57,14 @@ end
 close all
 
 checkPlot = kwargs.checkPlot;
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+>>>>>>> develop
+=======
+>>>>>>> missing_scripts
+>>>>>>>
 
 fileName = 'B111dataToPlot.mat';
 laserFileName = 'laser.jpg';
@@ -38,7 +72,23 @@ laserFileName = 'laser.jpg';
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+if find(strcmp(inParse.UsingDefaults, 'nFolders'))
+=======
+>>>>>>>
 if strcmp(nFolders, 'none')
+<<<<<<<
+
+=======
+>>>>>>> develop
+=======
+if strcmp(nFolders, 'none')
+>>>>>>> missing_scripts
+>>>>>>>
     %Load the correct "B111dataToPlot.mat" file
     f = helpdlg('Pick a B111 file');
     pause(2)
@@ -48,11 +98,33 @@ if strcmp(nFolders, 'none')
     end
 
     [longfilename, pathname] = uigetfile('*.mat', 'Pick a B111 file');
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    fullfilename = [pathname longfilename]
+    nFolders = {pathname};
+end
+
+if find(strcmp(inParse.UsingDefaults, 'blankFile'))
+=======
+=======
+>>>>>>> missing_scripts
+>>>>>>>
     fullfilename = [pathname longfilename];
     nFolders = {pathname};
 end
 
 if strcmp(blankFolder, 'none')
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+>>>>>>> develop
+=======
+>>>>>>> missing_scripts
+>>>>>>>
     f = helpdlg('Pick a blank file');
     pause(2)
 
@@ -62,13 +134,55 @@ if strcmp(blankFolder, 'none')
 
     [longfilenameBLANK, pathnameBLANK] = uigetfile('*.mat', 'Pick a Blank file');
     fullfilenameBLANK=[pathnameBLANK longfilenameBLANK];
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    blankFile = fullfilenameBLANK;
+=======
+>>>>>>>
     blankFolder = fullfilenameBLANK;
+<<<<<<<
+
+=======
+>>>>>>> develop
+=======
+    blankFolder = fullfilenameBLANK;
+>>>>>>> missing_scripts
+>>>>>>>
 end
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
 nFolders = correct_cell_shape(nFolders);
 
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+disp(['<> loading blank file: <<' blankFile '>>'])
+blankData = load(blankFile);
+[nTransForms, nRefFrames] = get_tform_multi(blankFile, nFolders, ...
+                            'reverse', true, ...
+                            'laser',true, 'checkPlot', checkPlot);
+
+for i = 1 : size(nFolders, 2)
+    iFile = nFolders{i};
+    iFile = [iFile filesep fileName];
+    disp(['<> reading: << ' iFile ' >> and blankData'])
+
+    [filepath,name,ext] = fileparts(iFile);
+    fileData = load(iFile);
+
+    % transform the blank
+    B111ferroTransformed = tform_data(blankData.B111ferro, nTransForms(iFile), nRefFrames(iFile));
+    B111paraTransformed = tform_data(blankData.B111para, nTransForms(iFile), nRefFrames(iFile));
+=======
+=======
+>>>>>>> missing_scripts
+>>>>>>>
 disp(['<> loading blank file: <<' blankFolder '>>'])
 blankFile = fullfile(blankFolder, fileName);
 blankData = load(blankFile);
@@ -99,6 +213,28 @@ for i = 1 : size(nFolders, 2)
     [x, y, w, h] = get_mask_extent(B111ferroTransformed);
     fileB111ferro = fileData.B111ferro(y:y+h, x:x+w);
     fileB111para = fileData.B111para(y:y+h, x:x+w);
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    B111ferro = fileB111ferro- B111ferroTransformed(y:y+h, x:x+w);
+    B111para = fileB111para - B111paraTransformed(y:y+h, x:x+w);
+
+%     FitCvgBoth=fileData.FitCvgBoth;
+    ledImg=fileData.ledImg(y:y+h, x:x+w);
+    negDiff=fileData.ledImg(y:y+h, x:x+w);
+    posDiff=fileData.ledImg(y:y+h, x:x+w);
+
+    if inParse.Results.save
+        save([filepath 'B111BlankSub.mat'],'negDiff','posDiff', 'B111ferro', 'B111para', 'ledImg');
+    end
+
+    if inParse.Results.checkPlot
+=======
+=======
+>>>>>>> missing_scripts
+>>>>>>>
     
     fileData.B111ferro = fileB111ferro- B111ferroTransformed(y:y+h, x:x+w);
     fileData.B111para = fileB111para - B111paraTransformed(y:y+h, x:x+w);
@@ -112,6 +248,14 @@ for i = 1 : size(nFolders, 2)
     end
 
     if kwargs.checkPlot
+<<<<<<<
+
+=======
+<<<<<<< HEAD
+>>>>>>> develop
+=======
+>>>>>>> missing_scripts
+>>>>>>>
         figure
         sp1 = subplot(2,2,1);
         imagesc(fileData.B111ferro);

@@ -7,8 +7,6 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % ----------
 %     data:
 %         data matrix to be filtered
-%     threshold: double [5]
-%         values higher than this will be replaced
 %     cutOff: 
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -153,7 +151,7 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: B > +- %.2fG: removed %i / %i pixel = %.2f%%\n', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    fprintf('<>     FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
 else
     fprintf('<>     FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
 end
