@@ -1,16 +1,22 @@
+function out = RMS_in_box(kwargs)
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 
-binsize=4;
+arguments
+    kwargs.dataFile = 'none'
+    kwargs.binsize=4;
+end
 
 %Load the correct Bz file
-[longfilename, pathname] = uigetfile('*.mat', 'Pick a magnetic field map file');
-fullfilename=[pathname longfilename];
-[filepath,name,ext]=fileparts(fullfilename);
+% [longfilename, pathname] = uigetfile('*.mat', 'Pick a magnetic field map file');
+% fullfilename=[pathname longfilename];
+% [filepath,name,ext]=fileparts(fullfilename);
+% 
+% clear B111ferro;
+% clear Bz;
 
-clear B111ferro;
-clear Bz;
-load(fullfilename)
+dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
+load(dataFile{:})
 
 %Crop a single region for source fitting
 if exist('B111ferro')
@@ -122,8 +128,7 @@ if exist('B111ferro')
     hh=colorbar;
     colormap(jet);
     
-    disp('The RMS of the selected region is:')
-    disp(rms(rms(B111ferro)))
+    out = rms(rms(B111ferro));
 else
     Bz=Bz(lin(1):lin(2),col(1):col(2));
     Bz=Bz-mean(mean(Bz));
@@ -135,8 +140,11 @@ else
     hh=colorbar;
     colormap(jet);
     
-    disp('The RMS of the selected region is:')
-    disp(rms(rms(Bz)))
+    out = rms(rms(Bz));
 end
+
+fprintf('<>   The RMS of the selected region is: %.3e', out)
+
+
 
 
