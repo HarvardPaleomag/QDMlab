@@ -6,6 +6,7 @@ arguments
     kwargs.type = 'dir';
     kwargs.title = 'select file/directory';
     kwargs.MultiSelect = 'off';
+    kwargs.single = false;
 end
 
 if strcmp(nFolders, 'none')
@@ -44,7 +45,10 @@ nFolders = correct_cell_shape(nFolders);
 % check if any file was selected
 if strcmp(nFolders{1}(2), '/')
     error('<>   ERROR: NO files/folders selected, please specify or pick files/folders.')
-    
+end
+
+if kwargs.single
+    nFolders = nFolders{:};
 end
 
 end
