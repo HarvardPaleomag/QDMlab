@@ -20,6 +20,7 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     winSize: int
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
+%         if nan: values are replaced by nan
 %         if 0: values are replaced by 0
 %         if nan: values are replaced by nan
 %     checkPlot:
