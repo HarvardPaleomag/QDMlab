@@ -1,4 +1,4 @@
-function subtractedData = subtract_blank(nFolders, blankFolder, kwargs)
+function subtractedData = subtract_blank(kwargs)
 % function subtractedData = subtract_blank(kwargs)
 % Subtracts a blank map from the Data
 %
@@ -22,8 +22,8 @@ function subtractedData = subtract_blank(nFolders, blankFolder, kwargs)
 %   you will be prompted to select them.
 
 arguments
-    nFolders
-    blankFolder
+    kwargs.nFolders = 'none'
+    kwargs.blankFolder = 'none'
     kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
@@ -38,38 +38,16 @@ laserFileName = 'laser.jpg';
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-if strcmp(nFolders, 'none')
-    %Load the correct "B111dataToPlot.mat" file
-    f = helpdlg('Pick a B111 file');
-    pause(2)
+nFolders = automatic_input_ui__(kwargs.nFolders);
+blankFolder = automatic_input_ui__(kwargs.blankFolder);
+blankFolder = blankFolder{:};
 
-    if ishghandle(f)
-        close(f)
-    end
-
-    [longfilename, pathname] = uigetfile('*.mat', 'Pick a B111 file');
-    fullfilename = [pathname longfilename];
-    nFolders = {pathname};
-end
-
-if strcmp(blankFolder, 'none')
-    f = helpdlg('Pick a blank file');
-    pause(2)
-
-    if ishghandle(f)
-        close(f)
-    end
-
-    [longfilenameBLANK, pathnameBLANK] = uigetfile('*.mat', 'Pick a Blank file');
-    fullfilenameBLANK=[pathnameBLANK longfilenameBLANK];
-    blankFolder = fullfilenameBLANK;
-end
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
 nFolders = correct_cell_shape(nFolders);
 
-disp(['<> loading blank file: <<' blankFolder '>>'])
+fprintf('<> loading blank file: << %s >>\n', blankFolder)
 blankFile = fullfile(blankFolder, fileName);
 blankData = load(blankFile);
 
@@ -84,7 +62,7 @@ for i = 1 : size(nFolders, 2)
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
 
-    disp(['<> reading: << ' iFile ' >> and blankData'])
+    fprintf('<> reading: << %s >> and blankData\n', iFile)
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
     
@@ -102,7 +80,6 @@ for i = 1 : size(nFolders, 2)
     
     fileData.B111ferro = fileB111ferro- B111ferroTransformed(y:y+h, x:x+w);
     fileData.B111para = fileB111para - B111paraTransformed(y:y+h, x:x+w);
-%     B111ferro = fileData.B111ferro - B111ferroTransformed;
 %     B111para = fileData.B111para - B111paraTransformed;
     subtractedData(iFolder) = fileData;
     
@@ -113,18 +90,22 @@ for i = 1 : size(nFolders, 2)
 
     if kwargs.checkPlot
         figure
+        
         sp1 = subplot(2,2,1);
-        imagesc(fileData.B111ferro);
+        imagesc(fileB111ferro);
         title('Original');
+        
         sp2 = subplot(2,2,2);
         imagesc(blankData.B111ferro);
         title('Blank');
+        
         sp3 = subplot(2,2,3);
         blank = re_bin(blankData.B111ferro, fileData.B111ferro);
-        imagesc(fileData.B111ferro - blank);
+        imagesc(fileB111ferro - blank);
         title('Unaligned subtraction');
+        
         sp4 = subplot(2,2,4);
-        imagesc(B111ferro);
+        imagesc(fileData.B111ferro);
         title('Aligned subtraction');
         linkaxes([sp1, sp2, sp3, sp4])
     end

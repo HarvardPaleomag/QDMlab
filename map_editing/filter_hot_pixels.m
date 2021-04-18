@@ -7,8 +7,6 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % ----------
 %     data:
 %         data matrix to be filtered
-%     threshold: double [5]
-%         values higher than this will be replaced
 %     cutOff: 
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -22,6 +20,8 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     winSize: int
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
+%         if nan: values are replaced by nan
+%         if 0: values are replaced by 0
 %         if nan: values are replaced by nan
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
@@ -90,18 +90,22 @@ filteredPixels = zeros(dshape);
 
 dataMedian = median(abs(data), 'all', 'omitnan');
 
-% replace poixels with nan if specified
-
+% replace pixels with nan if specified
 if isnan(winSize)
     % set pixel value to nan
     filteredData(aboveStd) = nan;
+    filteredPixels(aboveStd) = 1;
+% replace pixels with 0 if specified
+elseif winSize == 0
+    % set pixel value to nan
+    filteredData(aboveStd) = 0;
     filteredPixels(aboveStd) = 1;
 % otherwise calculate the mean over winSize
 else
     for row = 1:dshape(1)
         for col = 1:dshape(2)
-            % pixels that exceed the mean + 4 std deviations are replaced by
-            % the mean of a square of pixels 7x7 pixels
+            % pixels that exceed the mean + cutOff std deviations are replaced by
+            % the mean of a square of winSize pixels
             if aboveStd(row, col)
                 % set pixel to 1 to check which pixel were removed
                 filteredPixels(row, col) = 1;
@@ -153,7 +157,7 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: B > +- %.2fG: removed %i / %i pixel = %.2f%%\n', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    fprintf('<>     FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
 else
     fprintf('<>     FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
 end
