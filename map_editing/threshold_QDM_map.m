@@ -32,7 +32,7 @@ arguments
    kwargs.includeHotPixel  = 0
    kwargs.checkPlot = 0
    kwargs.chi = 0
-   kwargs.winSize = nan
+   kwargs.winSize = 0
    kwargs.remove_failed_pixels = true;
    kwargs.threshold = 5;
 end
