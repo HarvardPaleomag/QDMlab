@@ -20,6 +20,7 @@ function filteredData = filter_hot_pixels(data, kwargs)
 %     winSize: int
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
+%         if 0: values are replaced by 0
 %         if nan: values are replaced by nan
 %     checkPlot:
 %         creates a new figure to check if the filtering worked
@@ -88,18 +89,22 @@ filteredPixels = zeros(dshape);
 
 dataMedian = median(abs(data), 'all', 'omitnan');
 
-% replace poixels with nan if specified
-
+% replace pixels with nan if specified
 if isnan(winSize)
     % set pixel value to nan
     filteredData(aboveStd) = nan;
+    filteredPixels(aboveStd) = 1;
+% replace pixels with 0 if specified
+elseif winSize == 0
+    % set pixel value to nan
+    filteredData(aboveStd) = 0;
     filteredPixels(aboveStd) = 1;
 % otherwise calculate the mean over winSize
 else
     for row = 1:dshape(1)
         for col = 1:dshape(2)
-            % pixels that exceed the mean + 4 std deviations are replaced by
-            % the mean of a square of pixels 7x7 pixels
+            % pixels that exceed the mean + cutOff std deviations are replaced by
+            % the mean of a square of winSize pixels
             if aboveStd(row, col)
                 % set pixel to 1 to check which pixel were removed
                 filteredPixels(row, col) = 1;
