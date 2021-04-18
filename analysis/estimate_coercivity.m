@@ -87,12 +87,12 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 
 
 arguments
-    nFolders char {foldersMustExist(nFolders)}
+    nFolders cell {foldersMustExist(nFolders)}
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = {0}
+    kwargs.upCont = num2cell(zeros(size(nFolders,1)))
     kwargs.removeHotPixels = 0
     kwargs.includeHotPixel = 0
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0

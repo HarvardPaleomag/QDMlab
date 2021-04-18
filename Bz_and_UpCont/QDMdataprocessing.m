@@ -57,18 +57,18 @@ else
 end
 
 %ask user for the pixel size
-%use 2.42 ï¿½m for QDM1 4x4 binning
-%use 4.68 ï¿½m for the 10x objective with 4x4 binning
-%use 2.34 ï¿½m for the 20x objective with 4x4 binning
+%use 2.42 µm for QDM1 4x4 binning
+%use 4.68 µm for the 10x objective with 4x4 binning
+%use 2.34 µm for the 20x objective with 4x4 binning
 %assumed 100 mm tube lens
 
-xstep=input('Pixel size [4.70 ï¿½m]: ')*1e-6;
+xstep=input('Pixel size [4.70 µm]: ')*1e-6;
 if isempty(xstep)
     xstep=4.70e-6;
 end
 
 %ask user for the NV layer-sample distance
-h=input('NV-sample distance [5 ï¿½m]: ');
+h=input('NV-sample distance [5 µm]: ');
 if isempty(h)
     h=5e-6;
 end
