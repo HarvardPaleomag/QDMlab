@@ -1,4 +1,22 @@
 function viscData = viscosity(kwargs)
+% viscosity calculates the viscous component of a map.
+% It takes two maps, where one is measured without viscous compensation and
+% the second one with viscous compensation. The diffeerence between the two
+% is the viscous component of the map.
+% The data is saved in the same folder with the '_visc' suffix.
+%
+% Parameters
+% ----------
+%     visc: ['none']
+%       The path to the viscous file (opens ui if 'none'). 
+%     nonVisc: ['none']
+%       The path to the NON-viscous file (opens ui if 'none'). 
+%     checkPlot: bool [false]
+%       Creates a plot for the viscosity
+%
+% Returns
+% -------
+%     viscous data structure
 
 arguments
     kwargs.visc = 'none';
@@ -54,6 +72,6 @@ else
     viscData.laser = zeros(size(refData.(ledName),2));
 end
 
-fName = [name '_viscosity', '.mat'];
+fName = [name '_visc', '.mat'];
 fprintf('<>   SAVING data to %s', fName);
 save(fullfile(viscousFile_, fName), '-struct', 'viscData')

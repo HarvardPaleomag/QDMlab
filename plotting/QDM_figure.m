@@ -23,6 +23,10 @@ function map_figure = QDM_figure(data, kwargs)
 %     axis: ['on']
 %         if 'on' x/y labels and box around plot are created,
 %         if 'off' x/y labels and box around plot will NOT created
+%    return: ['fig']
+%         if 'fig' function returns the figure object
+%         if 'ax' function returns the axis object. Useful for adding data
+%         to a plot
 
 arguments
     data

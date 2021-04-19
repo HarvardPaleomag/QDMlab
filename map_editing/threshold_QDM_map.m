@@ -1,6 +1,7 @@
 function threshold_QDM_map(kwargs)
 % threshold_QDM_map(nFiles, kwargs) loads a file, removes all pixels above
 % a threshold and saves it with '_thresh' tag.
+%
 % Parameters
 % ----------
 %     nFolders: cell

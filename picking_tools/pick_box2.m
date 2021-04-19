@@ -1,4 +1,16 @@
-function [lin, col] = pick_box2(kwargs)
+function [row, col] = pick_box2(kwargs)
+%
+% Parameters
+% ----------
+%     expData: dataStruct or filepath ['none']
+%       QDM data structure or the file path to the data. 
+%       If 'none', ui lets you pickj the data file and loads it.
+%     title: str, ['Pick Area (+/- to change colorscale)']
+%       Title of the plot
+%
+% Returns
+% -------
+%   row, col indices of the box
 arguments
     kwargs.expData = 'none';
     kwargs.title = 'Pick Area (+/- to change colorscale)';
@@ -28,7 +40,7 @@ hold(ax, 'on')
 flag = 1;
 
 %% pick region and +/- climits
-lin = [];
+row = [];
 col = [];
 while flag
     [c, l, key] = ginput(1);
@@ -40,28 +52,28 @@ while flag
         case {42, 47}
             caxis auto, caxis([-1, 1]*max(abs(caxis)));
         case 1
-            lin = [lin; round(l)];
+            row = [row; round(l)];
             col = [col; round(c)];
-            plot(ax, col, lin, '+m','MarkerSize',12)
+            plot(ax, col, row, '+m','MarkerSize',12)
         case 27
             return
     end
-    flag = length(lin) ~= 2;
+    flag = length(row) ~= 2;
 end
 
-lin = sort(lin, 1);
+row = sort(row, 1);
 col = sort(col, 1);
 
 %% check indices
-if lin(1) <= 0
-    lin(1) = 1;
+if row(1) <= 0
+    row(1) = 1;
 end
 if col(1) <= 0
     col(1) = 1;
 end
 
-if lin(2) > size(bData, 1)
-    lin(2) = size(bData, 1);
+if row(2) > size(bData, 1)
+    row(2) = size(bData, 1);
 end
 if col(2) > size(bData, 2)
     col(2) = size(bData, 2);
