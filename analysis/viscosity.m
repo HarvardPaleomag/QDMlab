@@ -44,11 +44,7 @@ viscData.viscousData = viscousData;
 viscData.nonViscousData = nonViscousData;
 viscData.viscosityMap = delta;
 
-if is_B111(refData)
-    ledName = 'ledImg';
-else
-    ledName = 'newLED';
-end
+[~, dataName, ledName] = is_B111(refData)
 
 viscData.LED = refData.(ledName);
 
