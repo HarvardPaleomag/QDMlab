@@ -34,6 +34,7 @@ arguments
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = '       B_z (T)';
     kwargs.axis = 'on';
+    kwargs.return = 'fig';
 end
 
 if kwargs.fig == 'none'
@@ -110,3 +111,7 @@ end
 % Create colorbar
 cb = colorbar(ax);
 title(cb, kwargs.cbTitle, 'Fontsize', 12);
+
+if strcmp(kwargs.return, 'ax')
+    map_figure = ax;
+end
