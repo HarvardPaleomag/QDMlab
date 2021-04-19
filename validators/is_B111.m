@@ -1,4 +1,4 @@
-function out = is_B111(expData)
+function [bool, dataName,ledName] = is_B111(expData)
 % out = is_B111(expData) checks the expData struct for the fieldnames
 % 'B111ferro' or 'Bz'. Returns true if 'B111ferro' is found otherwise
 % returns false.
@@ -7,7 +7,11 @@ arguments
 end
 
 if sum(strcmp(fieldnames(expData), 'B111ferro')) == 1
-    out = true;
+    bool = true;
+    dataName = 'B111ferro';
+    ledName = 'ledImg';
 elseif sum(strcmp(fieldnames(expData), 'Bz')) == 1
-    out = false;
+    bool = false;
+    dataName = 'Bz';
+    ledName = 'newLED';
 end
