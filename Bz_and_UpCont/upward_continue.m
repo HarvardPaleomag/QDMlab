@@ -16,7 +16,7 @@ end
 
 UC = kwargs.UC * 1e-6; %upward continuations in m
 
-[filepath, name, ~] = fileparts(nFiles{:});
+[filePath, name, ~] = fileparts(nFiles{:});
 
 expData = load(nFiles{:});
 
@@ -27,13 +27,11 @@ if exist('step', 'var') == 0
     h = 5e-6; % NV layer thickness (m) ?
 end
 
-if is_B111(expData)
-    Bdata = expData.B111ferro;
-else
-    Bdata = expData.Bz;
-end
+[bool, dataName,ledName] = is_B111(expData);
 
+Bdata = expData.(dataName);
 Btrunc = makeEvenArray(Bdata);
+
 ucMaps = {};
 
 if size(UC, 2) ~= 0
@@ -53,33 +51,27 @@ if size(UC, 2) ~= 0
         Bdata = b_uc; %Conserve kwargs.units
         h = h + upDist;
 
-        fig = QDM_figure(Bdata, 'cbTitle', sprintf('B_z (%s)', kwargs.unit), 'axis', 'off');
+        fig = QDM_figure(Bdata, ...
+            'cbTitle', sprintf('B_z (%s)', kwargs.unit), ...
+            'title', sprintf('QDM data UC = %.1f micron', upDist * 1e6),...
+            'axis', 'off');
 
         if kwargs.save
             fileName = [name, '_uc', num2str(upDist * 1e6), '.mat'];
+            saveas(fig, [filePath, '/', name, '_uc', num2str(upDist * 1e6), '.png'])
+            
+            dataOut = expData;
+            dataOut.([dataName '_uc0']) = Btrunc;
+            dataOut.(dataName) = b_uc;
+            dataOut.h = h;
+            dataOut.step = step;
+            dataOut.Bt = Bt;
+            save(fullfile(filePath, fileName), '-struct', 'dataOut', '-mat'); % why no 'Bt',
 
-            saveas(fig, [filepath, '/', name, '_uc', num2str(upDist * 1e6), '.png'])
-            if exists_struct(expData, 'newLED')
-                newLED = expData.newLED;
-                corners = expData.corers;
-
-                if is_B111(expData)
-                    B111ferro = Bdata;
-                    save(fullfile(filepath, fileName), 'B111ferro', 'Bt', 'h', 'step', 'newLED', 'corners', '-mat');
-                else
-                    Bz = Bdata;
-                    save(fullfile(filepath, fileName), 'Bz', 'Bt', 'h', 'step', 'newLED', 'corners', '-mat');
-                end
-            else
-                if is_B111(expData)
-                    B111ferro = Bdata;
-                    save(fullfile(filepath, fileName), 'B111ferro', 'h', 'step', '-mat'); % why no 'Bt',
-                else
-                    Bz = Bdata;
-                    save(fullfile(filepath, fileName), 'Bz', 'h', 'step', '-mat'); % why no 'Bt',
-                end
-            end
-            disp(fprintf(['<>   INFO: Saved: ', name, '_uc', num2str(upDist * 1e6), '.mat...\n']))
+            dataOut.fileName = fileName;
+            dataOut.filePath = filePath;
+            
+            fprintf('<>   INFO: Saved: %s\n', fileName)
         end
     end
 end
