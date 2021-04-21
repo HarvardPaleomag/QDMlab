@@ -4,12 +4,7 @@ arguments
     kwargs.nFiles = 'none';
     kwargs.UC = 'none';
     kwargs.unit = 'T';
-    kwargs.rotate = 0;
-    kwargs.medFilter = 0;
     kwargs.save {mustBeBoolean(kwargs.save)} = true;
-    kwargs.cal = 1; %field calibration factor
-    kwargs.alpha = 0; %rotation of the diamond lattice axes around z-axis
-    kwargs.beta = 0; %rotation of the image axes around z-axis
 end
 
 nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', ...
