@@ -17,9 +17,9 @@ ledFiles = dir(fullfile(myDir,'led.csv'));   %grab the first / only CSV
 ledImgPath = fullfile(myDir, ledFiles(1).name);
 ledImg = load(ledImgPath);
 
-laserFiles = dir(fullfile(myDir,'laser.jpg'));   %grab the first / only CSV
+laserFiles = dir(fullfile(myDir,'laser.csv'));   %grab the first / only CSV
 laserImgPath = fullfile(myDir, laserFiles(1).name);
-laserImg = imread(laserImgPath);
+laserImg = load(laserImgPath);
 
 gamma = 0.0028;
  
