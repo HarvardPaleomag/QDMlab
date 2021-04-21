@@ -14,4 +14,8 @@ elseif sum(strcmp(fieldnames(expData), 'Bz')) == 1
     bool = false;
     dataName = 'Bz';
     ledName = 'newLED';
+elseif sum(strcmp(fieldnames(expData), 'viscosityMap')) == 1
+    bool = false;
+    dataName = 'viscosityMap';
+    ledName = 'LED';
 end
