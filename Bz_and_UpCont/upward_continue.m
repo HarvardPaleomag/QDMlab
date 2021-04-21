@@ -1,4 +1,4 @@
-function upward_continue(kwargs)
+function ucMaps = upward_continue(kwargs)
 
 arguments
     kwargs.nFiles = 'none';
@@ -70,6 +70,7 @@ if size(UC, 2) ~= 0
 
             dataOut.fileName = fileName;
             dataOut.filePath = filePath;
+            ucMaps{end+1} = dataOut;
             
             fprintf('<>   INFO: Saved: %s\n', fileName)
         end
