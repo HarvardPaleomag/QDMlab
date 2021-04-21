@@ -72,6 +72,8 @@ B111dataToPlot.B111ferro = double(B111ferro); B111dataToPlot.B111para = double(B
 B111dataToPlot.chi2Pos1 = double(chi2Pos1); B111dataToPlot.chi2Pos2 = double(chi2Pos2); 
 B111dataToPlot.chi2Neg1 = double(chi2Neg1); B111dataToPlot.chi2Neg2 = double(chi2Neg2);
 B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed; 
+B111dataToPlot.laser = laserImg;
+
 save(fullfile(myDir, folderName, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
 
 fits.negDiff = negDiff; fits.posDiff = posDiff; 
