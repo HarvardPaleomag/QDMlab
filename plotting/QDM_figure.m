@@ -43,7 +43,7 @@ end
 
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
-        map_figure = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.6, 0.6]);
+        map_figure = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
     else
         map_figure = ancestor(kwargs.ax, {'figure'}, 'toplevel');
     end
@@ -75,16 +75,19 @@ axis off
 hold(ax, 'on');
 
 % Create image
-pcolor(data, 'Parent', ax);
+% pcolor(data, 'Parent', ax);
+imAlpha=ones(size(data));
+imAlpha(isnan(data))=0;
+imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+
 colormap(jet);
 shading flat;
 set(ax, 'ydir', 'reverse');
-% imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
 title(kwargs.title, 'Fontsize', 12);
 
-box(ax, 'on');
+% box(ax, 'on');
 axis(ax, 'tight');
 
 % Set the remaining axes properties
