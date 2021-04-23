@@ -90,21 +90,21 @@ arguments
     nFolders char {foldersMustExist(nFolders)}
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot']), ...
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
-    kwargs.transFormFile = 'none'
-    kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = {0}
-    kwargs.removeHotPixels = 0
-    kwargs.includeHotPixel = 0
-    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
-    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = 0
-    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = 0
-    kwargs.selectionThreshold (1,1) {mustBeNumeric} = 0.25
-    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.nROI = 0
-    kwargs.chi = 0
-    kwargs.winSize (1,1) = 4
-    kwargs.bootStrapN = 1
-    kwargs.pixelError = 4
+    kwargs.transFormFile = 'none';
+    kwargs.fixedIdx (1,1) {mustBePositive} = 1;
+    kwargs.upCont = {0};
+    kwargs.removeHotPixels = 0;
+    kwargs.includeHotPixel = 0;
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0;
+    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = 0;
+    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = 0;
+    kwargs.selectionThreshold (1,1) {mustBeNumeric} = 0.25;
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0;
+    kwargs.nROI = 0;
+    kwargs.chi = 0;
+    kwargs.winSize (1,1) = 4;
+    kwargs.bootStrapN = 1;
+    kwargs.pixelError = 4;
 end
 
 % define optional function parameters
