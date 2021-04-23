@@ -14,8 +14,10 @@ function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
 %   globalFraction: numeric (0.5)
 %     Amount of global ilumination signal to be subtracted from the
 %     measurements before fitting
-%   type: [0,1,2] (0)
-%     use global (0) or local (1) guesses for the fit
+%   type: [0,1,2] (2)
+%     0: for global guess, 
+%     1: local with gaussian fit (OLD)
+%     2: local with GPU fit NEW
 %   smoothDegree: int (2)
 %     gaussian smoothing before fit
 %   gaussianFit: bool (false)
@@ -28,7 +30,7 @@ function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
 %
 
 arguments
-    nFolders char {foldersMustExist(nFolders)}
+    nFolders {foldersMustExist(nFolders)}
     binSizes double
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
@@ -95,7 +97,7 @@ for dataFolder = nFolders
 %         movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, folderName))
-        copyfile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
+%         copyfile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
 %         movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, folderName))
         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
