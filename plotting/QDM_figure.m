@@ -8,7 +8,8 @@ arguments
     kwargs.ax = 'none';
     kwargs.nROI = 'none';
     kwargs.fitSuccess = 'none';
-    kwargs.filter_hot_pixels = 0
+    kwargs.filter_hot_pixels = 0;
+    kwargs.title = 'QDM DATA';
 end
 
 if kwargs.fig == 'none'
@@ -50,13 +51,13 @@ set(ax, 'ydir', 'reverse');
 % imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
-title({'QDM DATA'});
+title(kwargs.title);
 
 box(ax,'on');
 axis(ax,'tight');
 
 % Set the remaining axes properties
-med = nanmedian(data,'all'); st = nanstd(data,[],'all'); 
+med = abs(nanmedian(data,'all')); st = nanstd(data,[],'all'); 
 mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
 
 if ~all(data>0)
