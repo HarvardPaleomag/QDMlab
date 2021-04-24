@@ -36,7 +36,7 @@ arguments
     kwargs.fitSuccess = 'none';
     kwargs.filter_hot_pixels = 0;
     kwargs.title = 'QDM DATA';
-    kwargs.cbTitle = '       B_z (T)';
+    kwargs.cbTitle = 'B_z (T)';
     kwargs.axis = 'on';
     kwargs.return = 'fig';
 end
