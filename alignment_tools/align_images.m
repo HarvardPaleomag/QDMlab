@@ -24,6 +24,7 @@ arguments
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.laser (1,1) {mustBeBoolean(kwargs.laser)} = false
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -39,12 +40,15 @@ reverse = kwargs.reverse;
 fixedFile = [nFolders{fixedIdx}, filesep, fileName];
 fixedData = load(fixedFile);
 
+
 if contains(fileName, 'B111')
     fixedLed = fixedData.ledImg;
 else
     fixedLed = fixedData.newLED;
 end
 
+
+    
 % resize led to match data binning
 % todo see if it is not better to not do that but in the functiopn that
 % calculates the transformation
@@ -121,4 +125,8 @@ if transFormFile == 0
 else
     fprintf('<>   saving... to ''%s''', transFormFile)
     save(transFormFile, 'nTransForms', 'nRefFrames', 'reverse')
+end
+
+function get_laser(folder)
+    
 end
