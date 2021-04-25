@@ -13,7 +13,7 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 %   fileName: str ['Bz_uc0.mat']
 %   sequence: bool [0]
 %   reverse: bool [0]
-%
+%   laser: uses laser image for alignment
 
 arguments
     nFolders cell {foldersMustExist(nFolders)}
@@ -47,8 +47,9 @@ else
     fixedLed = fixedData.newLED;
 end
 
-
-    
+if kwargs.laser
+    fixedLed = get_laser(nFolders{fixedIdx}, 'data', fixedData);
+end
 % resize led to match data binning
 % todo see if it is not better to not do that but in the functiopn that
 % calculates the transformation
@@ -76,14 +77,17 @@ for iFolder = nFolders
 
     % load moving data
     movingPath = fullfile(iFolder, filesep, fileName);
-    moving = load(movingPath);
+    movingData = load(movingPath);
 
     % check for differences in LED naming
-    if isfield(moving, 'ledImg')
-        movingLed = moving.ledImg;
-    elseif isfield(moving, 'newLED')
-        movingLed = moving.newLED;
+    if kwargs.laser
+        movingLed = get_laser(movingPath, 'data', movingData);
+    elseif isfield(movingData, 'ledImg')
+        movingLed = movingData.ledImg;
+    elseif isfield(movingData, 'newLED')
+        movingLed = movingData.newLED;
     end
+    
 
     if reverse
         disp(['<>   INFO: reversed alignment (fixed -> moving)'])
@@ -125,8 +129,4 @@ if transFormFile == 0
 else
     fprintf('<>   saving... to ''%s''', transFormFile)
     save(transFormFile, 'nTransForms', 'nRefFrames', 'reverse')
-end
-
-function get_laser(folder)
-    
 end
