@@ -73,7 +73,7 @@ addParameter(nParams, 'checkPlot', false, @islogical);
 addParameter(nParams, 'outputTrue', false, @islogical);
 addParameter(nParams, 'upCont', {0}, @iscell);
 addParameter(nParams, 'nROI', false, @iscell);
-addParameter(nParams, 'IMAGEFOLDER', false, @ischar);
+addParameter(nParams, 'imageFolder', false, @ischar);
 parse(nParams, nFolders, varargin{:});
 
 % define optional parameters
@@ -83,7 +83,7 @@ refIdx = nParams.Results.refIdx;
 checkPlot = nParams.Results.checkPlot;
 outputTrue = nParams.Results.outputTrue;
 upCont = nParams.Results.upCont;
-IMAGEFOLDER=nParams.Results.IMAGEFOLDER;
+imageFolder=nParams.Results.imageFolder;
 
 % define QDM parameters
 pixelsize = 4.68e-6;
@@ -106,6 +106,7 @@ else
     fixedData = fixed.Bz;
     fixedLed = fixed.newLED;
 end
+
 fixedData = filter_hot_pixels(fixedData, 'cutOff', 12);
 
 if ~islogical(nParams.Results.nROI)
@@ -182,10 +183,16 @@ for j = 1 : numberoffolders
 
             xLim = round([iRect(1), iRect(1) + iRect(3)]);
             yLim = round([iRect(2), iRect(2) + iRect(4)]);
-            % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
+            
+            %% actual fitting
             SOURCENAME=['Source' num2str(i) '_Step' num2str(j) ];
+            
+            % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             iResult = DipoleFitMultiP8CommLine(1, iFile, iRect(1:2), 1, 1, 10, 0, outputTrue, 0, 'dx', ...
-                iRect(3), 'dy', iRect(4), 'data', transDataUC,'IMAGEFOLDER',IMAGEFOLDER,'SOURCENAME',SOURCENAME);
+                iRect(3), 'dy', iRect(4), 'data', transDataUC, ...
+                'IMAGEFOLDER',imageFolder,'SOURCENAME',SOURCENAME);
+            
+            %% results
             iResult.xLims = xLim;
             iResult.yLims = yLim;
             iResult.iSource = i;

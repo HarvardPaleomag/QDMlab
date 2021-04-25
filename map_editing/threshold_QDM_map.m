@@ -35,7 +35,7 @@ arguments
    kwargs.chi = 0
    kwargs.winSize = 3
    kwargs.remove_failed_pixels = true;
-   kwargs.threshold = 5;
+   kwargs.threshold = 5; %in Gauss
 end
 
 % checks and detects if a path was given otherwise you can select one

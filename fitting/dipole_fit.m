@@ -1,22 +1,72 @@
-function dipole_fit(kwargs)
-% MORDER is highest order in the multipole expansion: 2 is quadrupole; 8 is
-% octupole
+function results = dipole_fit(kwargs)
+%kwargs.mOrder is highest order in the multipole expansion: 2 is quadrupole; 8 is
+%octupole
+%
+%
+% Parameters
+% ----------
+%     dataFile: ['none']
+%     mOrder: [1]
+%     xy: [[0, 0]]
+%     cropFactor: []
+%     downSample: [1] %WHY?
+%     nRuns: []
+%     quad: []
+%     outputtrue: [true]
+%     checkPlot: [false]
+% 
+%     incl: [-0]
+%     dec: [0]
+% 
+%     dx: int
+%         default: 0
+%         the width of the box that is cropped around the data
+%     dy: int
+%         default: 0
+%         the height of the box that is cropped around the data
+%     data: struct
+%         default: 0
+%         If you want to load data directly instead of reloading it from the
+%         file you can pass it after the 'data' keyword.
+%
+%     following parameters for costraining fit
+%     ========================================
+%     m0: double [1e-12]
+%     hguess: double [2.5e-5]
+%     minheight: double [0]
+%     maxheight: double [100e-6]
+%     boxwidth: double [100e-6]
+%
+%
+%     STATISTSICS:
+%         default: 0
+%     NSTAT:
+%         default: 50
+%     kwargs.display:
+%         default: 0
+%
+% Returns: struct
+%     returns a structure with the following entries:
+%         dfile: file path
+%         m: fitted moment
+%         inc: fitted inclination
+%         dec: fitted declination
+%         h: fitted height (depth) of dipole
+%         res: residuals
 
 arguments
     kwargs.dataFile = 'none';
-    kwargs.morder = 1;
-    kwargs.xy = [0 0];
-    kwargs.CROPFACT;
-    kwargs.downSample = 1;  %WHY?
-    kwargs.NRUNS;
-    kwargs.QUAD;
-    kwargs.outputtrue; 
-    kwargs.checkPlot;
-    
+    kwargs.mOrder = 'none';
+    kwargs.xy = [0, 0];
+    kwargs.cropFactor = 100;
+    kwargs.downSample = 1; % speedup
+    kwargs.nRuns = 10;
+    kwargs.quad = 1;
+    kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false;
+
     kwargs.incl = -0;
     kwargs.dec = 0;
-    incl=40;
-    dec=300;
 
     kwargs.m0 = 1e-12;
     kwargs.hguess = 2.5e-5;
@@ -24,72 +74,76 @@ arguments
     kwargs.maxheight = 100e-6;
     kwargs.boxwidth = 100e-6;
 
-    kwargs.METHOD = 1; %0 = least squares, 1=Nelder-Mead
-    kwargs.NOISE = 0; %0 = no noise
+    kwargs.method = 1; %0 = least squares, 1=Nelder-Mead
+    kwargs.noise = 0; %0 = no noise
     kwargs.SNR = 0; %signal-to-noise ratio in dB
     kwargs.AUTO = 0; %automatically find dipole position from Bt map
     kwargs.TERMS = [3, 8, 15];
     kwargs.MINTOL = 1;
-    kwargs.stats = 0;
-    kwargs.nStats = 50; % n iterations for statistics 
-    kwargs.DISPLAY = 0;
-    
+    kwargs.statistics {mustBeBoolean(kwargs.statistics)} = false;
+    kwargs.nStats {mustBeInteger(kwargs.nStats)} = 50; % n iterations for statistics
+    kwargs.display {mustBeBoolean(kwargs.display)} = false;
+
 end
+
+defaults = kwargs;
+kwargs = ask_arguments(kwargs, defaults);
 
 theta0 = 90 - kwargs.incl;
 phi0 = kwargs.dec + 90; %SM y axis is the one pointing northy
+XY = kwargs.xy;
+terms = [3,8,15];
 
-change random number generator
+% change random number generator
 rng('shuffle')
 
 set(0, 'DefaultFigureColormap', jet)
 
 outFileName = 'DipoleInversions.txt';
 
-counter = kwargs.nStats;
+if kwargs.statistics
+    counter = kwargs.nStats;
+else
+    counter = 1;
+end
 
 dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'single', true);
 
 expData = load(dataFile);
 [filePath, name, ext] = fileparts(dataFile);
 
-if is_B111(expData)
-    dtype = 'B111ferro';
-else
-    dype = 'Bz';
-end
+[~, dataName, ~] = is_B111(expData);
 
-while counter
+while counter %get rid of statistics
 
-    if kwargs.stats
-        fprintf('<>   Iteration %02i/%02i ...\n', kwargs.nStats - counter + 1, kwargs.nStats);
+    if kwargs.statistics
+        fprintf('<>   Iteration %02i/%02i ...\n', kwargs.nStats-counter+1, kwargs.nStats);
     end
-    
+
     step = 0;
-
-    if kwargs.downSample
-        Bdata = downsample(downsample(expData.(dtype), kwargs.downSample)', kwargs.downSample)';
-        step = step * kwargs.downSample;
-    end
-
-    scan = Bdata; % Bz is assumed in T
-
-    x = ((1:size(scan, 2)) - 1) * step;
-    y = ((1:size(scan, 1)) - 1) * step;
-    [X, Y] = meshgrid(x, y);
     
-    if ~kwargs.stats
+    % downsample data
+    Bdata = downsample(downsample(expData.(dataName), kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
+    Bdata = double(Bdata); % convert to double in case of single values
+    
+    step = step * kwargs.downSample;
+
+    x = ((1:size(Bdata, 2)) - 1) * step;
+    y = ((1:size(Bdata, 1)) - 1) * step;
+    [X, Y] = meshgrid(x, y);
+
+    if ~kwargs.statistics
         statsFigure = figure();
     end
-    
-    if kwargs.NOISE
-        noise=randn(size(scan))*0.5*std(std(scan));
-        noise = sqrt(10^(-SNR / 10)*var(scan(:))) * randn(size(scan));
-        scan = scan + noise;
+
+    if kwargs.noise
+        noise = randn(size(Bdata)) * 0.5 * std(std(Bdata));
+        noise = sqrt(10^(-SNR / 10)*var(Bdata(:))) * randn(size(Bdata));
+        Bdata = Bdata + noise;
     end
 
-    if kwargs.DISPLAY
-        NRUNS = 1;
+    if kwargs.display
+        kwargs.nRuns = 1;
     end
 
     j = round(XY(1)/kwargs.downSample);
@@ -97,12 +151,12 @@ while counter
 
     x0 = j * step;
     y0 = i * step;
-    cropj = round(1+j+[-CROPFACT, CROPFACT]);
-    cropi = round(1+i+[-CROPFACT, CROPFACT]);
+    cropj = round(1+j+[-kwargs.cropFactor, kwargs.cropFactor]);
+    cropi = round(1+i+[-kwargs.cropFactor, kwargs.cropFactor]);
 
     %adjust if the crop area falls outside the image
-    scansize = size(scan);
-    
+    scansize = size(Bdata);
+
     for p = 1:2
         if cropj(p) < 1
             cropj(p) = 1;
@@ -118,13 +172,13 @@ while counter
         end
     end
 
-    scanc = scan(cropi(1):cropi(2), cropj(1):cropj(2));
+    BdataCropped = Bdata(cropi(1):cropi(2), cropj(1):cropj(2));
     Xc = X(cropi(1):cropi(2), cropj(1):cropj(2));
     Yc = Y(cropi(1):cropi(2), cropj(1):cropj(2));
     xc = x(cropj(1):cropj(2));
     yc = y(cropi(1):cropi(2));
 
-    imagesc(xc, yc, abs(Bz(cropi(1):cropi(2), cropj(1):cropj(2))));
+    imagesc(xc, yc, abs(BdataCropped));
     axis xy, axis equal, axis tight
     caxis([0, 1]*max(abs(caxis)));
     colormap(hot)
@@ -134,42 +188,48 @@ while counter
 
     P00(1) = x0;
     P00(2) = y0;
-    P00(3) = hguess;
+    P00(3) = kwargs.hguess;
 
     drawnow
-    P = zeros(length(P00)+TERMS(MORDER), NRUNS);
-    fval = zeros(1, NRUNS);
-    fval2 = zeros(1, NRUNS);
+    P = zeros(length(P00)+terms(kwargs.mOrder), kwargs.nRuns);
+    fval = zeros(1, kwargs.nRuns);
+    fval2 = zeros(1, kwargs.nRuns);
 
-    for k = 1:NRUNS
-        if NRUNS == 1
+    for k = 1:kwargs.nRuns
+        if kwargs.nRuns == 1
             P0 = P00; %+0.3*(rand(size(P00))-0.5).*P00;
         else
             %P0=P00+0.1*(rand(size(P00))-0.5).*[P00(1) 20 40 P00(4:6)];
             P0 = P00 + 0.1 * (rand(size(P00)) - 0.5) .* P00;
         end
-        
-        options = optimset('TolX', 10^(floor(log10(m0)) - 5), ...
-                           'TolFun', 10^(floor(log10(max(abs(Bz(:))))) - 8), ...
-                           'MaxFunEvals', 6000, 'MaxIter', 2000, ...
-                           'Display', 'none');
 
-        if METHOD
-            [P(1:3, k), fval2(k), exitflag, output] = fmincon(@(Pp) SourceFitMultiP8(Pp, Xc, Yc, scanc, DISPLAY, METHOD, QUAD, MORDER), P0, [], [], [], [], [x0 - boxwidth, y0 - boxwidth, 2e-5], [x0 + boxwidth, y0 + boxwidth, 3e-5], [], options);
+        options = optimset('TolX', 10^(floor(log10(kwargs.m0)) - 5), ...
+            'TolFun', 10^(floor(log10(max(abs(Bdata(:))))) - 8), ...
+            'MaxFunEvals', 6000, 'MaxIter', 2000, ...
+            'Display', 'none');
+        
+        %% actual fitting
+        if kwargs.method
+            [P(1:3, k), fval2(k), exitflag, output] = fmincon(@(Pp) ...
+                SourceFitMultiP8(Pp, Xc, Yc, BdataCropped, kwargs.display, ...
+                kwargs.method, kwargs.quad, kwargs.mOrder), P0, [], [], [], [], ...
+                [x0 - kwargs.boxwidth, y0 - kwargs.boxwidth, 2e-5], ...
+                [x0 + kwargs.boxwidth, y0 + kwargs.boxwidth, 3e-5], [], options);
         else
-            [P(1:3, k), fval2(k), resd, exitflag, output] = lsqnonlin(@(Pp) SourceFitMultiP8(Pp, Xc, Yc, scanc, DISPLAY, METHOD, QUAD, MORDER), P0, [], [], options);
+            [P(1:3, k), fval2(k), resd, exitflag, output] = lsqnonlin(@(Pp) SourceFitMultiP8(Pp, Xc, Yc, BdataCropped, kwargs.display, kwargs.method, kwargs.quad, kwargs.mOrder), P0, [], [], options);
         end
         
-        [resid, BzModel, M] = SourceFitMultiP8(P(1:3, k), Xc, Yc, scanc, DISPLAY, METHOD, QUAD, MORDER);
-
+        %% calculate the model after fitting
+        [resid, BzModel, M] = SourceFitMultiP8(P(1:3, k), Xc, Yc, BdataCropped, kwargs.display, kwargs.method, kwargs.quad, kwargs.mOrder);
+        
         Mx = M(1);
         My = M(2);
         Mz = M(3);
         m = sqrt(Mx^2+My^2+Mz^2);
-        
+
         theta = acosd(Mz/m);
         phi = atan2d(My, Mx);
-        
+
         P(4, k) = m;
         %convert angles to inclination and declination
         P(5, k) = 90 - theta;
@@ -186,7 +246,7 @@ while counter
             end
             if P(5, k) < -90
                 P(5, k) = -180 - P(5, k); % i' = -180-i
-                P(6, k) = P(6, k) + 180;  % d' = d+180
+                P(6, k) = P(6, k) + 180; % d' = d+180
                 change = 1;
             end
             if P(6, k) < 0
@@ -198,8 +258,8 @@ while counter
                 change = 1;
             end
         end
-        
-        if MORDER > 1
+
+        if kwargs.mOrder > 1
             %Quadrupole moment
             P(7, k) = M(4);
             P(8, k) = M(5);
@@ -208,7 +268,7 @@ while counter
             P(11, k) = M(8);
         end
 
-        if MORDER > 2
+        if kwargs.mOrder > 2
             %Octupole moment
             P(12, k) = M(9);
             P(13, k) = M(10);
@@ -218,8 +278,8 @@ while counter
             P(17, k) = M(14);
             P(18, k) = M(15);
         end
-        
-        if kwargs.DISPLAY
+
+        if kwargs.display
             fprintf('Moment: %.4e\n', P(4))
             fprintf('Inclination: %.1f\n', P(5))
             fprintf('Declination: %.1f\n', P(6))
@@ -227,21 +287,21 @@ while counter
         end
 
         fprintf('..%0d..(%0d)  ', k, output.iterations);
-        
+
         if ~mod(k, 10)
             fprintf('\n');
         end
-        
+
         if size(P, 1) > 6
-            Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90, P(7:TERMS(MORDER) + 3, k)'];
+            Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90, P(7:terms(kwargs.mOrder) + 3, k)'];
         else
             Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90];
         end
-        
-        [resid, Bzmodel] = SourceFitMultiP8(Paux, Xc, Yc, scanc, 0, METHOD, QUAD, MORDER);
-        fval(k) = sqrt(sum(sum((Bzmodel - scanc).^2))/numel(scanc));
+
+        [resid, Bzmodel] = SourceFitMultiP8(Paux, Xc, Yc, BdataCropped, 0, kwargs.method, kwargs.quad, kwargs.mOrder);
+        fval(k) = sqrt(sum(sum((Bzmodel - BdataCropped).^2))/numel(BdataCropped));
     end
-    
+
     i0 = find(fval == min(fval));
     fsort = sort(fval);
 
@@ -273,7 +333,7 @@ while counter
     hopt = Popt(3);
     fprintf('(min = %1.3d)\n', P(3, i0));
 
-    for kk = 7:TERMS(MORDER) + 3
+    for kk = 7:terms(kwargs.mOrder) + 3
         Popt(kk) = sum(P(kk, i).*fval(i)) / sum(fval(i));
     end
 
@@ -283,14 +343,14 @@ while counter
     yopt = Popt(2);
     fprintf('(min = %1.3d)\n', P(2, i0));
 
-    Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:TERMS(MORDER) + 3)];
-    [resid, Bzmodel] = SourceFitMultiP8(Popt2, Xc, Yc, scanc, 0, METHOD, QUAD, MORDER);
-    residex = Bzmodel - scanc;
-    
-    if ~kwargs.stats
+    Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.mOrder) + 3)];
+    [resid, Bzmodel] = SourceFitMultiP8(Popt2, Xc, Yc, BdataCropped, 0, kwargs.method, kwargs.quad, kwargs.mOrder);
+    residex = Bzmodel - BdataCropped;
+
+    if ~kwargs.statistics
         figure
         subplot(2, 2, 1);
-        imagesc(xc, yc, scanc);
+        imagesc(xc, yc, BdataCropped);
         axis xy, axis equal, axis tight;
         caxis([-1, 1]*max(abs(caxis)));
         colorbar
@@ -308,14 +368,14 @@ while counter
         colorbar
         title('Residuals');
     end
-    
-    saveas(gcf, [filePath, '/Fit_', name, '_M', num2str(MORDER), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+
+    saveas(gcf, [filePath, '/Fit_', name, '_M', num2str(kwargs.mOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
 
     %resids=sqrt(sum(sum(residex.^2))/numel(residex))
-    resids = sqrt(sum(sum(residex.^2))/sum(sum(scanc.^2)))
+    resids = sqrt(sum(sum(residex.^2))/sum(sum(BdataCropped.^2)))
 
     nameext = [name, ext];
-    if kwargs.stats
+    if kwargs.statistics
         outputtrue = 1;
     end
 
@@ -340,6 +400,13 @@ while counter
 
     counter = counter - 1;
 
+end
+
+% create the outputs of the funtion
+if hopt < 0
+    results = struct('dfile', INFILE, 'm', mopt, 'inc', -iopt, 'dec', mod(180 - dopt, 360), 'h', -hopt, 'res', resids);
+else
+    results = struct('dfile', INFILE, 'm', mopt, 'inc', -iopt, 'dec', mod(360 - dopt, 360), 'h', -hopt, 'res', resids);
 end
 end
 

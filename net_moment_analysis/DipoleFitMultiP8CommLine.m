@@ -1,66 +1,65 @@
 function results = DipoleFitMultiP8CommLine(MORDER,INFILE, XY, CROPFACT, DOWNSMPL, NRUNS, QUAD, outputtrue,plottrue, varargin)
-%{
-MORDER is highest order in the multipole expansion: 2 is quadrupole; 8 is
+%MORDER is highest order in the multipole expansion: 2 is quadrupole; 8 is
 %octupole
+% 
+% 
+% Parameters
+% ----------
+%     positional
+%     ----------
+%     MORDER:
+%     INFILE:
+%     XY:
+%     CROPFACT:
+%     DOWNSMPL:
+%     NRUNS:
+%     QUAD:
+%     outputtrue:
+%     plottrue:
+%     
+%     optional parameters
+%     -------------------
+%     dx: int
+%         default: 0
+%         the width of the box that is cropped around the data
+%     dy: int
+%         default: 0
+%         the height of the box that is cropped around the data
+%     data: struct
+%         default: 0
+%         If you want to load data directly instead of reloading it from the
+%         file you can pass it after the 'data' keyword.
+%     
+%     following parameters for costraining fit
+%     ========================================
+%     m0:
+%         default: 1e-12
+%     hguess:
+%         default: 5e-5
+%     minheight:
+%         default: 0
+%     maxheight:
+%         default: 100e-6
+%     boxwidth:
+%         default: 100e-6
+% 
+% 
+%     STATISTSICS:
+%         default: 0
+%     NSTAT:
+%         default: 50
+%     DISPLAY:
+%         default: 0
+% 
+% Returns: struct
+%     returns a structure with the following entries:
+%         dfile: file path
+%         m: fitted moment
+%         inc: fitted inclination
+%         dec: fitted declination
+%         h: fitted height (depth) of dipole
+%         res: residuals
 
-
-Parameters
-----------
-    positional
-    ----------
-    MORDER:
-    INFILE:
-    XY:
-    CROPFACT:
-    DOWNSMPL:
-    NRUNS:
-    QUAD:
-    outputtrue:
-    plottrue:
-    
-    optional parameters
-    -------------------
-    dx: int
-        default: 0
-        the width of the box that is cropped around the data
-    dy: int
-        default: 0
-        the height of the box that is cropped around the data
-    data: struct
-        default: 0
-        If you want to load data directly instead of reloading it from the
-        file you can pass it after the 'data' keyword.
-    
-    following parameters for costraining fit
-    ========================================
-    m0:
-        default: 1e-12
-    hguess:
-        default: 5e-5
-    minheight:
-        default: 0
-    maxheight:
-        default: 100e-6
-    boxwidth:
-        default: 100e-6
-
-
-    STATISTSICS:
-        default: 0
-    NSTAT:
-        default: 50
-    DISPLAY:
-        default: 0
-
-Returns: struct
-    returns a structure with the following entries:
-        dfile: file path
-        m: fitted moment
-        inc: fitted inclination
-        dec: fitted declination
-        h: fitted height (depth) of dipole
-        res: residuals
-%}
 
 % add optional arguments to the function by using inputParser
 inParams = inputParser;% define parameters

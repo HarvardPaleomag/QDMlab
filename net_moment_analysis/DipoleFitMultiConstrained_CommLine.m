@@ -44,6 +44,7 @@ if STATISTICS
 else
     counter=1;
 end
+
 while counter
 
     if STATISTICS

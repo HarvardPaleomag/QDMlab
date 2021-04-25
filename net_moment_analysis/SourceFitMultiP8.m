@@ -212,4 +212,3 @@ end
 %resid=norm(residual,2);
 Bzmodel=Bz;
 end
-% 
