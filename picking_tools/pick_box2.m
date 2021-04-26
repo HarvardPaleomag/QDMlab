@@ -14,6 +14,7 @@ function [row, col] = pick_box2(kwargs)
 arguments
     kwargs.expData = 'none';
     kwargs.title = 'Pick Area (+/- to change colorscale)';
+    kwargs.point {mustBeBoolean(kwargs.point)} = false;
 end
 
 %% get data
@@ -42,8 +43,9 @@ flag = 1;
 %% pick region and +/- climits
 row = [];
 col = [];
+
 while flag
-    [c, l, key] = ginput(1);
+    [c, r, key] = ginput(1); %used to be c,l 
     switch key
         case 43
             caxis(caxis/sqrt(10));
@@ -52,13 +54,19 @@ while flag
         case {42, 47}
             caxis auto, caxis([-1, 1]*max(abs(caxis)));
         case 1
-            row = [row; round(l)];
-            col = [col; round(c)];
+            if kwargs.point
+                col = round(c);
+                row = round(r);
+                flag = 0;
+            else
+                row = [row; round(r)];
+                col = [col; round(c)];
+                flag = length(row) ~= 2;
+            end
             plot(ax, col, row, '+m','MarkerSize',12)
         case 27
             return
     end
-    flag = length(row) ~= 2;
 end
 
 row = sort(row, 1);
@@ -72,11 +80,13 @@ if col(1) <= 0
     col(1) = 1;
 end
 
-if row(2) > size(bData, 1)
-    row(2) = size(bData, 1);
-end
-if col(2) > size(bData, 2)
-    col(2) = size(bData, 2);
+if ~kwargs.point
+    if row(2) > size(bData, 1)
+        row(2) = size(bData, 1);
+    end
+    if col(2) > size(bData, 2)
+        col(2) = size(bData, 2);
+    end
 end
 
 pause(1)
