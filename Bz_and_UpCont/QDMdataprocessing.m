@@ -225,11 +225,7 @@ end
 Calib=CAL;
 
 %perform quadratic background subtraction
-quadbkg=input('Perfom quadratic fitting and subtraction [Y]:','s');
-if isempty(quadbkg)
-    disp('Doing Quad BG subtraction...');
-    Bback=QuadBGsub(Bback);
-end
+quadbkg=input('Perfom quadratic fitting and subtraction [N]:','s');
 
 if quadbkg=='y' | quadbkg=='Y'
     disp('Doing Quad BG subtraction...');
@@ -252,7 +248,7 @@ up=input('Upward continuation distance [0]): ','s');
 if isempty(up)
     updist=0e-6;
 else
-    updist=str2num(up)*1e-6;
+    updist=str2double(up)*1e-6;
 end
 
 sspreup=s;
@@ -287,7 +283,7 @@ bxi=interp2(XX,YY,bx,XXi,YYi,'linear');
 if MEDFILTER
     bzi=medfilt2(bzi,[4 4]);
     bui=medfilt2(bui,[4 4]);
-end;
+end
 
 
 %show figures
