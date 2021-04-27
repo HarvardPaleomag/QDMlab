@@ -1,4 +1,4 @@
-function threshold_QDM_map(kwargs)
+function filteredMaps = threshold_QDM_map(kwargs)
 % threshold_QDM_map(nFiles, kwargs) loads a file, removes all pixels above
 % a threshold and saves it with '_thresh' tag.
 %
@@ -41,6 +41,7 @@ end
 % checks and detects if a path was given otherwise you can select one
 nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off');
 
+filteredMaps = {};
 for i = 1:size(nFiles,2)
     iFile = nFiles{i};
     expData = load(iFile);
@@ -87,5 +88,6 @@ for i = 1:size(nFiles,2)
         expData.Bz = filterData;
     end
     
+    filteredMaps{end+1} = expData;
     save(iFileNew, '-struct', 'expData')
 end
