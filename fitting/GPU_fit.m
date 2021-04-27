@@ -7,46 +7,43 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %     binSize: int
 %         number of pixels to be binned into one.
 %         Uses 'BinImage' function
-
+%
 %     optional
 %     ========
-%     fielpolarity: int 
-%         default: 0 
+%     fielpolarity: int [0]
 %         0: both polarities
 %         1: first polarity only
 %         2: second polarity only
 %         4: Neg Pos Pos Neg
-%     type: int
-%         default: 0
+%     type: int [0]
 %         0: ONLY global guess parameters
 %         1: local guess parameters
 %            use 'gaussianFit' to get peak positions if findpeaks fails
 %         2: local guess using a gaussian pre fit
 %         3: manual guess parameters %redundant???
 %             todo:(set values in guess1 and guess2 matricies)
-%     forceGuess: bool (false)
-%     gaussianFit: bool (false)
+%     forceGuess: bool [false]
+%     gaussianFit: bool [false]
 %         Only used if the findpeaks function fails to find 3 peaks.
 %         if true: uses a gaussian fit to estimate the center peak of the
 %                  triplet. 
 %         if false: uses the locations from the global estimation
-%     gaussianFilter: numeric (0)
+%     gaussianFilter: numeric [0]
 %         if 0: no filter is applied
 %         if != 0: applies gaussian filter with a standard deviation of
 %                 'gaussianFilter'. Previous versions of the code used 0.5.
-%     checkPlot: bool (false)
+%     checkPlot: bool [false]
 %         display the fitted resonances. useful to establish the initial guesses for diagnostics
-%     smoothDegree: int(2)
-%     globalFraction: double (0.5)
+%     smoothDegree: int[2]
+%     globalFraction: double [0.5]
 %         amount of global illumination signal to subtract from data. 
 %         Calls 'correct_global' function
-%     save: bool (true)
+%     save: bool [true]
 %         if true the results are saved to 'dataFolder'
-
-%     nucSpinPol: bool (false)
+%     nucSpinPol: bool [false]
 %         this is used for nuclear spin polarization -> NMR. Calls the
 %         function guessNucSpinPol. Uses code in original state (< Nov 2020).
-%     diamond: str (N14)
+%     diamond: str [N14]
 %         The type of diamond. Choses the type of fitting.
 %
 % Notes
