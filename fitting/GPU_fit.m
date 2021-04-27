@@ -40,9 +40,6 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %         Calls 'correct_global' function
 %     save: bool [true]
 %         if true the results are saved to 'dataFolder'
-%     nucSpinPol: bool [false]
-%         this is used for nuclear spin polarization -> NMR. Calls the
-%         function guessNucSpinPol. Uses code in original state (< Nov 2020).
 %     diamond: str [N14]
 %         The type of diamond. Choses the type of fitting.
 %
@@ -65,7 +62,6 @@ arguments
     kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
@@ -79,18 +75,9 @@ type = kwargs.type;
 gamma = 0.0028;  % NV gyromagnetic ratio, in GHz / gauss
 zfs = 2.870;     % NV zero-field splitting, in GHz
 Ahyp = 0.002158; % longitudinal hyperfine for 14N
-globalFraction = kwargs.globalFraction;
-
-% smoothing and filter related
-gaussianFilter = kwargs.gaussianFilter;
-smoothDegree = kwargs.smoothDegree;  % degree of smoothing for 'sgolay' smoothing
-nucSpinPolFlg = kwargs.nucSpinPol;  % nuclear spin polarization -> NMR
 
 quadBGsubFlg = 1 ;
 LEDimgFlg = 0;
-diagplots = 0;
-
-Mag = 15;
 
 %% determine how many files need to be loaded
 polarityMap = containers.Map([0,1,2,4],{[1 2];[1 1];[2 2];[1 4]});
@@ -141,12 +128,11 @@ for fileNum=startN:1:endN
     for nRes = 1:2
         side = sides{nRes};
             
-        [Resfit, guess] = fit_resonance(expData, binSize, nRes, ...
+        Resfit = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
-            'smoothDegree', kwargs.smoothDegree, 'nucSpinPol', kwargs.nucSpinPol,...
-            'checkPlot', kwargs.checkPlot);
+            'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
         Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
     end

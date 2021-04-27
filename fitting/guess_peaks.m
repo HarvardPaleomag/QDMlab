@@ -59,7 +59,7 @@ smoothDegree = kwargs.smoothDegree;
 
 pixel = kwargs.pixel;
 peaksNotFound = 0;
-fitFlg = 'local'; 
+fitFlg = 0; 
 
 if kwargs.forceGuess
     peakValue = [.0041 .0044 .0040]' ;

@@ -1,4 +1,4 @@
-function [fit, initialGuess] = fit_resonance(expData, binSize, nRes, kwargs)
+function fit = fit_resonance(expData, binSize, nRes, kwargs)
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -78,9 +78,6 @@ end
 
 dataStack = expData.(sprintf('imgStack%i', nRes));
 
-%% output setup
-pixelAlerts = struct('x', {}, 'y', {}, 'nRes', {}, 'fitFlg', {}, 'fName', {});
-
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
@@ -127,11 +124,14 @@ if kwargs.type == 0 % reshape into [6 x numpoints]
 end
 
 %% local guess -> guess parameter for each pixel
+
+%% output setup
+pixelAlerts = struct('state', zeros(size(binDataNorm, [1 2])));
 if kwargs.type == 1 %% old local/gaussian guess
     fprintf('<>   %i: local guess estimation\n', nRes);
 
-    sizeX = size(binData, 2); % binned image x-dimensions
-    sizeY = size(binData, 1); % binned image y-dimensions
+    sizeX = size(binDataNorm, 2); % binned image x-dimensions
+    sizeY = size(binDataNorm, 1); % binned image y-dimensions
 
     %% generating the initialguess for fitting
     % iterate over all pixels with index (x,y)
@@ -148,11 +148,8 @@ if kwargs.type == 1 %% old local/gaussian guess
                 'pixel', [y, x, nRes]);
             % check if find peaks returned 3 peaks
             % add them to pixelAlerts
-            if fitFlg == 1 || fitFlg == 2 % 1 == gauss 2= global (i.e. local failed)
-                pixelAlerts(end+1).x = x; % new entry
-                pixelAlerts(size(pixelAlerts, 2)).y = y;
-                pixelAlerts(size(pixelAlerts, 2)).nRes = nRes;
-                pixelAlerts(size(pixelAlerts, 2)).fitFlg = fitFlg;
+            if fitFlg ~= 0 % 1 == gauss 2= global (i.e. local failed)
+                pixelAlerts.state(y,x) = fitFlg;
             end
 
             % replace guess with new guess if fitFlg is not global
@@ -176,6 +173,7 @@ end
 
 %% fittiing related
 tolerance = 1e-10;
+initialPreGuess = 'none';
 
 if kwargs.type == 2
     % initial parameters
@@ -224,8 +222,6 @@ fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
-% make parameters double again
-parameters = double(parameters);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
@@ -316,8 +312,8 @@ fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
 
 %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
 %     fit.preGuess = reshape(preGuess, [], sizeY, sizeX); % initial guess
-fit.initialGuess = reshape(initialGuess, [], sizeY, sizeX); % initial guess
-fit.parameters = reshape(parameters, [], sizeY, sizeX); % fitted parameters
+fit.initialGuess = double(reshape(initialGuess, [], sizeY, sizeX)); % initial guess
+fit.parameters = double(reshape(parameters, [], sizeY, sizeX)); % fitted parameters
 
 % matricies with 2 dimensions for x and y pixels:
 
@@ -337,11 +333,17 @@ else % for N15 diamonds
 end
 
 fit.states = reshape(states, [sizeY, sizeX]);
-fit.chiSquares = reshape(chiSquares, [sizeY, sizeX]);
+fit.chiSquares = double(reshape(chiSquares, [sizeY, sizeX]));
 fit.n_iterations = reshape(n_iterations, [sizeY, sizeX]);
 fit.nRes = nRes;
 
-fit.p = parameters;
-fit.g = initialGuess;
-fit.pg = parameters_to_guess(preGuess, diamond);
+fit.p = double(parameters);
+fit.g = double(initialGuess);
+
+if ~strcmp(preGuess, 'none')
+    fit.pg = double(parameters_to_guess(preGuess, diamond));
+else
+    fit.pg = preGuess
+end
+
 end
