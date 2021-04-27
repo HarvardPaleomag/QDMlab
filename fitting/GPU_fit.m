@@ -137,11 +137,11 @@ for fileNum=startN:1:endN
         transImgBinUint = im2uint8forExportDG(transImgBin,min(min(transImgBin)), max(max(transImgBin)) );
     end
 
-    badPixels = struct();
+    pixelAlerts = struct();
     for nRes = 1:2
         side = sides{nRes};
             
-        [Resfit, guess, badPixel] = fit_resonance(expData, binSize, nRes, ...
+        [Resfit, guess] = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
@@ -149,7 +149,6 @@ for fileNum=startN:1:endN
             'checkPlot', kwargs.checkPlot);
         Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
-        badPixels.([side pol]) = badPixel;
     end
 
     Resonance1 = fits.(['left' pol]).resonance; 
@@ -194,10 +193,8 @@ for fileNum=startN:1:endN
     end
     
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
-    fitFailed = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
-    fitSuccess = ~fitFailed;
-    fits.(['fitSuccess' pol]) = fitSuccess;
-    fits.(['fitFailed' pol]) = fitFailed;
+    pixelAlerts = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
+    fits.(['pixelAlerts' pol]) = pixelAlerts;
 
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
@@ -210,14 +207,14 @@ for fileNum=startN:1:endN
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
-                'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
+                'binSize','type','gaussianFit', 'pixelAlerts');
         elseif strcmp(kwargs.diamond, 'N15')
             save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
-            'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
+            'binSize','type','gaussianFit', 'pixelAlerts');
         end
         
         if LEDimgFlg==1

@@ -10,9 +10,9 @@ function map_figure = QDM_figure(data, kwargs)
 %         at runtime.
 %     nROI: ['none']
 %         adds ROI to the plot if passed
-%     fitSuccess: array ['none']
-%         If fitSuccess array is passed all pixels that have failed will be
-%         replaced by nan
+%     pixelAlerts: array ['none']
+%         If pixelAlerts array is passed pixels that, during fitting created
+%         an alert (see. fit_resonance) will be replaced by nan
 %     filter_hot_pixels: [0]
 %         If value (n) >0 pixels will be filtered according to the data
 %         with n standard deviations and replaced by nan.
@@ -23,7 +23,7 @@ function map_figure = QDM_figure(data, kwargs)
 %     axis: ['on']
 %         if 'on' x/y labels and box around plot are created,
 %         if 'off' x/y labels and box around plot will NOT created
-%    return: ['fig']
+%     return: ['fig']
 %         if 'fig' function returns the figure object
 %         if 'ax' function returns the axis object. Useful for adding data
 %         to a plot
@@ -33,7 +33,7 @@ arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.nROI = 'none';
-    kwargs.fitSuccess = 'none';
+    kwargs.pixelAlerts = 'none';
     kwargs.filter_hot_pixels = 0;
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = 'B_z (T)';
@@ -65,8 +65,8 @@ if kwargs.filter_hot_pixels
     data = filter_hot_pixels(data, 'cutOff', kwargs.filter_hot_pixels, 'winSize', nan);
 end
 
-if ~strcmp(kwargs.fitSuccess, 'none')
-    data(~kwargs.fitSuccess) = nan;
+if ~strcmp(kwargs.pixelAlerts, 'none')
+    data(kwargs.pixelAlerts) = nan;
 end
 
 %%
