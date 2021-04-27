@@ -80,11 +80,6 @@ for i = 1:size(nFiles,2)
                                      'chi',chi,'winSize', kwargs.winSize,...
                                      'threshold', kwargs.threshold);
     
-	% save data with new fileName
-    suffix = sprintf('_thresh(%s).mat', num2str(kwargs.cutOff));
-    iFileNew = strrep(iFile,'.mat', string(suffix));
-    fprintf('<>     SAVING: filtered data for file << %s >>\n', iFileNew);
-    
 	if is_B111(expData)
         expData.B111ferro_unfiltered = expData.B111ferro;
         expData.B111ferro = filterData;
@@ -94,5 +89,12 @@ for i = 1:size(nFiles,2)
     end
     
     filteredMaps{end+1} = expData;
-    save(iFileNew, '-struct', 'expData')
+    
+    if kwargs.save
+        % save data with new fileName
+        suffix = sprintf('_thresh(%s).mat', num2str(kwargs.cutOff));
+        iFileNew = strrep(iFile,'.mat', string(suffix));
+        fprintf('<>     SAVING: filtered data for file << %s >>\n', iFileNew);
+        save(iFileNew, '-struct', 'expData')
+    end
 end
