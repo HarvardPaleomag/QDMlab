@@ -8,14 +8,6 @@ arguments
     kwargs.cropFigure = true;
 end
 
-%Load the correct Bz file
-% [longfilename, pathname] = uigetfile('*.mat', 'Pick a magnetic field map file');
-% fullfilename=[pathname longfilename];
-% [filepath,name,ext]=fileparts(fullfilename);
-% 
-% clear B111ferro;
-% clear Bz;
-
 dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
 expData = load(dataFile{:});
 [~, dataName, ~] = is_B111(expData);
