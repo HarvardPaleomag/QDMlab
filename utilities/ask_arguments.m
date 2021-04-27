@@ -1,19 +1,18 @@
 function kwargs = ask_arguments(kwargs, defaults)
+% ask for arguments
 
-fn = fieldnames(kwargs);
+% get all default values in struct
+fn = fieldnames(defaults);
+
 for k=1:numel(fn)
     if strcmp(kwargs.(fn{k}), 'none')
-        if exists_struct(defaults, fn{k})
-            default = defaults.(fn{k});
-        else
-            default = 'not specified';
-        end
+        default = defaults.(fn{k});
         
-        prompt = sprintf('<>   INPUT %s: ', fn{k});
-        inP = input(prompt)
+        prompt = sprintf('<>   INPUT << %s [%s] >>: ', fn{k}, string(default));
+        inP = input(prompt);
         
         if ~ inP
-            inP = default
+            inP = default;
         end
         
         kwargs.(fn{k}) = inP;
