@@ -35,8 +35,13 @@ arguments
    kwargs.chi = 0
    kwargs.winSize = 3
    kwargs.remove_failed_pixels = true;
-   kwargs.threshold = 5; %in Gauss
+   kwargs.threshold = 'none'; %in Gauss
+   kwargs.save {mustBeBoolean(kwargs.save)} = true;
 end
+
+% define default values for function
+defaults = struct('threshold', 5);
+kwargs = ask_arguments(kwargs, defaults);
 
 % checks and detects if a path was given otherwise you can select one
 nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off');
