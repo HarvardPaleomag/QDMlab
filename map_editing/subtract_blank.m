@@ -30,8 +30,6 @@ end
 
 close all
 
-checkPlot = kwargs.checkPlot;
-
 fileName = 'B111dataToPlot.mat';
 laserFileName = 'laser.jpg';
 
@@ -89,7 +87,11 @@ for i = 1 : size(nFolders, 2)
     end
 
     if kwargs.checkPlot
-        figure
+        med = abs(median(fileB111ferro, 'all', 'omitnan'));
+        st = std(fileB111ferro, [], 'all', 'omitnan');
+        
+        fig = figure('Units', 'normalized', ...
+                 'Position',[0.1 0.1 0.8 0.8], 'Name', 'Blank Subtraction');
         
         sp1 = subplot(2,2,1);
         imagesc(fileB111ferro);
@@ -107,6 +109,12 @@ for i = 1 : size(nFolders, 2)
         sp4 = subplot(2,2,4);
         imagesc(fileData.B111ferro);
         title('Aligned subtraction');
-        linkaxes([sp1, sp2, sp3, sp4])
+        ax = [sp1, sp2, sp3, sp4];
+        linkaxes(ax)
+        
+        for a = ax
+           colorbar(a)
+           set(ax, 'CLim', [-1, 1]*(med + 4 * st));
+        end
     end
 end
