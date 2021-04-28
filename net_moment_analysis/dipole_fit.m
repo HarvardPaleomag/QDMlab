@@ -323,7 +323,7 @@ for k = 1:kwargs.nRuns
     end
 
     [~, bModel] = SourceFitMultiP8(Paux, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.mOrder);
-    fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped));
+    fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped)); %??????????????????????????
     
     %% display calculation and counter
     perc = round(k/kwargs.nRuns,2) *100;
@@ -463,64 +463,63 @@ if kwargs.save
 end
 
 % create the outputs of the funtion
-
 results = struct('dfile', dataFile, 'm', mopt, 'inc', -iopt, 'dec', dec, 'h', -hopt, 'res', resids, 'x',xopt,'y',yopt);
-
 end
 
-function checkPlotFigure(P, fval)
+function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
 
 figure
+subplot(2,3,1)
 plot(P(1, :), fval, '.')
 title('Moment');
 hold on
-plot(P(1, i), fval(i), 'r.')
-plot(P(1, i0), fval(i0), 'c.')
+plot(P(1, i), fval(i), 'ko')
+plot(P(1, i0), fval(i0), 'go')
 plot([mopt, mopt], ylim, 'm--');
 hold off
 
-figure
+subplot(2,3,2)
 plot(P(2, :), fval, '.')
 title('Inclination');
 hold on
-plot(P(2, i), fval(i), 'r.')
-plot(P(2, i0), fval(i0), 'c.')
+plot(P(2, i), fval(i), 'ko')
+plot(P(2, i0), fval(i0), 'go')
 plot([iopt, iopt], ylim, 'm--');
 hold off
 
-figure
+subplot(2,3,3)
 plot(P(3, :), fval, '.')
 title('Declination');
 hold on
-plot(P(3, i), fval(i), 'r.')
-plot(P(3, i0), fval(i0), 'c.')
+plot(P(3, i), fval(i), 'ko')
+plot(P(3, i0), fval(i0), 'go')
 plot([dopt, dopt], ylim, 'm--');
 hold off
 
-figure
+subplot(2,3,4)
 plot(P(6, :), fval, '.')
 title('Height');
 hold on
-plot(P(6, i), fval(i), 'r.')
-plot(P(6, i0), fval(i0), 'c.')
+plot(P(6, i), fval(i), 'ko')
+plot(P(6, i0), fval(i0), 'go')
 plot([hopt, hopt], ylim, 'm--');
 hold off
 
-figure
+subplot(2,3,5)
 plot(P(4, :), fval, '.')
 title('X displacement');
 hold on
-plot(P(4, i), fval(i), 'r.')
-plot(P(4, i0), fval(i0), 'c.')
+plot(P(4, i), fval(i), 'ko')
+plot(P(4, i0), fval(i0), 'go')
 plot([xopt, xopt], ylim, 'm--');
 hold off
 
-figure
+subplot(2,3,6)
 plot(P(5, :), fval, '.')
 title('Y displacement');
 hold on
-plot(P(5, i), fval(i), 'r.')
-plot(P(5, i0), fval(i0), 'c.')
+plot(P(5, i), fval(i), 'ko')
+plot(P(5, i0), fval(i0), 'go')
 plot([yopt, yopt], ylim, 'm--');
 hold off
 end
