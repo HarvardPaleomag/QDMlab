@@ -8,6 +8,8 @@ function map_figure = QDM_figure(data, kwargs)
 %     ax: axis ['none']
 %         axis object will be used if passed to function, otherwise created
 %         at runtime.
+%     led: bool [false]
+%         to plot LED data
 %     nROI: ['none']
 %         adds ROI to the plot if passed
 %     pixelAlerts: array ['none']
@@ -32,6 +34,7 @@ arguments
     data
     kwargs.fig = 'none';
     kwargs.ax = 'none';
+    kwargs.led = false;
     kwargs.nROI = 'none';
     kwargs.pixelAlerts = 'none';
     kwargs.filter_hot_pixels = 0;
@@ -80,7 +83,7 @@ imAlpha=ones(size(data));
 imAlpha(isnan(data))=0;
 imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-colormap(jet);
+colormap(ax, jet);
 shading flat;
 set(ax, 'ydir', 'reverse');
 
@@ -89,6 +92,16 @@ title(kwargs.title, 'Fontsize', 12);
 
 % box(ax, 'on');
 axis(ax, 'tight');
+axis equal, axis tight, axis xy
+
+if strcmp(kwargs.return, 'ax')
+    map_figure = ax;
+end
+
+if kwargs.led
+    colormap(ax, bone);
+    return
+end
 
 % Set the remaining axes properties
 med = abs(median(data, 'all', 'omitnan'));
@@ -105,8 +118,6 @@ else
     fprintf('<>   setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n', med-delta/2, med+delta/2, med, mn, mx);
 end
 
-axis equal, axis tight, axis xy
-
 if strcmp(kwargs.axis, 'off')
     axis off
 end
@@ -118,7 +129,3 @@ end
 % Create colorbar
 cb = colorbar(ax);
 title(cb, kwargs.cbTitle, 'Fontsize', 12);
-
-if strcmp(kwargs.return, 'ax')
-    map_figure = ax;
-end
