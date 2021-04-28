@@ -261,6 +261,7 @@ while counter
     P=zeros(length(P00)+TERMS(MORDER),NRUNS);
     fval=zeros(1,NRUNS);
     fval2=zeros(1,NRUNS);
+    
     for k=1:NRUNS
         if NRUNS==1
             P0=P00;%+0.3*(rand(size(P00))-0.5).*P00;
