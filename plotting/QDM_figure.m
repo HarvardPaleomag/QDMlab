@@ -15,6 +15,9 @@ function map_figure = QDM_figure(data, kwargs)
 %     pixelAlerts: array ['none']
 %         If pixelAlerts array is passed pixels that, during fitting created
 %         an alert (see. fit_resonance) will be replaced by nan
+%     std: int [6]
+%         defines how many standard deviations are used to calculate the
+%         clims
 %     filter_hot_pixels: [0]
 %         If value (n) >0 pixels will be filtered according to the data
 %         with n standard deviations and replaced by nan.
@@ -42,6 +45,7 @@ arguments
     kwargs.cbTitle = 'B_z (T)';
     kwargs.axis = 'on';
     kwargs.return = 'fig';
+    kwargs.std {mustBeInteger} = 6;
 end
 
 if kwargs.fig == 'none'
@@ -109,13 +113,12 @@ st = std(data, [], 'all', 'omitnan');
 mx = max(abs(data), [], 'all');
 mn = min(abs(data), [], 'all');
 
-if ~all(data > 0)
-    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med+4*st, med, st);
-    set(ax, 'CLim', [-1, 1]*(med + 4 * st));
+if ~all(data > 0, 'all')
+    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + %i*std (%.3f)\n', med+kwargs.std*st, med,kwargs.std, st);
+    set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
 else
-    delta = mx - mn;
-    set(ax, 'CLim', [med - delta / 10, med + delta / 10]);
-    fprintf('<>   setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n', med-delta/2, med+delta/2, med, mn, mx);
+    fprintf('<>   setting Clim: 0:%.3f, according to: median (%.3f) + %i*std (%.3f)\n', med+kwargs.std*st, med,kwargs.std, st);
+    set(ax, 'CLim', [0, 1]*(med + kwargs.std * st));
 end
 
 if strcmp(kwargs.axis, 'off')
