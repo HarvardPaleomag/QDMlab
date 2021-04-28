@@ -4,7 +4,7 @@ function expData = subtract_source(kwargs)
 %
 % Parameters
 % ----------
-%     dataFile: str ['none']
+%     filePath: str ['none']
 %     save: bool [true]
 %     fitOrder: 1, 2 or 3 [1]
 %       1=dipole; 2=quadrupole; 3=octapole
@@ -15,17 +15,17 @@ function expData = subtract_source(kwargs)
 %       after subtraction
 
 arguments
-    kwargs.dataFile = 'none'
+    kwargs.filePath = 'none'
     kwargs.save = false;
     kwargs.fitOrder = 1;
     kwargs.checkPlot = true;
 end
 
-dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
-[filePath, fileName, ext] = fileparts(dataFile);
+filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
+[filePath, fileName, ext] = fileparts(filePath);
 
-expData = load(dataFile{:});
-expData.filePath = dataFile;
+expData = load(filePath{:});
+expData.filePath = filePath;
 
 [b111, dataName, ~] = is_B111(expData);
 
@@ -36,9 +36,9 @@ end
 bData = expData.(dataName);
 expData.([dataName, '_original']) = bData;
 
-[expData, row, col] = crop_map('dataFile', expData, 'save', false, 'checkPlot', false);
+[expData, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false);
 
-residualMap = FitMoment(kwargs.fitOrder, dataFile{:}, [col(1, 1), row(1, 1)], [col(2, 1), row(2, 1)], 2, 0);
+residualMap = FitMoment(kwargs.fitOrder, filePath{:}, [col(1, 1), row(1, 1)], [col(2, 1), row(2, 1)], 2, 0);
 
 ic = 1;
 for i = col(1):col(2)

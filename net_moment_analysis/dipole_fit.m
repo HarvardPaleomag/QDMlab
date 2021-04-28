@@ -5,7 +5,7 @@ function results = dipole_fit(kwargs)
 %
 % Parameters
 % ----------
-%     dataFile: ['none']
+%     filePath: ['none']
 %     mOrder: [1]
 %     xy: (int int) [[0, 0]]
 %       Location of the dipole in pixel
@@ -57,7 +57,7 @@ function results = dipole_fit(kwargs)
 %         res: residuals
 
 arguments
-    kwargs.dataFile = 'none';
+    kwargs.filePath = 'none';
     kwargs.mOrder = 'none';
     kwargs.xy = 'picker';
     kwargs.cropFactor = 'none';
@@ -103,16 +103,16 @@ set(0, 'DefaultFigureColormap', jet)
 
 outFileName = 'DipoleInversions.txt';
 
-% get the correct dataFile - even if expData is passed
-dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'single', true);
+% get the correct filePath - even if expData is passed
+filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'single', true);
 % get other parameters
 kwargs = ask_arguments(kwargs, defaults);
 
 if isa(kwargs.expData, 'struct')
     expData = kwargs.expData;
 else
-    fprintf('<>   loading data file:  %s\n', dataFile);
-    expData = load(dataFile);
+    fprintf('<>   loading data file:  %s\n', filePath);
+    expData = load(filePath);
 end
 
 
@@ -148,7 +148,7 @@ end
 [bool, dataName,ledName] = is_B111(expData);
 led = expData.(ledName);
 
-[filePath, name, ext] = fileparts(dataFile);
+[filePath, name, ext] = fileparts(filePath);
 
 % downsample data
 bData = downsample(downsample(expData.(dataName), kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
@@ -463,7 +463,7 @@ if kwargs.save
 end
 
 % create the outputs of the funtion
-results = struct('dfile', dataFile, 'm', mopt, 'inc', -iopt, 'dec', dec, 'h', -hopt, 'res', resids, 'x',xopt,'y',yopt);
+results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, 'h', -hopt, 'res', resids, 'x',xopt,'y',yopt);
 end
 
 function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)

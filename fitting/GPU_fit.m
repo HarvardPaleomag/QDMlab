@@ -88,11 +88,11 @@ endN = startEnd(2);
 
 disp(['<>   WORKING DIR: << ' dataFolder ' >>']);
 headerFiles = dir(fullfile(dataFolder,'*_header.txt'));
-dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
+filePaths = dir(fullfile(dataFolder,'run_0000*.mat'));
 % filter files that are not run0000.mat
-idx = ~cellfun('isempty', regexpi({dataFiles.name}, 'run_[0-9]{5}\.mat$','match'));
+idx = ~cellfun('isempty', regexpi({filePaths.name}, 'run_[0-9]{5}\.mat$','match'));
 
-dataFiles = dataFiles(idx);
+filePaths = filePaths(idx);
 polarities = {'Neg','Pos'};
 sides = {'left' 'right'};
 fits = struct();
@@ -103,14 +103,14 @@ for fileNum=startN:1:endN
     pol = polarities{fileNum};
     
     %%% select header and data file
-    dataFile = dataFiles(fileNum).name;
+    filePath = filePaths(fileNum).name;
 
     %%%
     LEDimgFile = 'laser.csv';
     
     loadStart = tic;
-    fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
-    expData = load(fullfile(dataFolder, dataFile));
+    fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, filePath));
+    expData = load(fullfile(dataFolder, filePath));
 
     fprintf('<>      loading of file %i/%i complete (%.1f s)\n', fileNum, size(startN:1:endN, 2), toc(loadStart));
 
@@ -133,7 +133,7 @@ for fileNum=startN:1:endN
             'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
-        Resfit.fileName = fullfile(dataFolder, dataFile);
+        Resfit.fileName = fullfile(dataFolder, filePath);
         fits.([side pol]) = Resfit;
     end
 
@@ -186,16 +186,16 @@ for fileNum=startN:1:endN
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
 
     if kwargs.save
-        fprintf('<>      INFO: saving data of %s\n',dataFile);
+        fprintf('<>      INFO: saving data of %s\n',filePath);
         if strcmp(kwargs.diamond, 'N14')
-            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            save(fullfile(dataFolder, [filePath, 'deltaBFit.mat']), 'dB', ...
                 'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
                 'binSize','type','gaussianFit', 'pixelAlerts');
         elseif strcmp(kwargs.diamond, 'N15')
-            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            save(fullfile(dataFolder, [filePath, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...

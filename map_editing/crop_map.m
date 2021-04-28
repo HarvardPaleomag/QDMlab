@@ -3,19 +3,19 @@ function [expData, row, col] = crop_map(kwargs)
 % outputs Bz and Bt maps, along with the accessory parameters
 
 arguments
-    kwargs.dataFile = 'none';
+    kwargs.filePath = 'none';
     kwargs.save = true;
     kwargs.checkPlot = true;
     kwargs.row = 'none';
     kwargs.col = 'none';
 end
 
-if isstruct(kwargs.dataFile)
-    expData = kwargs.dataFile;
-    dataFile = expData.filePath;
+if isstruct(kwargs.filePath)
+    expData = kwargs.filePath;
+    filePath = expData.filePath;
 else
-    dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
-    expData = load(dataFile{:});
+    filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
+    expData = load(filePath{:});
 end
 
 [~, dataName, ~] = is_B111(expData);
@@ -40,9 +40,9 @@ end
 
 %% save data with new fileName
 if kwargs.save
-    [filePath,fileName,~]=fileparts(dataFile{1,1});
+    [filePath,fileName,~]=fileparts(filePath{1,1});
     
-    iFileNew = strrep(dataFile{1,1}, '.mat','_Cropped.mat');
+    iFileNew = strrep(filePath{1,1}, '.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     saveas(fig,fullfile(filePath, sprintf('%s_Hole.png', fileName)))
     save(iFileNew,'-struct','expData');

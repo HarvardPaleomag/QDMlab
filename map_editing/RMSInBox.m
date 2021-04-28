@@ -3,12 +3,12 @@ function out = RMSInBox(kwargs)
 % outputs Bz and Bt maps, along with the accessory parameters
 
 arguments
-    kwargs.dataFile = 'none'
+    kwargs.filePath = 'none'
     kwargs.binsize=4;
     kwargs.saveCropMap=false;
 end
 
-expData = crop_map('dataFile', kwargs.dataFile, 'cropFigure', false, ...
+expData = crop_map('filePath', kwargs.filePath, 'cropFigure', false, ...
                 'save', kwargs.saveCropMap);
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);

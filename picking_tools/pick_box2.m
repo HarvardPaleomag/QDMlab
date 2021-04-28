@@ -25,8 +25,8 @@ end
 
 %% get data
 if strcmp(kwargs.expData, 'none')
-    dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file', 'single', true);
-    expData = load(dataFile);
+    filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file', 'single', true);
+    expData = load(filePath);
 else
     expData = kwargs.expData;
 end

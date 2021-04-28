@@ -3,13 +3,13 @@ function expData = make_square_hole(kwargs)
 % outputs Bz and Bt maps, along with the accessory parameters
 
 arguments
-    kwargs.dataFile = 'none'
+    kwargs.filePath = 'none'
     kwargs.save = true;
     kwargs.cropFigure = true;
 end
 
-dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
-expData = load(dataFile{:});
+filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
+expData = load(filePath{:});
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);
 
@@ -44,9 +44,9 @@ end
 
 %% save data with new fileName
 if kwargs.save
-    [filepath,~,~]=fileparts(dataFile{1,1});
+    [filepath,~,~]=fileparts(filePath{1,1});
     
-    iFileNew = strrep(dataFile{1,1}, '.mat','_Hole.mat');
+    iFileNew = strrep(filePath{1,1}, '.mat','_Hole.mat');
     fprintf('<>     SAVING: replaced data to file << %s >>\n', iFileNew);
     
     saveas(fig,[filepath '/B111Cropped.png'])

@@ -3,13 +3,13 @@ function expData = subtract_constant(kwargs)
 % outputs Bz and Bt maps, along with the accessory parameters
 
 arguments
-    kwargs.dataFile = 'none'
+    kwargs.filePath = 'none'
     kwargs.save = true;
     kwargs.editFigure = true;
 end
 
-dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
-expData = load(dataFile{:});
+filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
+expData = load(filePath{:});
 
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);
@@ -32,9 +32,9 @@ if kwargs.save
     expData.([dataName '_original']) = expData.(dataName);
     expData.(dataName) = bData;
 
-    [filePath,fileName,~]=fileparts(dataFile{1,1});
+    [filePath,fileName,~]=fileparts(filePath{1,1});
 
-    iFileNew = strrep(dataFile{1,1}, '.mat', sprintf('_%sSub.mat', dataName));
+    iFileNew = strrep(filePath{1,1}, '.mat', sprintf('_%sSub.mat', dataName));
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     
     saveas(fig,fullfile(filePath, sprintf('%s_%sSub.png', fileName, dataName)))
