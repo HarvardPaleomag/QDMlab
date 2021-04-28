@@ -5,7 +5,7 @@ function expData = make_square_hole(kwargs)
 arguments
     kwargs.filePath = 'none'
     kwargs.save = true;
-    kwargs.cropFigure = true;
+    kwargs.checkPlot = true;
 end
 
 filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
@@ -35,7 +35,7 @@ bData(row(1):row(2),col(1):col(2)) = bkg;
 expData.([dataName '_original']) = expData.(dataName);
 expData.(dataName) = bData;
 
-if kwargs.cropFigure || kwargs.save
+if kwargs.checkPlot || kwargs.save
     fig = figure('Units', 'normalized', ...
                  'Position',[0.2 0.2 0.5 0.5], 'Name', 'replaced map');
 

@@ -8,8 +8,9 @@ arguments
     kwargs.saveCropMap=false;
 end
 
-expData = crop_map('filePath', kwargs.filePath, 'cropFigure', false, ...
+expData = crop_map('filePath', kwargs.filePath, 'checkPlot', false, ...
                 'save', kwargs.saveCropMap);
+            
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);
 bData = bData-mean(mean(bData));

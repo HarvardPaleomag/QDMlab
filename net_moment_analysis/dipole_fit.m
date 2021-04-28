@@ -1,14 +1,16 @@
 function results = dipole_fit(kwargs)
-%kwargs.mOrder is highest order in the multipole expansion: 2 is quadrupole; 8 is
-%octupole
+%mOrder is : 
 %
 %
 % Parameters
 % ----------
 %     filePath: ['none']
 %     mOrder: [1]
-%     xy: (int int) [[0, 0]]
+%       highest order in the multipole expansion
+%       1: dipole; 2: quadrupole; 8: octupole
+%     xy: (int int) ['picker']
 %       Location of the dipole in pixel
+%       IF 'picker', lets you pick the location of the dipole
 %     cropFactor: int [20]
 %       Width of th box around 'xy' to be cropped
 %     downSample: [1]
