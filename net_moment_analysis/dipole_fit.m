@@ -433,7 +433,6 @@ if kwargs.checkPlot
     colorbar
     title('Residuals');
     linkaxes([ax1, ax2, ax3]);
-    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.mOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
 end
 
 
@@ -445,6 +444,10 @@ else
 end
 
 if kwargs.save
+    % save figure
+    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.mOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+    
+    % add line to dipoleinversions.txt
     fid = fopen([filePath, '/', outFileName], 'r');
     header = (fid == -1);
     if ~header
