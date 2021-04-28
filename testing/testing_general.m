@@ -39,3 +39,6 @@ end
 
 %%
 gpuFitNew = GPU_fit(dataFolder, 8)
+
+%% crop_map
+crop_map('dataFile', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false)
