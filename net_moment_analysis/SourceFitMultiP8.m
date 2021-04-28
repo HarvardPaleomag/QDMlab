@@ -181,7 +181,7 @@ end
 residual=Bz-BzExp;
 
 if display
-    figure(2);
+    sourceFitFigure = figure();
     subplot(2,2,2);
     imagesc(Bz);
     axis xy, axis equal, axis tight
