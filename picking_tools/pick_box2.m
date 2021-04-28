@@ -7,14 +7,20 @@ function [row, col] = pick_box2(kwargs)
 %       If 'none', ui lets you pickj the data file and loads it.
 %     title: str, ['Pick Area (+/- to change colorscale)']
 %       Title of the plot
+%     point: bool [false]
+%       if true: you only pick one point instead of two
+%     even: bool [false]
+%       if true: returns row/col with even mod(2) dimensions
 %
 % Returns
 % -------
 %   row, col indices of the box
+
 arguments
     kwargs.expData = 'none';
     kwargs.title = 'Pick Area (+/- to change colorscale)';
     kwargs.point {mustBeBoolean(kwargs.point)} = false;
+    kwargs.even {mustBeBoolean(kwargs.even)} = false;
 end
 
 %% get data
@@ -91,5 +97,25 @@ if ~kwargs.point
     end
 end
 
+if kwargs.even
+    row = makeEven(row);
+    col = makeEven(col);
+end
+
 pause(1)
 close(pickFigure)
+end
+
+function vals = makeEven(vals)
+    %  return if not 2 elements in vals
+    if size(vals,2) ~= 2
+        return
+    end
+    
+    %enforce that the cropped array has even dimensions
+    range=diff(vals);
+    
+    if ~mod(range,2)
+        vals(2,1)=vals(2,1)-1;
+    end
+end
