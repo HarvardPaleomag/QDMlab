@@ -44,7 +44,10 @@ function results = pick_sources_and_fit(nFolders, varargin)
 %         selections
 %     IMAGEFOLDER: char
 %         name of folder to store fit images
-% 
+%     save: bool (false)
+%         if true: individual fits are saved
+%         if false: fits are not saved
+%
 % Returns
 % -------
 %     struct with cells for:
@@ -59,7 +62,7 @@ function results = pick_sources_and_fit(nFolders, varargin)
 %             - yMin{i,j,k}
 %             - yMax{i,j,k}
 %     Each is a cell with result{i,j,k} with:
-%           ith mask, jth file, kth UC value:
+%           ith ROI, jth file, kth UC value:
 
 
 nParams = inputParser;
@@ -71,6 +74,7 @@ addParameter(nParams, 'transFormFile', 'none', str_or_char);
 addParameter(nParams, 'refIdx', 1, @isnumeric);
 addParameter(nParams, 'checkPlot', false, @islogical);
 addParameter(nParams, 'outputTrue', false, @islogical);
+addParameter(nParams, 'save', false, @islogical);
 addParameter(nParams, 'upCont', {0}, @iscell);
 addParameter(nParams, 'nROI', false, @iscell);
 addParameter(nParams, 'imageFolder', false, @ischar);
@@ -188,9 +192,11 @@ for j = 1 : numberoffolders
             SOURCENAME=['Source' num2str(i) '_Step' num2str(j) ];
             
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
-            iResult = DipoleFitMultiP8CommLine(1, iFile, iRect(1:2), 1, 1, 10, 0, outputTrue, 0, 'dx', ...
-                iRect(3), 'dy', iRect(4), 'data', transDataUC, ...
-                'IMAGEFOLDER',imageFolder,'SOURCENAME',SOURCENAME);
+            iResult = dipole_fit('dataFile', iFile, 'mOrder', 1, ...
+                'cropFactor', 20, 'save', nParams.Results.save, ...
+                'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
+                'expData', transDataUC, ...
+                'imageFolder',imageFolder,'sourceName',SOURCENAME);
             
             %% results
             iResult.xLims = xLim;
@@ -209,7 +215,7 @@ for j = 1 : numberoffolders
             yMin(i,j,k) = yLim(1);
             yMax(i,j,k) = yLim(2);
             
-            close all
+%             close all
         end
     end
     allResults(iFile) = fileResults;
