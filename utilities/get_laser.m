@@ -16,7 +16,7 @@ function laserData = get_laser(path, kwargs)
     [~,~,ext] = fileparts(laserFiles(1).name);
     
     if strcmp(ext, '.jpg')
-        laserData = imread(fullfile(path, laserFiles(1).name))
+        laserData = imread(fullfile(path, laserFiles(1).name));
         return
     end
     

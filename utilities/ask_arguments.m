@@ -11,7 +11,7 @@ for k=1:numel(fn)
         prompt = sprintf('<>   INPUT << %s [%s] >>: ', fn{k}, string(default));
         inP = input(prompt);
         
-        if ~ inP
+        if isempty(inP)
             inP = default;
         end
         
