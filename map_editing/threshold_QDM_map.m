@@ -4,7 +4,7 @@ function filteredMaps = threshold_QDM_map(kwargs)
 %
 % Parameters
 % ----------
-%     nFolders: cell
+%     nFiles: cell ['none']
 %     cutOff: int ['none']
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
@@ -58,9 +58,9 @@ for i = 1:size(nFiles,2)
         filterData = expData.Bz;
     end
     
-    if kwargs.remove_failed_pixels && sum(strcmp(fieldnames(expData), 'failed_pixel'))
-        sprintf('<>     removing << %i >> pixels that failed Lorentzian fits (see documentation)\n', numel(nonzeros(expData.failedPixels)));
-        filterData = filterData .* ~expData.failedPixels;
+    if kwargs.remove_failed_pixels && sum(strcmp(fieldnames(expData), 'pixelAlerts'))
+        sprintf('<>     removing << %i >> pixels that failed Lorentzian fits (see documentation)\n', numel(nonzeros(expData.pixelAlertss)));
+        filterData = filterData .* ~expData.pixelAlerts;
     end
     
     if kwargs.chi
