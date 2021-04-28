@@ -6,6 +6,8 @@ arguments
     kwargs.dataFile = 'none'
     kwargs.save = true;
     kwargs.cropFigure = true;
+    kwargs.row = 'none';
+    kwargs.col = 'none';
 end
 
 dataFile = automatic_input_ui__(kwargs.dataFile, 'type', 'file', 'title', 'Pick a magnetic field map file');
