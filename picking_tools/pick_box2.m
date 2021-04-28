@@ -33,7 +33,9 @@ bData = expData.(dataName);
 fprintf('<>   select area:  (+) saturate color scale, (-) desaturate color scale,\n')
 fprintf('<>                 (*) or (/) restore original color scale\n');
 
-pickFigure = figure();
+pickFigure = figure('Units', 'normalized', ...
+               'Position',[0.1 0.2 0.8 0.8],'NumberTitle', 'off', 'Name', 'Pick Point(s)');
+           
 ax = QDM_figure(bData, 'fig', pickFigure, 'title', kwargs.title, 'return', 'ax');
 
 hold(ax, 'on')
