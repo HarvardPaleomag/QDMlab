@@ -71,7 +71,8 @@ while n
         % save all points you continue getting
         % rounded and negative values -> 0
         if retCoord
-            fprintf('<>      creating coordinates of box #%i (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy)
+            x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
+            fprintf('<>      creating coordinates of box #%i (%i,%i) dx:%i, dy:%i\n', n, x0, y0, dx, dy)
             nRects{end+1} = max(round([x0, y0, dx, dy]), 0);
         else
             iMask = zeros(size(data));
