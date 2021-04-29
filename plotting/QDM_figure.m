@@ -118,7 +118,7 @@ if ~all(data > 0, 'all')
     set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
 else
     fprintf('<>   setting Clim: 0:%.3f, according to: median (%.3f) + %i*std (%.3f)\n', med+kwargs.std*st, med,kwargs.std, st);
-    set(ax, 'CLim', [0, 1]*(med + kwargs.std * st));
+    set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
 end
 
 if strcmp(kwargs.axis, 'off')
