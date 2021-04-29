@@ -89,9 +89,9 @@ endN = startEnd(2);
 disp(['<>   WORKING DIR: << ' dataFolder ' >>']);
 dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
 % filter files that are not run0000.mat
-idx = ~cellfun('isempty', regexpi({filePaths.name}, 'run_[0-9]{5}\.mat$','match'));
+idx = ~cellfun('isempty', regexpi({dataFiles.name}, 'run_[0-9]{5}\.mat$','match'));
 
-filePaths = filePaths(idx);
+dataFiles = dataFiles(idx);
 polarities = {'Neg','Pos'};
 sides = {'left' 'right'};
 fits = struct();
@@ -101,7 +101,7 @@ for fileNum=startN:1:endN
     pol = polarities{fileNum};
     
     %%% select header and data file
-    filePath = filePaths(fileNum).name;
+    dataFile = dataFiles(fileNum).name;
 
     %%%
     LEDimgFile = 'laser.csv';
@@ -131,7 +131,7 @@ for fileNum=startN:1:endN
             'diamond', kwargs.diamond,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
-        Resfit.fileName = fullfile(dataFolder, filePath);
+        Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
     end
 
