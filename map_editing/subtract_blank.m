@@ -88,12 +88,13 @@ for i = 1 : size(nFolders, 2)
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
     
-    [transForm, refFrame] = get_image_tform2(fixedData, movingData,...
+    [transForm, refFrame] = get_image_tform(fixedData, movingData,...
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
 
     % transform the blank
-    B111ferroTransformed = tform_data(blankData.B111ferro, transForm, refFrame);
-    B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame);
+    binning = detect_binning(iFile);
+    B111ferroTransformed = tform_data(blankData.B111ferro, transForm, refFrame, binning);
+    B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame, binning);
 
     % crop the FOV and subtract blank
     [x, y, w, h] = get_mask_extent(B111ferroTransformed);

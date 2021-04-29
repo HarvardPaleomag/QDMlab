@@ -92,7 +92,7 @@ arguments
                           fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = num2cell(zeros(size(nFolders,1)))
+    kwargs.upCont = 'none',
     kwargs.removeHotPixels = 0
     kwargs.includeHotPixel = 0
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
@@ -117,7 +117,9 @@ nROI = kwargs.nROI;
 % fix shape for nFolders
 nFolders = correct_cell_shape(nFolders);
 %%
-
+if strcmp(kwargs.upCont,'none')
+    kwargs.upCont = num2cell(zeros(size(nFolders,2)));
+end
 % generate reference file name
 fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
@@ -200,7 +202,7 @@ for j = 1:size(nFiles, 2)
 
         if kwargs.reverse
             disp(['<>    transforming mask to match << ...', iFile(end-40:end), ' >>'])
-            iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
+            iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame, binning);
         end
 
         % create masked_data: mask is array with 0 where is should be

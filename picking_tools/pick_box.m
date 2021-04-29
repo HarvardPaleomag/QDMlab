@@ -54,12 +54,12 @@ while n
 
         loc = iRect.Position;
 
-        x0 = loc(1);
-        dx = loc(3);
+        x0 = int16(loc(1));
+        dx = int16(loc(3));
         x1 = x0 + dx;
 
-        y0 = loc(2);
-        dy = loc(4);
+        y0 = int16(loc(2));
+        dy = int16(loc(4));
         y1 = y0 + dy;
 
         % create box for plotting

@@ -8,13 +8,18 @@ function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, 
 %         data to be matched to the refernce data
 % 
 % optional parameters:
+%     binning: [1]
+%       needed for correct transformation
 %     checkPlot: bool 
 %         default: false
 %         Adds a plot to check alignment if true
+
 p = inputParser;
 addRequired(p, 'fixedData');
 addRequired(p, 'movingData');
 addParameter(p, 'checkPlot', false, @islogical);
+addParameter(p, 'binning', 1);
+
 parse(p, fixedData, movingData, varargin{:});
 
 checkPlot = p.Results.checkPlot;
@@ -39,7 +44,7 @@ refFrame = imref2d(size(fixedData));
 if checkPlot == true
     checkFigure = figure('Name', 'Align images');
     
-    transformedData = tform_data(movingData, transForm, refFrame); %imwarp(moving_data, tform,'OutputView', rframe);
+    transformedData = tform_data(movingData, transForm, refFrame, binning); %imwarp(moving_data, tform,'OutputView', rframe);
 
     subplot(2, 1, 1)
     imshowpair(fixedData, movingData, 'Scaling', 'joint')
