@@ -1,4 +1,4 @@
-function tform_data = tform_data(data, transForm, refFrame)
+function tform_data = tform_data(data, transForm, refFrame, binning)
 %{
 Convenience function to transforms data into a different reference frame
 (e.g. 100G data -> NRM).
@@ -11,8 +11,7 @@ parameters:
 %}
 % Last change: April 21, 2020: Mike
 
-if refFrame.ImageSize ~= size(data)
-    binning = (refFrame.ImageSize / size(data));
+if binning > 1
     disp(['<>   binning (' num2str(binning) ') detected correcting the tform'])
     [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
 end
