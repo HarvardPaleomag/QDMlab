@@ -140,6 +140,7 @@ for j = 1 : numberoffolders
         iFile = fullfile(nFolders{j}, filesep, [fileName '.mat']);
     end
     iData = load(iFile);
+    binning = detect_binning(iData);
     
     % get transformation for that file
     tForm = nTransForms(iFile);
@@ -148,9 +149,9 @@ for j = 1 : numberoffolders
 
     % claculate transformed data
     disp('<>   transforming LED')
-    movedLed = tform_data(iData.newLED, tForm, rframe);
+    movedLed = tform_data(iData.newLED, tForm, rframe, binning);
     disp('<>   transforming Bz')
-    movedData = tform_data(iData.Bz, tForm, rframe);
+    movedData = tform_data(iData.Bz, tForm, rframe, binning);
     
     % todo add filter_hot_pixel
     % movedData = filter_hot_pixels(movedData, 'cutOff', 12);
