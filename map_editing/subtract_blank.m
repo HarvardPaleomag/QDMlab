@@ -64,7 +64,7 @@ for i = 1 : size(nFolders, 2)
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
     
-    [transForm, refFrame] = get_image_tform2(fixedData, movingData,...
+    [transForm, refFrame] = get_image_tform(fixedData, movingData,...
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
 
     % transform the blank

@@ -93,11 +93,11 @@ for iFolder = nFolders
         disp(['<>   INFO: reversed alignment (fixed -> moving)'])
         disp(['<>   ', fixedFile, '->'])
         disp(['<>   ', movingPath])
-        [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'check', true);
+        [tForm, refFrame] = get_image_tform(movingLed, fixedLed, 'check', true);
     else
         disp(['<>   ', movingPath, '->'])
         disp(['<>   ', fixedFile])
-        [tForm, refFrame] = get_image_tform2(fixedLed, movingLed, 'check', true);
+        [tForm, refFrame] = get_image_tform(fixedLed, movingLed, 'check', true);
     end
     % ask only if the images are different
 

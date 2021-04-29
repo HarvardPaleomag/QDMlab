@@ -112,11 +112,11 @@ for iFolder = nMovingFolders
     end
     
     if reverse
-        [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'checkPlot', checkPlot);
+        [tForm, refFrame] = get_image_tform(movingLed, fixedLed, 'checkPlot', checkPlot);
         disp(['<>   ', fixedFile, '->'])
         disp(['<>   ', movingFile])
     else
-        [tForm, refFrame] = get_image_tform2(fixedLed, movingLed, 'checkPlot', checkPlot);
+        [tForm, refFrame] = get_image_tform(fixedLed, movingLed, 'checkPlot', checkPlot);
         disp(['<>   ', movingFile, '->'])
         disp(['<>   ', fixedFile])
     end

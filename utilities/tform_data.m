@@ -12,7 +12,7 @@ parameters:
 % Last change: April 21, 2020: Mike
 
 if refFrame.ImageSize ~= size(data)
-    binning = (refFrame.ImageSize / size(data));
+    binning = detect_binning();
     disp(['<>   binning (' num2str(binning) ') detected correcting the tform'])
     [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
 end
