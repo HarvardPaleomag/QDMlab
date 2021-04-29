@@ -9,7 +9,7 @@ b = 'D:\data\mike\NRM';
 ima = imread(fullfile(a, 'LED.jpg'));
 imb = imread(fullfile(b, 'LED.jpg'));
 %%
-[transForm, refFrame] = get_image_tform2(ima, imb,...
+[transForm, refFrame] = get_image_tform(ima, imb,...
     'checkPlot', true, 'title', 'alignment');
 %% bin image B by 4
 imb_ = imresize(imb, 1/4, 'method', 'box');
