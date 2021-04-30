@@ -12,7 +12,7 @@ nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', ...
 
 if strcmp(kwargs.UC, 'none')
     msg = sprintf('Enter UC distances (micron) with [ ] around them: ');
-    msg = logMsg('ATTENTION',msg,0,0,'returnOnly',true);
+    msg = logMsg('INPUT',msg,0,0,'returnOnly',true);
     kwargs.UC = input(msg);
 end
 
@@ -62,7 +62,8 @@ if size(UC, 2) ~= 0
             'axis', 'off');
 
         if kwargs.save
-            fileName = strrep(name, '_uc0',sprintf('_uc%i', upDist * 1e6));
+            fileName = strrep(name, '_uc0.mat', '');
+            fileName = [fileName sprintf('_uc%.0f', upDist * 1e6)];
             fileName = check_suffix(fileName);
             
 %             fileName = [name, '_uc', num2str(upDist * 1e6), '.mat'];

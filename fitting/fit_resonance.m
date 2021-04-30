@@ -211,7 +211,7 @@ if nBadPixels > 1
         logMsg('warn',msg,1,0);
     end
 end
-msg = sprintf('initial parameter estimation complete in: %.1f s', toc(tStart));
+msg = sprintf('%i: initial parameter estimation complete in: %.1f s', nRes, toc(tStart));
 logMsg('info',msg,1,0);
 
 %% FINAL GPU FIT
@@ -241,12 +241,12 @@ fit = make_fit_struct(initialPreGuess, initialGuess, parameters, states, ...
 fit.freq = freq;
 fit.binSize = binSize;
 
-msg = sprintf('final GPU fitting complete in: %.1f s', toc(tStart));
+msg = sprintf('%i: final GPU fitting complete in: %.1f s', nRes, toc(tStart));
 logMsg('info',msg,1,0);
 
 if numel(nonzeros(states)) > 0
     badPre = numel(nonzeros(states));
-    msg = sprintf('%i / %i pixels failed the final fit. See fit.states!', badPre, imgPts);
+    msg = sprintf('%i: %i / %i pixels failed the final fit. See fit.states!', badPre, imgPts);
     logMsg('warn',msg,1,0);
 end
 

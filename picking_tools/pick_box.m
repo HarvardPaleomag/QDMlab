@@ -52,12 +52,12 @@ while n
 
         loc = iROI.Position;
 
-        x0 = loc(1);
-        dx = loc(3);
+        x0 = round(loc(1));
+        dx = round(loc(3));
         x1 = x0 + dx;
 
-        y0 = loc(2);
-        dy = loc(4);
+        y0 = round(loc(2));
+        dy = round(loc(4));
         y1 = y0 + dy;
 
         % create box for plotting
@@ -70,13 +70,16 @@ while n
         % rounded and negative values -> 0
         if retCoord
             x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
-            fprintf('<>      creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i\n', n, x0, y0, dx, dy)
+            msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
+            logMsg('info',msg,1,0);
             nROI{end+1} = max(round([x0, y0, dx, dy]), 0);
         else
             iMask = zeros(size(data));
             iMask(y0:y1,x0:x1)=1;
             m = limit_mask(iMask);
-            fprintf('<>      creating mask for box #%i (%ix%i : %i pixel)\n', n, size(m,2), size(m,1), numel(m))
+            msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
+            logMsg('info',msg,1,0);
+            
             nROI{end+1} = iMask;
         end
 

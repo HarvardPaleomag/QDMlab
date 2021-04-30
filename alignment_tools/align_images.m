@@ -7,7 +7,7 @@ function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
 % ----------
 %   nFolders: cell, char
 %
-%   transFormFile: path
+%   transFormFile: path ['none']
 %   fixedIdx: int [1]
 %   checkPlot: bool [1]
 %   fileName: str ['Bz_uc0.mat']

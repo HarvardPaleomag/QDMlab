@@ -43,10 +43,18 @@ msg = sprintf('<> %6s %s: %s:%s %s', datetime('now', 'Format', 'HH:mm:ss:SS'), .
               ['QDMlab.' callerName], indent, message);
           
 if ~kwargs.returnOnly
-    if lineEnd
-        fprintf('%s\n',msg);
+    if strcmpi(level, 'INPUT')
+        if lineEnd
+            fprintf(2, '%s\n',msg);
+        else
+            fprintf(2, '%s',msg);
+        end
     else
-        fprintf('%s',msg);
+        if lineEnd
+            fprintf('%s\n',msg);
+        else
+            fprintf('%s',msg);
+        end
     end
 elseif kwargs.returnOnly && lineEnd
     msg = sprintf('%s\n',msg);

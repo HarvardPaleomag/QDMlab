@@ -80,7 +80,7 @@ refFileData = load(refFile);
 
 % get transformations and rframes
 if inParse.Results.checkPlot
-    [nTransForms, nRefFrames] = align_images(nFolders, 0, ...
+    [nTransForms, nRefFrames] = align_images(nFolders, 'transformFile', 0, ...
         'fileName', fileName, 'fixedIdx', fixedIdx);
 else
     [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
@@ -101,7 +101,7 @@ for i = 1:size(nFolders, 2)
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
     
-    msg = sprintf('loading << %s >> target file for transformation', iFile(end-size(iFile,2)/2:end)');
+    msg = sprintf('loading << %s >> target file for transformation', iFile(end-40:end)');
     logMsg('info',msg,1,0);
 %     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
@@ -163,7 +163,7 @@ for i = 1:size(nFolders, 2)
         transData = targetData;
         transLed = targetLed;
     else
-        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-size(iFile,2)/2:end));
+        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-40:end));
         logMsg('info',msg,1,0);
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);

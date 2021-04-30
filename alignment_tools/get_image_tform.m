@@ -33,7 +33,7 @@ fixedData = uint8(255 * mat2gray(fixedData));
 movingData = uint8(255 * mat2gray(movingData));
 
 msg = sprintf('detecting features in fixed and moving data');
-logMsg('info',msg,1,0);
+logMsg('debug',msg,1,1);
 
 ptsOriginal  = detectSURFFeatures(fixedData);
 ptsDistorted = detectSURFFeatures(movingData);
@@ -42,7 +42,7 @@ ptsDistorted = detectSURFFeatures(movingData);
 
 %% matching features
 msg = sprintf('matching features in fixed and moving data');
-logMsg('info',msg,1,0);
+logMsg('debug',msg,1,1);
 
 index_pairs = matchFeatures(featuresOriginal,featuresDistorted);
 matchedPtsOriginal  = validPtsOriginal(index_pairs(:,1));

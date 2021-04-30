@@ -163,11 +163,15 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    msg = sprintf('B > +- %.1fG: removed %i / %i pixel = %.2f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
-    logMsg('info',msg,1,0);
+    if n_pixels
+        msg = sprintf('B > +- %.1fG: removed %i / %i pixel = %.2f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
+        logMsg('info',msg,1,0);
+    end
 else
-    msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
-    logMsg('info',msg,1,0);
+    if n_pixels
+        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
+        logMsg('info',msg,1,0);
+    end
 end
 
 %% checkplot

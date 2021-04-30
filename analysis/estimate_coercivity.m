@@ -20,7 +20,7 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %     includeHotPixel: bool [0]
 %         | if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel
 %         | if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel
-%     selectionThreshold: numeric [0.5]
+%     selectionThreshold: numeric [0.25]
 %         | defines the Threshold above which the mask is created.
 %         | **Example:** selectionThreshold = 0.5
 %         | :code:`maskSelection = [1 2 0; 1 1 2; 0 1 1]`  ->
@@ -105,9 +105,7 @@ arguments
     kwargs.bootStrapN = 1
     kwargs.pixelError = 4
 end
-st = dbstack; namestr = st.name; % get fucntionName
 
-funcName = sprintf('QDMlab:%s', namestr); 
 % define optional function parameters
 fileName = kwargs.fileName;
 fileName = check_suffix(fileName);
@@ -232,7 +230,8 @@ for j = 1:size(nFiles, 2)
 
 
         if size(mDataCut) ~= size(d0Cut)
-            disp('  WARNING mask too close to edge, skipping ... ')
+            msg = sprintf('mask too close to edge, skipping ... ');
+            logMsg('warn',msg,1,0);
             continue
         end
 
@@ -305,7 +304,8 @@ results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRat
     'nMasks', {iMasks}, 'nROI', {nROI},...
     'transDatas', {transDatas}, 'fixedData', fixedData, 'transLeds', {transLeds});
 
-fprintf('<>   INFO: coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)\n', size(nROI,2), size(iFiles,2));
+msg = sprintf('coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)', size(nROI,2), size(iFiles,2));
+logMsg('info',msg,1,0);
 
 if kwargs.checkPlot
     coercivity_result_plot(results)

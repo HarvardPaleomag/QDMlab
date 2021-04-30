@@ -10,12 +10,11 @@ parameters:
         %todo: 'none' if the data should just be transformed.
 %}
 % Last change: April 21, 2020: Mike
-st = dbstack; funcName = st.name; % get functionName
 
 if refFrame.ImageSize ~= size(data)
     binning = detect_binning(data, 'refFrame', refFrame);
     msg = ['binning (' num2str(binning) ') detected correcting the tform'];
-    logMsg('info',funcName,msg,1,0);
+    logMsg('info',msg,1,0);
     [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
 end
 

@@ -13,7 +13,9 @@ if isstruct(inData) & strcmp(kwargs.refFrame, 'none')
     data = inData.(dataName);
 
     binning = (size(led,1) / size(data,1));
-elseif isa(kwargs.refFrame, 'imref2D')
+end
+
+if isa(kwargs.refFrame, 'imref2d')
     binning = kwargs.refFrame.ImageSize ./ size(inData);
     
     if ~ binning(1) == binning(2)
