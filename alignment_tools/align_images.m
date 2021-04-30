@@ -1,4 +1,4 @@
-function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwargs)
+function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
 % Function to aling a set of images. Function will automatically align the
 % images first and you can check if it is ok. If not the complex alignment
 % will be called.
@@ -17,7 +17,7 @@ function [nTransForms, nRefFrames] = align_images(nFolders, transFormFile, kwarg
 
 arguments
     nFolders cell {foldersMustExist(nFolders)}
-    transFormFile char
+    kwargs.transFormFile char = 'none';
     kwargs.fixedIdx int16 = 1
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 1
     kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot', 'Bz_uc0.mat', 'B111dataToPlot.mat']), ...
@@ -58,8 +58,8 @@ nTransForms = containers.Map;
 nRefFrames = containers.Map;
 
 % check if file exists an/or should be created
-if transFormFile ~= 0
-    if isfile(transFormFile)
+if kwargs.transFormFile ~= 0 | ~strcmp(kwargs.transFormFile, 'none')
+    if isfile(kwargs.transFormFile)
         newFile = input('transformation file already exists, overwrite? (y/n)? ', 's');
         if strcmp(newFile, 'y')
             nTransForms = containers.Map;
