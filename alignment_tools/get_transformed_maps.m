@@ -138,7 +138,8 @@ for i = 1:size(nFolders, 2)
         else
             chi = inParse.Results.chi;
         end
-        disp(['<>   filtering: ...' iFile(end-40:end-20)  '... .mat'])
+        msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
+        logMsg('info',msg,1,0);
 
         targetData = filter_hot_pixels(targetData, ...
             'cutOff',inParse.Results.removeHotPixels, ...

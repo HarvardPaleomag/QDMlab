@@ -8,7 +8,9 @@ for k=1:numel(fn)
     if strcmp(kwargs.(fn{k}), 'none')
         default = defaults.(fn{k});
         
-        prompt = sprintf('<>   INPUT << %s [%s] >>: ', fn{k}, string(default));
+        msg = sprintf('<< %s [%s] >>: ', fn{k}, string(default));
+        prompt = logMsg('INPUT',msg,0,0,'returnOnly',true);
+%         prompt = sprintf('<>   INPUT << %s [%s] >>: ', fn{k}, string(default));
         inP = input(prompt);
         
         if isempty(inP)
