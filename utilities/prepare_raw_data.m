@@ -51,7 +51,7 @@ data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
 
 % binning
 fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
-binData = BinImage(data,binSize);
+binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by
 % average of all frequency points
