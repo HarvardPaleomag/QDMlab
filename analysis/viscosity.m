@@ -35,7 +35,9 @@ nonViscousFile = check_suffix(nonViscousFile);
 [viscousFile_, name, ext] = fileparts(viscousFile);
 [nonViscousFile_, name, ext] = fileparts(nonViscousFile);
 
-fprintf('<>   loading and transforming data')
+msg = sprintf('loading and transforming data');
+logMsg('info',msg,1,0);
+
 [transformedData, nFiles] = get_transformed_maps({nonViscousFile_, viscousFile_}, ...
     'fileName', name, 'checkPlot', kwargs.checkPlot);
 
@@ -62,7 +64,7 @@ viscData.viscousData = viscousData;
 viscData.nonViscousData = nonViscousData;
 viscData.viscosityMap = delta;
 
-[~, dataName, ledName] = is_B111(refData)
+[~, dataName, ledName] = is_B111(refData);
 
 viscData.LED = refData.(ledName);
 
@@ -73,5 +75,6 @@ else
 end
 
 fName = [name '_visc', '.mat'];
-fprintf('<>   SAVING data to %s', fName);
+msg = sprintf('SAVING data to %s', fName);
+logMsg('info',msg,1,0);
 save(fullfile(viscousFile_, fName), '-struct', 'viscData')

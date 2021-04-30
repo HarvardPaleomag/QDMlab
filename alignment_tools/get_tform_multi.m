@@ -127,9 +127,12 @@ for iFolder = nMovingFolders
 end
 
 if transFormFile == 0
-    disp('<>   returning: Map(tForms), Map(refFrames)')
+    msg = sprintf('returning: Map(tForms), Map(refFrames)');
+    logMsg('info',msg,1,0);
     return
 else
-    disp(['<>   saving... to ', transFormFile])
+    msg = sprintf('saving... to ', transFormFile');
+    logMsg('info',msg,1,0);
+%     disp(['<>   saving... to ', transFormFile])
     save(transFormFile, 'nTransForms', 'nRefFrames')
 end

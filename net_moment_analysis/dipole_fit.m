@@ -93,6 +93,9 @@ arguments
     kwargs.sourceName = 'none'
     
 end
+st = dbstack; 
+funcName = st.name; 
+
 % define defaults for the function
 defaults = struct('mOrder', 1, 'cropFactor', 20, 'save', true);
 
@@ -113,7 +116,9 @@ kwargs = ask_arguments(kwargs, defaults);
 if isa(kwargs.expData, 'struct')
     expData = kwargs.expData;
 else
-    fprintf('<>   loading data file:  %s\n', filePath);
+    msg = sprintf('loading data file:  %s', filePath);
+    logMsg('info',funcName,msg,1,0);
+%     fprintf('<>   loading data file:  %s\n', filePath);
     expData = load(filePath);
 end
 
@@ -129,7 +134,7 @@ if exists_struct(expData, 'h')
     h = expData.h;
 else
     %ask user for the NV layer-sample distance
-    h=input('<>   NV-sample distance [5 µm]: ');
+    h = input('<>   INPUT << NV-sample distance [5 µm] >>: ');
     if isempty(h)
         h=5e-6;
     end
@@ -347,10 +352,12 @@ fsort = sort(fval);
 
 i = find(fval <= fsort(kwargs.minTol));
 if numel(i) > 1
-    fprintf('<>   Averaging %d points\n', numel(i))
+    msg = sprintf('averaging %d points\n', numel(i));
+    logMsg('info',funcName,msg,1,0);
 end
 if numel(i) > 0.1 * numel(fval)
-    disp('<>   WARNING: Too many points are being averaged. Consider adjusting MINTOL parameter.')
+    msg = sprintf('Too many points are being averaged. Consider adjusting MINTOL parameter.');
+    logMsg('warn',funcName,msg,1,0);
 end
 
 %% determine results from parameters
@@ -379,8 +386,8 @@ end
 xopt = Popt(1);
 yopt = Popt(2);
 fprintf('<>   RESULTS: \n');
-fprintf('<>     M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
-fprintf('<>     h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
+fprintf('<>      M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
+fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
 
 
 %% calculate residuals

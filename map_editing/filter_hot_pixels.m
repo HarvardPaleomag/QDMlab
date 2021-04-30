@@ -53,7 +53,8 @@ data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: data where data/chi is %i standard deviations above the median\n', cutOff)
+    msg = sprintf('filtered data where data/chi is %i standard deviations above the median', cutOff);
+    logMsg('info',msg,1,0);
 
     if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
@@ -65,7 +66,9 @@ if ~strcmp(cutOff, 'none')
 
         %calculate the standard deviation of all pixels
         dStd = nanstd(chi, 0, 'all');
-        disp(['<>             using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
+        
+        msg = sprintf('using chi2 values: median = %.2e; std = %.2e',dMed, dStd);
+        logMsg('debug',msg,1,0);
 
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
@@ -78,6 +81,9 @@ if ~strcmp(cutOff, 'none')
         dStd = nanstd(data, 0, 'all');
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | abs(data) > dMed + cutOff * dStd;
+        
+        msg = sprintf('using data values: median = %.2e; std = %.2e',dMed, dStd);
+        logMsg('debug',msg,1,0);
     end
 end
 
@@ -157,9 +163,11 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: B > +- %.1fG: removed %i / %i pixel = %.2f%%\n', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    msg = sprintf('B > +- %.1fG: removed %i / %i pixel = %.2f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
+    logMsg('info',msg,1,0);
 else
-    fprintf('<>     FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
+    msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
+    logMsg('info',msg,1,0);
 end
 
 %% checkplot

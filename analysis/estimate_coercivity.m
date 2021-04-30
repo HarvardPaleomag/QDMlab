@@ -105,7 +105,9 @@ arguments
     kwargs.bootStrapN = 1
     kwargs.pixelError = 4
 end
+st = dbstack; namestr = st.name; % get fucntionName
 
+funcName = sprintf('QDMlab:%s', namestr); 
 % define optional function parameters
 fileName = kwargs.fileName;
 fileName = check_suffix(fileName);
@@ -198,7 +200,8 @@ for j = 1:size(nFiles, 2)
         iMask = nMasks{:, i};
 
         if kwargs.reverse
-            disp(['<>    transforming mask to match << ...', iFile(end-40:end), ' >>'])
+            msg = ['transforming mask to match << ...', iFile(end-40:end), ' >>'];
+            logMsg('info','dipole_fit',msg,1,0);
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
         end
 

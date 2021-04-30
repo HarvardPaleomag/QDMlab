@@ -36,8 +36,10 @@ bData = expData.(dataName);
 % ledData = expData.(ledName);
 
 %% Crop a single region for source fitting
-fprintf('<>   select area:  (+) saturate color scale, (-) desaturate color scale,\n')
-fprintf('<>                 (*) or (/) restore original color scale\n');
+msg = sprintf('area:  (+) saturate color scale, (-) desaturate color scale');
+logMsg('SELECT',msg,1,0);
+msg = sprintf('       (*) or (/) restore original color scale');
+logMsg('SELECT',msg,1,0);
 
 pickFigure = figure('Units', 'normalized', ...
                'Position',[0.1 0.2 0.8 0.8],'NumberTitle', 'off', 'Name', 'Pick Point(s)');
@@ -104,6 +106,10 @@ end
 
 pause(1)
 close(pickFigure)
+
+msg = sprintf('returning box indices: lower left: (%i, %i); upper right (%i, %i)', col(1), row(1),col(2), row(2));
+logMsg('debug',msg,1,0);
+
 end
 
 function vals = makeEven(vals)

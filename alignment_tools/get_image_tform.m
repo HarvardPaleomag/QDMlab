@@ -22,7 +22,8 @@ arguments
 end
 
 if fixedData == movingData
-    disp('<> INFO: Transformation not needed. Same image detected')
+    msg = sprintf('Transformation not needed. Same image detected');
+    logMsg('info',msg,1,0);
     transForm = affine2d([[1 0 0]; [0 1 0]; [0 0 1]]);
     refFrame = imref2d(size(fixedData));
     return
@@ -31,14 +32,18 @@ end
 fixedData = uint8(255 * mat2gray(fixedData));
 movingData = uint8(255 * mat2gray(movingData));
 
-disp(['<> detecting features in fixed and moving data']) 
+msg = sprintf('detecting features in fixed and moving data');
+logMsg('info',msg,1,0);
+
 ptsOriginal  = detectSURFFeatures(fixedData);
 ptsDistorted = detectSURFFeatures(movingData);
 [featuresOriginal,validPtsOriginal] = extractFeatures(fixedData,ptsOriginal);
 [featuresDistorted,validPtsDistorted] = extractFeatures(movingData,ptsDistorted);
 
 %% matching features
-disp(['<> matching features in fixed and moving data']) 
+msg = sprintf('matching features in fixed and moving data');
+logMsg('info',msg,1,0);
+
 index_pairs = matchFeatures(featuresOriginal,featuresDistorted);
 matchedPtsOriginal  = validPtsOriginal(index_pairs(:,1));
 matchedPtsDistorted = validPtsDistorted(index_pairs(:,2));

@@ -45,7 +45,9 @@ blankFolder = blankFolder{:};
 % checks if none of the default arguments is used
 nFolders = correct_cell_shape(nFolders);
 
-fprintf('<> loading blank file: << %s >>\n', blankFolder)
+msg = sprintf('loading blank file: << %s >>', blankFolder);
+logMsg('info',msg,1,0);
+
 blankFile = fullfile(blankFolder, fileName);
 blankData = load(blankFile);
 
@@ -60,7 +62,9 @@ for i = 1 : size(nFolders, 2)
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
 
-    fprintf('<> reading: << %s >> and blankData\n', iFile)
+    msg = sprintf('loading laser & magnetic data: << %s >>', iFolder);
+    logMsg('info',msg,1,0);
+    
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
     

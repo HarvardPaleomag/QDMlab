@@ -114,10 +114,13 @@ mx = max(abs(data), [], 'all');
 mn = min(abs(data), [], 'all');
 
 if ~all(data > 0, 'all')
-    fprintf('<>   setting Clim: +-%.3f, according to: median (%.3f) + %i*std (%.3f)\n', med+kwargs.std*st, med,kwargs.std, st);
+    msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
+    logMsg('debug',msg,1,0);
     set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
 else
-    fprintf('<>   setting Clim: 0:%.3f, according to: median (%.3f) + %i*std (%.3f)\n', med+kwargs.std*st, med,kwargs.std, st);
+    msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
+                 med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
+    logMsg('info',msg,1,0);
     set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
 end
 

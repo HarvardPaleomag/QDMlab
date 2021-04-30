@@ -47,7 +47,8 @@ if kwargs.save
     [filepath,~,~]=fileparts(filePath{1,1});
     
     iFileNew = strrep(filePath{1,1}, '.mat','_Hole.mat');
-    fprintf('<>     SAVING: replaced data to file << %s >>\n', iFileNew);
+    msg = sprintf('SAVING: replaced data to file << %s >>', iFileNew');
+    logMsg('info',msg,1,0);
     
     saveas(fig,[filepath '/B111Cropped.png'])
     save(iFileNew,'-struct','expData');

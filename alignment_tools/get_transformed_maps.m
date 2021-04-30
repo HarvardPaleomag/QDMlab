@@ -100,8 +100,10 @@ for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, fileName);
-
-    fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
+    
+    msg = sprintf('loading << %s >> target file for transformation', iFile(end-size(iFile,2)/2:end)');
+    logMsg('info',msg,1,0);
+%     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
     nFiles{end+1} = iFile;
 
@@ -122,7 +124,9 @@ for i = 1:size(nFolders, 2)
     if iscell(inParse.Results.upCont)
         h = inParse.Results.upCont{i};
         if h ~= 0
-            disp(['<>   calculating upward continuation (' num2str(h) ') micron'])
+            msg = sprintf('calculating upward continuation (%i) micron', h);
+            logMsg('info',msg,1,0);
+%             disp(['<>   calculating upward continuation (' num2str(h) ') micron'])
             targetData = UpCont(targetData, h*1e-6, 1/pixelsize);
         end
     end
@@ -153,11 +157,13 @@ for i = 1:size(nFolders, 2)
     % the reference coordinates to the target coordinates later.
 
     if inParse.Results.reverse
-        disp(['<>   WARNING: reverse doesnt work, yet!'])
+        msg = sprintf('reverse doesnt work, yet!');
+        logMsg('warn',msg,1,0);
         transData = targetData;
         transLed = targetLed;
     else
-        fprintf('<>   transforming: target data & LED  << ... %s >>\n', iFile(end-size(iFile,2)/2:end))
+        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-size(iFile,2)/2:end));
+        logMsg('info',msg,1,0);
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
     end

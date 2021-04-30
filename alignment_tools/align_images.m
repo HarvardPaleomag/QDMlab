@@ -26,12 +26,10 @@ arguments
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
     kwargs.laser (1,1) {mustBeBoolean(kwargs.laser)} = false
 end
-
 nFolders = correct_cell_shape(nFolders);
 
 fileName = check_suffix(kwargs.fileName);
 
-checkPlot = kwargs.checkPlot;
 fixedIdx = kwargs.fixedIdx;
 sequence = kwargs.sequence;
 reverse = kwargs.reverse;
@@ -88,15 +86,18 @@ for iFolder = nFolders
         movingLed = movingData.newLED;
     end
     
-
+    msg = sprintf('aligning images:');
+    logMsg('info',msg,1,0);
     if reverse
-        disp(['<>   INFO: reversed alignment (fixed -> moving)'])
-        disp(['<>   ', fixedFile, '->'])
-        disp(['<>   ', movingPath])
+        msg = sprintf('reversed alignment (fixed -> moving)');
+        logMsg('info',msg,1,0);
+%         disp(['<>   INFO: reversed alignment (fixed -> moving)'])
+        logMsg('info',[fixedFile, '->'],1,1);
+        logMsg('info',[movingPath],1,1);
         [tForm, refFrame] = get_image_tform(movingLed, fixedLed, 'check', true);
     else
-        disp(['<>   ', movingPath, '->'])
-        disp(['<>   ', fixedFile])
+        logMsg('info',[movingPath, '->'],1,1);
+        logMsg('info',[fixedFile],1,1);
         [tForm, refFrame] = get_image_tform(fixedLed, movingLed, 'check', true);
     end
     % ask only if the images are different
@@ -123,10 +124,14 @@ for iFolder = nFolders
 
 end
 
-if transFormFile == 0
-    disp('<>   returning: Map(tForms), Map(refFrames)')
+if kwargs.transFormFile == 0 | strcmp(kwargs.transFormFile, 'none')
+    msg = sprintf('returning: Map(tForms), Map(refFrames)');
+    logMsg('info',msg,1,0);
+%     disp('<>   returning: Map(tForms), Map(refFrames)')
     return
 else
-    fprintf('<>   saving... to ''%s''', transFormFile)
+    msg = sprintf('saving... to << %s >>', transFormFile');
+    logMsg('info',msg,1,0);
+%     fprintf('<>   saving... to ''%s''', transFormFile)
     save(transFormFile, 'nTransForms', 'nRefFrames', 'reverse')
 end

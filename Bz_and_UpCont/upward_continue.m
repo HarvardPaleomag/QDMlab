@@ -11,12 +11,17 @@ nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', ...
     'title', 'Pick a magnetic field map file');
 
 if strcmp(kwargs.UC, 'none')
-    kwargs.UC = input('<>   Enter UC distances (micron) with [ ] around them: ');
+    msg = sprintf('Enter UC distances (micron) with [ ] around them: ');
+    msg = logMsg('ATTENTION',msg,0,0,'returnOnly',true);
+    kwargs.UC = input(msg);
 end
 
 UC = kwargs.UC * 1e-6; %upward continuations in m
 
 [filePath, name, ~] = fileparts(nFiles{:});
+
+msg = sprintf('loading: %s', nFiles{:});
+logMsg('info',msg,1,0);
 
 expData = load(nFiles{:});
 
@@ -57,8 +62,10 @@ if size(UC, 2) ~= 0
             'axis', 'off');
 
         if kwargs.save
-            fileName = [name, '_uc', num2str(upDist * 1e6), '.mat'];
-            saveas(fig, [filePath, '/', name, '_uc', num2str(upDist * 1e6), '.png'])
+            fileName = strrep(name, '_uc0',sprintf('_uc%i', upDist * 1e6));
+            fileName = check_suffix(fileName);
+            
+%             fileName = [name, '_uc', num2str(upDist * 1e6), '.mat'];
             
             dataOut = expData;
             dataOut.([dataName '_uc0']) = Btrunc;
@@ -66,13 +73,17 @@ if size(UC, 2) ~= 0
             dataOut.h = h;
             dataOut.step = step;
             dataOut.Bt = Bt;
-            save(fullfile(filePath, fileName), '-struct', 'dataOut', '-mat'); % why no 'Bt',
-
             dataOut.fileName = fileName;
             dataOut.filePath = filePath;
             ucMaps{end+1} = dataOut;
             
-            fprintf('<>   INFO: Saved: %s\n', fileName)
+            msg = sprintf('saving: %s and %s', fileName, strrep(fileName,'mat','png'));
+            logMsg('info',msg,1,0);
+            
+            saveas(fig, fullfile(filePath, strrep(fileName,'mat','png')));
+            save(fullfile(filePath, fileName), '-struct', 'dataOut', '-mat'); % why no 'Bt',
+            
+
         end
     end
 end

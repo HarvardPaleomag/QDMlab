@@ -66,6 +66,9 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
+st = dbstack;
+namestr = st.name;
+funcName = sprintf('QDMlab:%s', namestr);
 
 tStart = tic;
 fieldPolarity = kwargs.fieldPolarity;
@@ -76,9 +79,6 @@ type = kwargs.type;
 gamma = 0.0028;  % NV gyromagnetic ratio, in GHz / gauss
 %zfs = 2.870;     % NV zero-field splitting, in GHz
 %Ahyp = 0.002158; % longitudinal hyperfine for 14N
-
-quadBGsubFlg = 1 ;
-LEDimgFlg = 0;
 
 %% determine how many files need to be loaded
 polarityMap = containers.Map([0,1,2,4],{[1 2];[1 1];[2 2];[1 4]});
@@ -115,13 +115,6 @@ for fileNum=startN:1:endN
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
-
-    if LEDimgFlg==1
-        transImg = load(fullfile(dataFolder,LEDimgFile));
-        transImg = transImg(SpanYTrans,SpanXTrans);
-        transImgBin = BinImage(transImg, binSize);
-        transImgBinUint = im2uint8forExportDG(transImgBin,min(min(transImgBin)), max(max(transImgBin)) );
-    end
 
     pixelAlerts = struct();
     for nRes = 1:2
@@ -186,10 +179,16 @@ for fileNum=startN:1:endN
 
     if kwargs.save
         folderName = sprintf('%ix%iBinned', binSize, binSize);
-        fprintf('<>      INFO: creating folder %s\n', folderName);
-        mkdir(fullfile(dataFolder, folderName));
+        
+        if isfolder(fullfile(dataFolder, folderName))
+            fprintf('<> %s:%s: WARNING: folder < %s > already exists\n', funcName, datetime('now', 'Format', 'HH:mm:ss'), folderName);
+        else
+            fprintf('<>      INFO: creating folder < %s >\n', folderName);
+            mkdir(fullfile(dataFolder, folderName));
+        end
         
         fprintf('<>      INFO: saving data of %s\n',dataFile);
+        
         if strcmp(kwargs.diamond, 'N14')
             save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
                 'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
@@ -205,11 +204,7 @@ for fileNum=startN:1:endN
             'Freqs2', 'chiSquares2', 'p2','freq2',...
             'binSize','type','gaussianFit', 'pixelAlerts');
         end
-        
-        if LEDimgFlg==1
-            saveas(f5, [LEDimgFile 'CROPBIN.png'],'png');
-            imwrite(transImgBinUint,gray, [LEDimgFile 'CROPBINPure.png'], 'png');
-        end        
+   
     end
 end
 fprintf('<>   INFO: all GPU fitting tasks completed in: %.1f s\n', toc(tStart)');
