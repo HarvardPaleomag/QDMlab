@@ -103,7 +103,8 @@ refFile = [nFolders{refIdx}, filesep, fileName];
 fixed = load(refFile);
 
 if contains(fileName, 'B111')
-    disp('B111 data NOT SUPPORTED, YET')
+    msg = sprintf('B111 data NOT SUPPORTED, YET');
+    logMsg('error',msg,1,0);
     fixedData = fixed.B111ferro;
     fixedLed = fixed.ledImg;
 else
@@ -152,9 +153,11 @@ for j = 1 : numberoffolders
     rframe = nRefFrames(iFile);
 
     % claculate transformed data
-    disp('<>   transforming LED')
+    msg = sprintf('transforming LED');
+    logMsg('info',msg,1,0);
     movedLed = tform_data(iData.newLED, tForm, rframe);
-    disp('<>   transforming Bz')
+    msg = sprintf('transforming Bz');
+    logMsg('info',msg,1,0);
     movedData = tform_data(iData.Bz, tForm, rframe);
     
     % todo add filter_hot_pixel
@@ -178,7 +181,9 @@ for j = 1 : numberoffolders
 
             if h > 0
                 % calculate the UC
-                disp(['<> calculating upward continuation (' num2str(h) ') micron'])
+                msg = sprintf('calculating upward continuation (%i) micron', h);
+                logMsg('info',msg,1,0);
+                
                 % replace the last Bz data with UC data of non UC iData
                 transDataUC.Bz = UpCont(iData.Bz, h*1e-6, 1/pixelsize);
             end

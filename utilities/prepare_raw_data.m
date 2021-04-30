@@ -50,7 +50,9 @@ data = reshape(dataStack, [], expData.imgNumCols, expData.imgNumRows); % reshape
 data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
 
 % binning
-fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
+msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
+logMsg('info',msg,1,0);
+
 binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by

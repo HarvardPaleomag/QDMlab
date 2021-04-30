@@ -68,7 +68,8 @@ arguments
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
 end
 
-disp('<> --------------------------------------------------------------------')
+msg = sprintf('--------------------------------------------------------------------');
+logMsg('info',msg,1,0);
 tStart = tic;
 
 %% check type/diamond combination
