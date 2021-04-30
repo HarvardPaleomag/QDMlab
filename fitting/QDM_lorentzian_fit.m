@@ -90,11 +90,17 @@ for dataFolder = nFolders
         fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
         
         % copy laser image and csv
+        msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
+        logMsg('info',msg,1,0);
+        
         copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
         
-        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
-        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+        fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
+        msg = sprintf('saving %s into %s', fname, dataFolder);
+        logMsg('info',msg,1,0);
+        
+        save(fullfile(dataFolder, fName), '-struct', 'fits');
     end
 end
 

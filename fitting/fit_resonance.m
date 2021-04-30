@@ -73,10 +73,9 @@ tStart = tic;
 
 %% check type/diamond combination
 if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
-    disp('<>   ERROR: Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet')
+    msg = sprintf('Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet');
+    logMsg('error',msg,1,0);
 end
-
-dataStack = expData.(sprintf('imgStack%i', nRes));
 
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
@@ -90,12 +89,14 @@ sizeY = size(binDataNorm, 1); % binned image y-dimensions
 % default = 0
 % gaussian filter on the guesses, can lead to some problems if high gradient
 if kwargs.gaussianFilter ~= 0
-    fprintf('<>   %i: smoothing data using gaussian blur: %.1f\n', nRes, gaussianFilter)
+    msg = sprintf('%i: smoothing data using gaussian blur: %.1f', nRes, gaussianFilter');
+    logMsg('info',msg,1,0);
     gFilter = fspecial('gaussian', [20, 20], gaussianFilter);
     binDataNorm = imfilter(binDataNorm, gFilter, 'symmetric', 'conv');
 end
 
-fprintf('<>   %i: starting parameter estimation (%s)\n', nRes, kwargs.diamond);
+msg = sprintf('%i: starting parameter estimation (%s)', nRes, kwargs.diamond');
+logMsg('info',msg,1,0);
 
 %% global spectra subtraction
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
@@ -128,8 +129,9 @@ end
 %% output setup
 pixelAlerts = struct('state', zeros(size(binDataNorm, [1 2])));
 if kwargs.type == 1 %% old local/gaussian guess
-    fprintf('<>   %i: local guess estimation\n', nRes);
-
+    msg = sprintf('%i: local guess estimation', nRes');
+    logMsg('info',msg,1,0);
+    
     sizeX = size(binDataNorm, 2); % binned image x-dimensions
     sizeY = size(binDataNorm, 1); % binned image y-dimensions
 
@@ -201,13 +203,15 @@ nBadPixels = numel(nonzeros(pixelAlerts.state));
 
 if nBadPixels > 1
     if kwargs.type == 2 && strcmp(kwargs.diamond, 'N14')
-        fprintf('<>      WARNING: %i / %i pixels failed the pre-guess. See fits.states\n', nBadPixels, imgPts);
+        msg = sprintf('%i: %i / %i pixels failed the pre-guess. See fits.states', nRes, nBadPixels, imgPts);
+        logMsg('warn',msg,1,0);
     else
-        fprintf('<>      WARNING: %i / %i pixels had to be substituted\n', nBadPixels, imgPts);
+        msg = sprintf('%i: %i / %i pixels had to be substituted', nRes, nBadPixels, imgPts);
+        logMsg('warn',msg,1,0);
     end
 end
-
-fprintf('<>      INFO: initial parameter estimation complete in: %.1f s\n', toc(tStart)');
+msg = sprintf('initial parameter estimation complete in: %.1f s', toc(tStart));
+logMsg('info',msg,1,0);
 
 %% FINAL GPU FIT
 if strcmp(kwargs.diamond, 'N14')
@@ -218,7 +222,9 @@ end
 
 max_n_iterations = 1000;
 
-fprintf('<>   %i: starting GPU fit, model: %s\n', nRes);
+msg = sprintf('%i: starting GPU fit, model: %s', nRes);
+logMsg('info',msg,1,0);
+
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
@@ -234,15 +240,18 @@ fit = make_fit_struct(initialPreGuess, initialGuess, parameters, states, ...
 fit.freq = freq;
 fit.binSize = binSize;
 
-fprintf('<>      INFO: final GPU fitting complete in: %.1f s\n', toc(tStart)');
+msg = sprintf('final GPU fitting complete in: %.1f s', toc(tStart));
+logMsg('info',msg,1,0);
 
 if numel(nonzeros(states)) > 0
     badPre = numel(nonzeros(states));
-    fprintf('<>      WARNING: %i / %i pixels failed the final fit. See fit.states!\n', badPre, imgPts);
+    msg = sprintf('%i / %i pixels failed the final fit. See fit.states!', badPre, imgPts);
+    logMsg('warn',msg,1,0);
 end
 
 if kwargs.checkPlot
-    fprintf('<>>>>>> INFO: close figure to continue\n');
+    msg = sprintf('close figure to continue');
+    logMsg('ATTENTION',msg,1,0);
     fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, kwargs.diamond);
     waitfor(fig)
 end
@@ -308,7 +317,9 @@ function fit = make_fit_struct(preGuess, initialGuess, parameters, states, chiSq
 % initialize struct
 fit = struct();
 
-fprintf('<>   %i: INFO: reshaping data into (%4i, %4i)\n', nRes, sizeY, sizeX);
+msg = sprintf('reshaping data into (%4i, %4i)', nRes, sizeY, sizeX);
+logMsg('debug',msg,1,0);
+
 
 %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
 %     fit.preGuess = reshape(preGuess, [], sizeY, sizeX); % initial guess
@@ -343,7 +354,7 @@ fit.g = double(initialGuess);
 if ~strcmp(preGuess, 'none')
     fit.pg = double(parameters_to_guess(preGuess, diamond));
 else
-    fit.pg = preGuess
+    fit.pg = preGuess;
 end
 
 end
