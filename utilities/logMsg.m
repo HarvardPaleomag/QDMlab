@@ -36,20 +36,20 @@ catch
     callerName = 'none';
 end
 
-if lineEnd
-    lineEnd = '\n';
-else
-    lineEnd = '';
-end
-
 indent = repmat('  ',1,indent);
 
-msg = sprintf('<> %6s %s: %s:%s %s%s', datetime('now', 'Format', 'HH:mm:ss:SS'), ...
+msg = sprintf('<> %6s %s: %s:%s %s', datetime('now', 'Format', 'HH:mm:ss:SS'), ...
               pad(upper(level), 6,'left'),...
-              ['QDMlab.' callerName], indent, message, lineEnd);
+              ['QDMlab.' callerName], indent, message);
           
 if ~kwargs.returnOnly
-    fprintf(msg)
+    if lineEnd
+        fprintf('%s\n',msg);
+    else
+        fprintf('%s',msg);
+    end
+elseif kwargs.returnOnly && lineEnd
+    msg = sprintf('%s\n',msg);
 end
 
 end
