@@ -107,7 +107,7 @@ for fileNum=startN:1:endN
     LEDimgFile = 'laser.csv';
     
     loadStart = tic; % for timing 
-    msg = sprintf('loading data file:  %s', fullfile(dataFolder, dataFile));
+    msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
     logMsg('info',msg,1,0);
     
     expData = load(fullfile(dataFolder, dataFile));

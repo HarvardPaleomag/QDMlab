@@ -97,7 +97,7 @@ for dataFolder = nFolders
         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
         
         fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
-        msg = sprintf('saving %s into %s', fname, dataFolder);
+        msg = sprintf('saving %s into %s', fName, dataFolder);
         logMsg('info',msg,1,0);
         
         save(fullfile(dataFolder, fName), '-struct', 'fits');
