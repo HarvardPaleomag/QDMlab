@@ -14,8 +14,8 @@ if isstruct(kwargs.filePath)
     expData = kwargs.filePath;
     filePath = expData.filePath;
 else
-    filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
-    expData = load(filePath{:});
+    filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file', 'single', true);
+    expData = load(filePath);
 end
 
 [~, dataName, ~] = is_B111(expData);
@@ -40,9 +40,9 @@ end
 
 %% save data with new fileName
 if kwargs.save
-    [filePath,fileName,~]=fileparts(filePath{1,1});
+    [filePath,fileName,~]=fileparts(filePath);
     
-    iFileNew = strrep(filePath{1,1}, '.mat','_Cropped.mat');
+    iFileNew = strrep(filePath, '.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     saveas(fig,fullfile(filePath, sprintf('%s_Hole.png', fileName)))
     save(iFileNew,'-struct','expData');
