@@ -66,9 +66,6 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
 end
-st = dbstack;
-namestr = st.name;
-funcName = sprintf('QDMlab:%s', namestr);
 
 tStart = tic;
 fieldPolarity = kwargs.fieldPolarity;
@@ -87,7 +84,9 @@ startN = startEnd(1);
 endN = startEnd(2);
 %%
 
-disp(['<>   WORKING DIR: << ' dataFolder ' >>']);
+msg = sprintf('WORKING DIR: << %s >>', dataFolder);
+logMsg('info',msg,1,0);
+
 dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
 % filter files that are not run0000.mat
 idx = ~cellfun('isempty', regexpi({dataFiles.name}, 'run_[0-9]{5}\.mat$','match'));
@@ -108,10 +107,13 @@ for fileNum=startN:1:endN
     LEDimgFile = 'laser.csv';
     
     loadStart = tic; % for timing 
-    fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
+    msg = sprintf('loading data file:  %s', fullfile(dataFolder, dataFile));
+    logMsg('info',msg,1,0);
+    
     expData = load(fullfile(dataFolder, dataFile));
 
-    fprintf('<>      loading of file %i/%i complete (%.1f s)\n', fileNum, size(startN:1:endN, 2), toc(loadStart));
+    msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
+    logMsg('info',msg,1,1);
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
@@ -181,13 +183,16 @@ for fileNum=startN:1:endN
         folderName = sprintf('%ix%iBinned', binSize, binSize);
         
         if isfolder(fullfile(dataFolder, folderName))
-            fprintf('<> %s:%s: WARNING: folder < %s > already exists\n', funcName, datetime('now', 'Format', 'HH:mm:ss'), folderName);
+            msg = sprintf('folder < %s > already exists', folderName);
+            logMsg('warn',msg,1,0);
         else
-            fprintf('<>      INFO: creating folder < %s >\n', folderName);
+            msg = sprintf('creating folder < %s >', folderName);
+            logMsg('info',msg,1,0);
             mkdir(fullfile(dataFolder, folderName));
         end
         
-        fprintf('<>      INFO: saving data of %s\n',dataFile);
+        msg = sprintf('saving data of %s',dataFile);
+        logMsg('info',msg,1,0);        
         
         if strcmp(kwargs.diamond, 'N14')
             save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
@@ -207,4 +212,5 @@ for fileNum=startN:1:endN
    
     end
 end
-fprintf('<>   INFO: all GPU fitting tasks completed in: %.1f s\n', toc(tStart)');
+msg = sprintf('all GPU fitting tasks completed in: %.1f s', toc(tStart));
+logMsg('FINAL',msg,1,0);
