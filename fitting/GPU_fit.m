@@ -7,14 +7,14 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %     binSize: int
 %         number of pixels to be binned into one.
 %         Uses 'BinImage' function
-%
-%     optional
-%     ========
 %     fielpolarity: int [0]
 %         0: both polarities
 %         1: first polarity only
 %         2: second polarity only
 %         4: Neg Pos Pos Neg
+%     quadBgSub: bool [true]
+%         Decides if a quadratic background is to be subtracted from the
+%         data
 %     type: int [0]
 %         0: ONLY global guess parameters
 %         1: local guess parameters
@@ -57,6 +57,7 @@ arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
+    kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = 1
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
@@ -169,7 +170,7 @@ for fileNum=startN:1:endN
     ResDiff = (Resonance2 - Resonance1)/2;
     ResSum = (Resonance2 + Resonance1)/2;
       
-    if quadBGsubFlg
+    if kwargs.quadBgSub
         %PARABOLIC BACKGROUND SUBTRACTION
         dB = QuadBGsub(ResDiff)/gamma;     
     else
