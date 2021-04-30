@@ -86,10 +86,14 @@ for dataFolder = nFolders
         fits.nFolder = dataFolder;
         
         folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
-        mkdir(fullfile(dataFolder, folderName));
-        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
-        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
 
+        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        
+        % copy laser image and csv
+        copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
+        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+        
+        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
         copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
 end
