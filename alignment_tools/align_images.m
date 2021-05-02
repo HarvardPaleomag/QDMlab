@@ -20,8 +20,7 @@ arguments
     kwargs.transFormFile char = 'none';
     kwargs.fixedIdx int16 = 1
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 1
-    kwargs.fileName char {mustBeMember(kwargs.fileName, ['Bz_uc0', 'B111dataToPlot', 'Bz_uc0.mat', 'B111dataToPlot.mat']), ...
-                          fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
+    kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
     kwargs.laser (1,1) {mustBeBoolean(kwargs.laser)} = false
