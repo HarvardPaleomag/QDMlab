@@ -305,7 +305,7 @@ results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRat
     'transDatas', {transDatas}, 'fixedData', fixedData, 'transLeds', {transLeds});
 
 msg = sprintf('coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)', size(nROI,2), size(iFiles,2));
-logMsg('info',msg,1,0);
+logMsg('done',msg,1,0);
 
 if kwargs.checkPlot
     coercivity_result_plot(results)
