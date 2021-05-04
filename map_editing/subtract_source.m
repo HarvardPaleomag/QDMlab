@@ -13,7 +13,7 @@ function expData = subtract_source(kwargs)
 % -------
 %     Map: double
 %       after subtraction
-
+%% check why weird
 arguments
     kwargs.filePath = 'none'
     kwargs.save = false;
@@ -21,11 +21,14 @@ arguments
     kwargs.checkPlot = true;
 end
 
-filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');
-[filePath, fileName, ext] = fileparts(filePath);
+show_references()
 
-expData = load(filePath{:});
-expData.filePath = filePath;
+filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', ...
+    'title', 'Pick a magnetic field map file', 'single', true);
+expData = load(filePath);
+
+[path, fileName, ext] = fileparts(filePath);
+expData.filePath = path;
 
 [b111, dataName, ~] = is_B111(expData);
 
@@ -38,13 +41,17 @@ expData.([dataName, '_original']) = bData;
 
 [expData, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false);
 
-residualMap = FitMoment(kwargs.fitOrder, filePath{:}, [col(1, 1), row(1, 1)], [col(2, 1), row(2, 1)], 2, 0);
-
+% residualMap = FitMoment(kwargs.fitOrder, filePath, [col(1, 1), row(1, 1)], [col(2, 1), row(2, 1)], 2, 0);
+fit = dipole_fit('filePath',filePath, 'expData', bData, ...
+                'xy', [col(1), row(1)], 'dx', diff(col), 'dy', diff(row), ...
+                'fitOrder', kwargs.fitOrder, 'nRuns', 2, ...
+                'cropFactor', max([diff(col) diff(row)]), 'save', false);
+            
 ic = 1;
 for i = col(1):col(2)
     jc = 1;
     for j = row(1):row(2)
-        bData(j, i) = -residualMap(jc, ic);
+        bData(j, i) = fit.residuals(jc, ic);%-residualMap(jc, ic);
         jc = jc + 1;
     end
     ic = ic + 1;
@@ -61,7 +68,7 @@ end
 expData.Bt = sqrt(by.^2+bx.^2+bData.^2);
 
 if kwargs.save
-    save(fullfile(filepath, [fileName(1:end - 1), num2str(str2num(fileName(end)) + 1), '.mat']), '-struct', 'expData');
+    save(fullfile(path, [fileName(1:end - 1), num2str(str2num(fileName(end)) + 1), '.mat']), '-struct', 'expData');
 end
 
 end
