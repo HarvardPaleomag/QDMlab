@@ -386,9 +386,13 @@ end
 % location
 xopt = Popt(1);
 yopt = Popt(2);
-fprintf('<>   RESULTS: \n');
-fprintf('<>      M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
-fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
+% fprintf('<>   RESULTS: \n');
+msg = sprintf('M = %1.3d; I = %1.3f; D = %1.3f', mopt, iopt, dopt);
+logMsg('result',msg,1,1);
+msg = sprintf('h = %1.3d; x = %1.3d; y = %1.3d', hopt, xopt, yopt);
+logMsg('result',msg,1,1);
+% fprintf('<>      M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
+% fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
 
 
 %% calculate residuals
