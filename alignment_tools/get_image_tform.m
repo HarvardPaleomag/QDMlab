@@ -17,7 +17,7 @@ function [transForm, refFrame] = get_image_tform(fixedData, movingData, kwargs)
 arguments
     fixedData
     movingData
-    kwargs.checkPlot = 0;
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.sharpen = false;
     kwargs.title {ischar} = 'checkPlot alignment';
 end

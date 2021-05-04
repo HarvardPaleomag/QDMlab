@@ -67,7 +67,7 @@ arguments
     kwargs.nRuns = 10;
     kwargs.quad = 1;
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
-    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = true;
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
     kwargs.save {mustBeBoolean(kwargs.save)} = 'none';
 
     kwargs.m0 = 1e-12;

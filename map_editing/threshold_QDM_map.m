@@ -29,7 +29,7 @@ function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
 
 arguments
    kwargs.nFiles = 'none';
-   kwargs.checkPlot = 0
+   kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
    kwargs.save {mustBeBoolean(kwargs.save)} = true;
    kwargs.removePixelAlerts = false;
 

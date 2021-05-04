@@ -5,7 +5,8 @@ function expData = make_square_hole(kwargs)
 arguments
     kwargs.filePath = 'none'
     kwargs.save = true;
-    kwargs.checkPlot = true;
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
+
 end
 
 filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');

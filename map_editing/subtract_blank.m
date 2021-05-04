@@ -24,7 +24,7 @@ function subtractedData = subtract_blank(kwargs)
 arguments
     kwargs.nFolders = 'none'
     kwargs.blankFolder = 'none'
-    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
 

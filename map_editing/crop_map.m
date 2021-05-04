@@ -5,7 +5,7 @@ function [expData, row, col] = crop_map(kwargs)
 arguments
     kwargs.filePath = 'none';
     kwargs.save = true;
-    kwargs.checkPlot = true;
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.row = 'none';
     kwargs.col = 'none';
 end
