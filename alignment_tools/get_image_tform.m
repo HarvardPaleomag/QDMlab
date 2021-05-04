@@ -18,6 +18,7 @@ arguments
     fixedData
     movingData
     kwargs.checkPlot = 0;
+    kwargs.sharpen = false;
     kwargs.title {ischar} = 'checkPlot alignment';
 end
 
@@ -30,8 +31,16 @@ if fixedData == movingData
 end
     
 fixedData = uint8(255 * mat2gray(fixedData));
+fixedData = imadjust(fixedData);
 movingData = uint8(255 * mat2gray(movingData));
+movingData = imadjust(movingData);
 
+if kwargs.sharpen
+    PSF = fspecial('gaussian',7,10);
+    fixedData = deconvblind(fixedData,PSF);
+    movingData = deconvblind(movingData,PSF);
+end
+    
 msg = sprintf('detecting features in fixed and moving data');
 logMsg('debug',msg,1,1);
 
