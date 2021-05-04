@@ -50,8 +50,8 @@ arguments
     freqs double
 
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
-    kwargs.gaussianFit (1,1) {mustBeMember(kwargs.gaussianFit, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan]
 end
@@ -59,7 +59,7 @@ smoothDegree = kwargs.smoothDegree;
 
 pixel = kwargs.pixel;
 peaksNotFound = 0;
-fitFlg = 'local'; 
+fitFlg = 0; 
 
 if kwargs.forceGuess
     peakValue = [.0041 .0044 .0040]' ;
@@ -102,7 +102,9 @@ dataSmoothed = smooth(1-data,'sgolay', smoothDegree);
 % data
 if peaksNotFound || length(peakLocation) < 3
     if kwargs.gaussianFit
-        fprintf('<>      INFO: less than 3 peaks found in pixel (y,x): (%3i, %3i) Res. #%1i -> trying gaussian Fit on data\n',pixel);
+        msg = sprintf('less than 3 peaks found in pixel (y,x): (%3i, %3i) Res. #%1i -> trying gaussian Fit on data',pixel');
+        logMsg('info',msg,1,0);
+
         y = data;
         y = reshape(y, size(freqs));
         y = y-max(data);
@@ -113,7 +115,8 @@ if peaksNotFound || length(peakLocation) < 3
         
         if any(peakLocation < 0)
             fitFlg = 2;
-            fprintf('<>      WARNING: peakLocation in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data', pixel);
+            msg = sprintf('peakLocation in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data', pixel');
+            logMsg('warn',msg,1,0);
             return %returns no value -> GPU_fit will use global value
         end
         peakValue = [1; 1; 1] * max(data)*f.a1; %data(peakLocation);
@@ -132,7 +135,8 @@ if peaksNotFound || length(peakLocation) < 3
         % if numPeaks is smaller than 3
         % return 0 0 -> GPU_fit then uses the global guess
         fitFlg = 2;
-        fprintf('<>      WARNING: less than 3 peaks found in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data\n', pixel);
+        msg = sprintf('less than 3 peaks found in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data', pixel');
+        logMsg('warn',msg,1,0);
         peakValue = 0;
         peakLocation = 0;
     end

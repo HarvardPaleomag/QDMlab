@@ -1,5 +1,0 @@
-picking_tools
-=============
-
-.. automodule:: picking_tools
-   :members:

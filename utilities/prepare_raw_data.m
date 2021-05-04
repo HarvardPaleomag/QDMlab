@@ -33,8 +33,13 @@ spanYTrans = 1:expData.imgNumRows;
 % check for 101 frequencies. File includes imgStack3
 if isfield(expData, 'imgStack3')      
     % combine 1&2 or 3&4
-    dataStacka = expData.(sprintf('imgStack%i',nRes)); 
-    dataStackb = expData.(sprintf('imgStack%i',nRes+1));
+    if nRes == 1
+        a = 1; b = 2;
+    else
+        a = 3; b = 4;
+    end
+    dataStacka = expData.(sprintf('imgStack%i',a)); 
+    dataStackb = expData.(sprintf('imgStack%i',b));
     dataStack = [dataStacka; dataStackb];
 end
 
@@ -45,7 +50,9 @@ data = reshape(dataStack, [], expData.imgNumCols, expData.imgNumRows); % reshape
 data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
 
 % binning
-fprintf('<>   %i: binning data >> binSize = %i\n', nRes, binSize);
+msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
+logMsg('info',msg,1,0);
+
 binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by

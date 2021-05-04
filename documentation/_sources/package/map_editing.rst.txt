@@ -1,5 +1,0 @@
-map_editing
-^^^^^^^^^^^
-
-.. automodule:: map_editing
-   :members:

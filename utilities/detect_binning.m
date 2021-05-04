@@ -1,20 +1,27 @@
-function binning = detect_binning(inData)
+function binning = detect_binning(inData, kwargs)
 
-% check for differences in LED naming
-if isfield(inData, 'ledImg')
-    led = inData.ledImg;
-    data = inData.B111ferro;
-elseif isfield(data, 'newLED')
-    led = data.newLED;
-    data = inData.Bz;
+arguments
+   inData
+   kwargs.refFrame = 'none'
 end
-    
-if size(led) ~= size(data)
+
+if isstruct(inData) & strcmp(kwargs.refFrame, 'none')
+    % check for differences in LED naming
+    [bool, dataName, ledName] = is_B111(inData);
+
+    led = inData.(ledName);
+    data = inData.(dataName);
+
     binning = (size(led,1) / size(data,1));
-else
-    binning = 1;
 end
-% 
-% if binning > 1
-%     disp(['<>   binning detected: ' num2str(binning)])
-% end
+
+if isa(kwargs.refFrame, 'imref2d')
+    binning = kwargs.refFrame.ImageSize ./ size(inData);
+    
+    if ~ binning(1) == binning(2)
+        error('uneven binning')
+    end
+    
+    binning = binning(1);
+end
+

@@ -1,4 +1,4 @@
-function tform_data = tform_data(data, tform, rframe)
+function tform_data = tform_data(data, transForm, refFrame)
 %{
 Convenience function to transforms data into a different reference frame
 (e.g. 100G data -> NRM).
@@ -11,12 +11,11 @@ parameters:
 %}
 % Last change: April 21, 2020: Mike
 
-if rframe.ImageSize ~= size(data)
-    binning = (rframe.ImageSize / size(data));
-    disp(['<>   binning (' num2str(binning) ') detected correcting the tform'])
-    resize_binning = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
-    data = imwarp(data, resize_binning);
-    rframe.ImageSize = rframe.ImageSize / binning;
+if refFrame.ImageSize ~= size(data)
+    binning = detect_binning(data, 'refFrame', refFrame);
+    msg = ['binning (' num2str(binning) ') detected correcting the tform'];
+    logMsg('info',msg,1,0);
+    [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
 end
 
-tform_data = imwarp(data, tform, 'OutputView', rframe);
+tform_data = imwarp(data, transForm, 'OutputView', refFrame);

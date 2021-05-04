@@ -1,6 +1,5 @@
-function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize)
-    fig = figure;
-    set(gcf,'position',[250,500,1500,250])
+function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
+    fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
 
     ax1 = subplot(1,3,1);
     
@@ -8,9 +7,11 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize)
     binSize = fit.binSize;
     
     fitData = fit.resonance;
+    fitData(fit.states~=0) = nan;
 %     fitData = filter_hot_pixels(fitData, 'cutOff', 20,'chi', fitOld.chiSquares, 'winSize',nan);
 %     fitData = filter_hot_pixels(fitData, 'winSize',nan);
-    imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off')
+    res = imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
+    set(res,'AlphaData',~isnan(fitData))
     title(ax1, 'Resonance')
     axis equal, axis tight, axis xy
 %     ax1.CLim = [2.83 2.85];
@@ -45,11 +46,12 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize)
         ax3 = subplot(1,3,3);
         cla()
         rows = size(binDataNorm,1);
-        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.-','DisplayName','data')
+        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.','DisplayName','data')
         hold on
         idx = xy2index(x, y,rows);
-        plot(freq, 1+model_GPU(fit.p(:,idx), freq), 'b','DisplayName','Fit')
-        plot(freq, 1+model_GPU(fit.g(:,idx), freq), 'g--','DisplayName','initial guess')
+        plot(freq, 1+model_GPU(fit.p(:,idx), freq, 'diamond', diamond), 'b','DisplayName','Fit')
+        plot(freq, 1+model_GPU(fit.g(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
+        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
         ylabel('Intensity')
         xlabel('f (Hz)')
         legend('Location','southwest', 'NumColumns',3)
@@ -65,7 +67,9 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize)
             points(i) = point;
         end
         title(ax3, titleTxt)
-        fprintf('<>            %s resonance: %.5f X^2: %.2e\n', titleTxt, ...
+        fprintf('<>            %s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
             fit.resonance(y,x), fit.chiSquares(y,x))
+        fprintf('<>                                width: %.5f; contrast %.5f; state: %i\n',...
+            fit.width(y,x), fit.contrastA(y,x), fit.states(y,x))
     end
 end
