@@ -92,7 +92,7 @@ for i = 1 : size(nFolders, 2)
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
 
     % transform the blank
-    binning = detect_binning(iFile);
+    binning = detect_binning(fileData);
     B111ferroTransformed = tform_data(blankData.B111ferro, transForm, refFrame, binning);
     B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame, binning);
 
