@@ -93,8 +93,6 @@ arguments
     kwargs.sourceName = 'none'
     
 end
-st = dbstack; 
-funcName = st.name; 
 
 % define defaults for the function
 defaults = struct('fitOrder', 1, 'cropFactor', 20, 'save', true);
