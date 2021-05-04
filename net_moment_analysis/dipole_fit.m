@@ -117,7 +117,7 @@ if isa(kwargs.expData, 'struct')
     expData = kwargs.expData;
 else
     msg = sprintf('loading data file:  %s', filePath);
-    logMsg('info',funcName,msg,1,0);
+    logMsg('info',msg,1,0);
 %     fprintf('<>   loading data file:  %s\n', filePath);
     expData = load(filePath);
 end
@@ -353,11 +353,11 @@ fsort = sort(fval);
 i = find(fval <= fsort(kwargs.minTol));
 if numel(i) > 1
     msg = sprintf('averaging %d points\n', numel(i));
-    logMsg('info',funcName,msg,1,0);
+    logMsg('info',msg,1,0);
 end
 if numel(i) > 0.1 * numel(fval)
     msg = sprintf('Too many points are being averaged. Consider adjusting MINTOL parameter.');
-    logMsg('warn',funcName,msg,1,0);
+    logMsg('warn',msg,1,0);
 end
 
 %% determine results from parameters
