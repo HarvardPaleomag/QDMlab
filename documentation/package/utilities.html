@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>utilities</title>
+    
+
+    <link rel="stylesheet" href="../_static/css/redactor.css" type="text/css" />
+    
+    
+    <link rel="index" title="Index" href="../genindex.html"/>
+    <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="QDM-toolkit 2021.0.1 documentation" href="../index.html"/>
+    <link rel="prev" title="plotting" href="plotting.html"/> 
+</head>
+
+<body role="document">
+     
+
+    
+<a href="#" id="js-navigation-toggle" class="navigation-toggle">
+    <i class="mdi mdi-menu"></i><i class="mdi mdi-close"></i>
+</a>
+
+<section class="site-sidebar">
+
+<nav>
+
+
+    <a href="../index.html" class="branding-link">
+    
+        QDM-toolkit
+    
+    
+    
+        
+        
+    
+    </a>
+
+    
+<section role="search">
+    <form action="../search.html" method="get" class="site-searchform">
+        <input type="text" name="q" placeholder="Search docs" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+</section>
+
+
+
+    <section class="site-nav">
+    
+    
+        <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Functions:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="alignment_tools.html">alignment_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="map_editing.html">map_editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="picking_tools.html">picking_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">plotting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utilities</a></li>
+</ul>
+
+    
+    </section>
+
+</nav>
+
+</section>
+
+    <main class="site-main" role="main">
+        
+
+
+
+
+
+
+
+
+
+
+
+<nav class="site-breadcrumbs">
+    <ul>
+    
+        <li>
+            <a href="../index.html">Docs</a> /
+        </li>
+        
+        <li class="site-breadcrumbs__leaf">utilities</li>
+    
+    </ul>
+</nav>
+        <section class="site-content">
+            <div class="container">
+                
+  <div class="section" id="module-utilities">
+<span id="utilities"></span><h1>utilities<a class="headerlink" href="#module-utilities" title="Permalink to this headline">¶</a></h1>
+<dl class="mat function">
+<dt id="utilities.QDMreshape">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">QDMreshape</code><span class="sig-paren">(</span><em class="sig-param">dataStack</em>, <em class="sig-param">imgNumCols</em>, <em class="sig-param">imgNumRows</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.QDMreshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>data = QDMreshape(dataStack, imgNumCols, imgNumRows)
+reshapes the 51xnumber_of_pixel data into Y x X X freq</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.QDMreshape_reverse">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">QDMreshape_reverse</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">nFreq</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.QDMreshape_reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>data = QDMreshape(dataStack, imgNumCols, imgNumRows)
+reshapes the 51xnumber_of_pixel data into Y x X X freq</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.correct_cell_shape">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">correct_cell_shape</code><span class="sig-paren">(</span><em class="sig-param">nFolders</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.correct_cell_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a cell and converts its shape to (1,n) if the shape is (n,1)</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.create_masks">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">create_masks</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">selectionThreshold</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.create_masks" title="Permalink to this definition">¶</a></dt>
+<dd><p>transForms and refFrames are now in data coordinates</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.detect_binning">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">detect_binning</code><span class="sig-paren">(</span><em class="sig-param">inData</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.detect_binning" title="Permalink to this definition">¶</a></dt>
+<dd><p>check for differences in LED naming</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.globalFraction_estimator">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">globalFraction_estimator</code><span class="sig-paren">(</span><em class="sig-param">expData</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.globalFraction_estimator" title="Permalink to this definition">¶</a></dt>
+<dd><p>globalFraction_estimator lets you test different globalFraction values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>required</strong> – </p></li>
+<li><p><strong>========</strong> – </p></li>
+<li><p><strong>expData</strong> (<em>path, struct</em>) – The path to ‘run0000n.mat’ or the structure retured from load(run0000n.mat)</p></li>
+<li><p><strong>optional</strong> – </p></li>
+<li><p><strong>========</strong> – </p></li>
+<li><p><strong>binSize</strong> (<em>int</em>) – binning size (can be 1)</p></li>
+<li><p><strong>nRes</strong> (<em>int</em>) – number of resonance. Low frequencies = 1, High frequencies = 2</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.index2xy">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">index2xy</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">nRows</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.index2xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the x,y coordinates of a pixel given the index of the gpu array</p>
+<dl class="simple">
+<dt>index: int</dt><dd><p>index in reshaped array</p>
+</dd>
+<dt>nRows: int</dt><dd><p>number of Rows in array</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – x(column) coordinate of pixel</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – y(row) coordinate of pixel</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>type: str (gpu)</dt><dd><p>can be ‘gpu’ or ‘binDataNorm’</p>
+</dd>
+</dl>
+<p>See also xy2index</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.model_GPU">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">model_GPU</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">freq</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.model_GPU" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates a model from the fitting parameters from GPU_fit</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.model_gauss">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">model_gauss</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">p</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.model_gauss" title="Permalink to this definition">¶</a></dt>
+<dd><p>1: Amplitude
+2: Center
+3: Width
+4: Shift</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.prepare_raw_data">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">prepare_raw_data</code><span class="sig-paren">(</span><em class="sig-param">expData</em>, <em class="sig-param">binSize</em>, <em class="sig-param">nRes</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.prepare_raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+prepares the raw data for GPU fitting
+1. reshapes the data into from (x*y) -&gt; (y,x) array
+2. Bins data: (imresize)
+3. Normalizes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>required</strong> – </p></li>
+<li><p><strong>========</strong> – </p></li>
+<li><p><strong>expData</strong> (<em>struct</em>) – Data of load(run0000n.mat)</p></li>
+<li><p><strong>binSize</strong> (<em>int</em>) – binning size (can be 1)</p></li>
+<li><p><strong>nRes</strong> (<em>int</em>) – number of resonance. Low frequencies = 1, High frequencies = 2</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.re_bin">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">re_bin</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">refData</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.re_bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>RE_BIN corrects binning for not equally binned datasets.</p>
+<p class="rubric">Example</p>
+<p>4 binned blank should be subtracted from 2 binned data. -&gt;</p>
+<p>&gt;&gt; 2binned_data - 4binned_blank (will  cause an error)
+&gt;&gt; 2binned_data - re_bin(4binned_blank, 2binned_data)
+recalculates the correct binning and interpolates. Does not cause error</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This should generally be avoided. Try to use the correct binning</p>
+</div>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.reshape_QDM_data">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">reshape_QDM_data</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.reshape_QDM_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>reshapes data to freq:row:col</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.return_bin_data">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">return_bin_data</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">row</em>, <em class="sig-param">col</em>, <em class="sig-param">binSize</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.return_bin_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the data used for the bin binnedData(row,col,:)</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.transpose_raw_data">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">transpose_raw_data</code><span class="sig-paren">(</span><em class="sig-param">expData</em>, <em class="sig-param">nRes</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.transpose_raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>transposes the freq x n data from the QDM into a n x m x freq large 3D image</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="utilities.xy2index">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">xy2index</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">nRows</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.xy2index" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the index of a pixel in the gpudata array from given x,y of the
+pixel</p>
+<dl class="simple">
+<dt>x: int</dt><dd><p>x(column) coordinate of pixel</p>
+</dd>
+<dt>y: int</dt><dd><p>y(row) coordinate of pixel</p>
+</dd>
+<dt>nRows: int</dt><dd><p>number of Rows in array</p>
+</dd>
+<dt>type: str (gpu)</dt><dd><p>can be ‘gpu’ or ‘binDataNorm’</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            </div>
+
+        </section>
+
+        
+            <nav class="site-bottom-navigation" role="navigation">
+            
+            
+                <a href="plotting.html" class="btn btn--primary btn--prev"
+                    title="plotting" accesskey="p">
+                    Previous
+                </a>
+            
+            </nav>
+        
+
+        
+            <div class="source-link">
+            
+                
+                    <a href="../_sources/package/utilities.rst.txt" rel="nofollow">
+                        <i class="mdi mdi-code-tags"></i>
+                        View page source
+                    </a>
+                
+            
+            </div>
+        
+
+
+
+    </main>
+
+    <footer class="site-footer">
+<div class="container">
+
+    <div role="contentinfo">
+        <p>
+                &copy; Copyright 2021, Mike Volk, Roger Fu, Raisa Trubko.
+        </p>
+    </div>
+        <p>Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+        <a href="https://github.com/testthedocs/sphinx_ttd_theme">theme</a>
+        provided by <a href="https://testthedocs">TestTheDocs</a>. 
+
+</div>
+</footer>
+
+    
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'2021.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/theme-min.js"></script> 
+</body>
+</html>

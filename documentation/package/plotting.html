@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>plotting</title>
+    
+
+    <link rel="stylesheet" href="../_static/css/redactor.css" type="text/css" />
+    
+    
+    <link rel="index" title="Index" href="../genindex.html"/>
+    <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="QDM-toolkit 2021.0.1 documentation" href="../index.html"/>
+    <link rel="next" title="utilities" href="utilities.html"/>
+    <link rel="prev" title="picking_tools" href="picking_tools.html"/> 
+</head>
+
+<body role="document">
+     
+
+    
+<a href="#" id="js-navigation-toggle" class="navigation-toggle">
+    <i class="mdi mdi-menu"></i><i class="mdi mdi-close"></i>
+</a>
+
+<section class="site-sidebar">
+
+<nav>
+
+
+    <a href="../index.html" class="branding-link">
+    
+        QDM-toolkit
+    
+    
+    
+        
+        
+    
+    </a>
+
+    
+<section role="search">
+    <form action="../search.html" method="get" class="site-searchform">
+        <input type="text" name="q" placeholder="Search docs" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+</section>
+
+
+
+    <section class="site-nav">
+    
+    
+        <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Functions:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="alignment_tools.html">alignment_tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="map_editing.html">map_editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="picking_tools.html">picking_tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+    
+    </section>
+
+</nav>
+
+</section>
+
+    <main class="site-main" role="main">
+        
+
+
+
+
+
+
+
+
+
+
+
+<nav class="site-breadcrumbs">
+    <ul>
+    
+        <li>
+            <a href="../index.html">Docs</a> /
+        </li>
+        
+        <li class="site-breadcrumbs__leaf">plotting</li>
+    
+    </ul>
+</nav>
+        <section class="site-content">
+            <div class="container">
+                
+  <div class="section" id="module-plotting">
+<span id="plotting"></span><h1>plotting<a class="headerlink" href="#module-plotting" title="Permalink to this headline">¶</a></h1>
+<dl class="mat function">
+<dt id="plotting.QDM_figure">
+<code class="sig-prename descclassname">plotting.</code><code class="sig-name descname">QDM_figure</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#plotting.QDM_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>CREATEFIGURE(cdata1)
+Create figure</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="plotting.add_ROI">
+<code class="sig-prename descclassname">plotting.</code><code class="sig-name descname">add_ROI</code><span class="sig-paren">(</span><em class="sig-param">nROI</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#plotting.add_ROI" title="Permalink to this definition">¶</a></dt>
+<dd><p>adds a rectangle where the ROI is to a plot and labels it
+:param positional:
+:param ==========: ROI: cell
+:param keyword:
+:param =======: ax: Axes object (gca)</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt id="plotting.coercivity_result_plot">
+<code class="sig-prename descclassname">plotting.</code><code class="sig-name descname">coercivity_result_plot</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#plotting.coercivity_result_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plots results from estimate_coercivity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positional</strong> – </p></li>
+<li><p><strong>==========</strong> – <dl class="simple">
+<dt>results: struct</dt><dd><p>results structure from ‘estmate_coercivity’</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>keyword</strong> – </p></li>
+<li><p><strong>=======</strong> – steps: bool (0)
+led: bool (0)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            </div>
+
+        </section>
+
+        
+            <nav class="site-bottom-navigation" role="navigation">
+            
+                <a href="utilities.html" class="btn btn--primary btn--next right"
+                    title="utilities" accesskey="n">
+                    Next
+                </a>
+            
+            
+                <a href="picking_tools.html" class="btn btn--primary btn--prev"
+                    title="picking_tools" accesskey="p">
+                    Previous
+                </a>
+            
+            </nav>
+        
+
+        
+            <div class="source-link">
+            
+                
+                    <a href="../_sources/package/plotting.rst.txt" rel="nofollow">
+                        <i class="mdi mdi-code-tags"></i>
+                        View page source
+                    </a>
+                
+            
+            </div>
+        
+
+
+
+    </main>
+
+    <footer class="site-footer">
+<div class="container">
+
+    <div role="contentinfo">
+        <p>
+                &copy; Copyright 2021, Mike Volk, Roger Fu, Raisa Trubko.
+        </p>
+    </div>
+        <p>Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+        <a href="https://github.com/testthedocs/sphinx_ttd_theme">theme</a>
+        provided by <a href="https://testthedocs">TestTheDocs</a>. 
+
+</div>
+</footer>
+
+    
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'2021.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/theme-min.js"></script> 
+</body>
+</html>
