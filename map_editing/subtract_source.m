@@ -16,9 +16,9 @@ function expData = subtract_source(kwargs)
 %% check why weird
 arguments
     kwargs.filePath = 'none'
-    kwargs.save = false;
+    kwargs.save = true;
     kwargs.fitOrder = 1;
-    kwargs.checkPlot = true;
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
 end
 
 show_references()
