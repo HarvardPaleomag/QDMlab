@@ -107,7 +107,12 @@ end
 pause(1)
 close(pickFigure)
 
-msg = sprintf('returning box indices: lower left: (%i, %i); upper right (%i, %i)', col(1), row(1),col(2), row(2));
+if kwargs.point
+    msg = sprintf('returning point indices: x: %i; y: %i', col, row);
+else
+    msg = sprintf('returning box indices: lower left: (%i, %i); upper right: (%i, %i)', col(1), row(1),col(2), row(2));
+end
+
 logMsg('debug',msg,1,0);
 
 end
