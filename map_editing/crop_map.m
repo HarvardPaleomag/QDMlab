@@ -18,23 +18,29 @@ else
     expData = load(filePath);
 end
 
-[~, dataName, ~] = is_B111(expData);
+[~, dataName, ledName] = is_B111(expData);
 
 [row, col] = pick_box2('expData', expData, 'title', 'Select area to crop', 'even', true);
 
 bData = expData.(dataName);
-%cropping a B111 map set
+led = expData.(ledName);
+
+binning = detect_binning(expData);
+
+%cropping a B map set
 corners=[row(1),row(2);col(1),col(2)];
 bDataCropped=bData(row(1):row(2),col(1):col(2));
+ledCropped = led(row(1)*binning:row(2)*binning,col(1)*binning:col(2)*binning);
 
 expData.(dataName) = bDataCropped;
 expData.([dataName '_original']) = bData;
+expData.(ledName) = ledCropped;
+expData.([ledName '_original']) = led;
 expData.corners = corners;
 
 if kwargs.checkPlot || kwargs.save
     fig = figure('Units', 'normalized', ...
                  'Position',[0.2 0.2 0.5 0.5], 'Name', 'cropped map');
-
     QDM_figure(bDataCropped, 'title', 'cropped map', 'fig', fig)
 end
 
