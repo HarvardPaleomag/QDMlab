@@ -334,7 +334,7 @@ for k = 1:kwargs.nRuns
     fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped)); %??????????????????????????
     
     %% display calculation and counter
-    perc = round(k/kwargs.nRuns,2) *100;
+    perc = round(k/kwargs.nRuns) *100;
     strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,100-perc),']'];
     % str to replace all previous characters
     strCR = repmat('\b',1,length(strOut));
