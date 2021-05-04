@@ -12,6 +12,7 @@
 %      Copyright (C) 2017-2020 MIT Paleomagnetism Lab, Harvard Paleomagnetics Lab
 % -----------------------------------------------------------------------------------
 
+show_references()
 
 UNIT='T';
 SAVE=1;         %1 = save processed data to disk
