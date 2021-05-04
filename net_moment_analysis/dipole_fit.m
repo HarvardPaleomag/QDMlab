@@ -1,11 +1,11 @@
 function results = dipole_fit(kwargs)
-%mOrder is : 
+%fitOrder is : 
 %
 %
 % Parameters
 % ----------
 %     filePath: ['none']
-%     mOrder: [1]
+%     fitOrder: [1]
 %       highest order in the multipole expansion
 %       1: dipole; 2: quadrupole; 8: octupole
 %     xy: (int int) ['picker']
@@ -60,7 +60,7 @@ function results = dipole_fit(kwargs)
 
 arguments
     kwargs.filePath = 'none';
-    kwargs.mOrder = 'none';
+    kwargs.fitOrder = 'none';
     kwargs.xy = 'picker';
     kwargs.cropFactor = 'none';
     kwargs.downSample = 1; % speedup
@@ -97,7 +97,7 @@ st = dbstack;
 funcName = st.name; 
 
 % define defaults for the function
-defaults = struct('mOrder', 1, 'cropFactor', 20, 'save', true);
+defaults = struct('fitOrder', 1, 'cropFactor', 20, 'save', true);
 
 terms = [3,8,15];
 
@@ -110,6 +110,7 @@ outFileName = 'DipoleInversions.txt';
 
 % get the correct filePath - even if expData is passed
 filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'single', true);
+
 % get other parameters
 kwargs = ask_arguments(kwargs, defaults);
 
@@ -233,7 +234,7 @@ P00(1) = x0;
 P00(2) = y0;
 P00(3) = kwargs.hguess;
 
-P = zeros(length(P00)+terms(kwargs.mOrder), kwargs.nRuns);
+P = zeros(length(P00)+terms(kwargs.fitOrder), kwargs.nRuns);
 fval = zeros(1, kwargs.nRuns);
 fval2 = zeros(1, kwargs.nRuns);
 
@@ -250,21 +251,21 @@ for k = 1:kwargs.nRuns
         'Display', 'none');
 
     %% actual fitting
-    if kwargs.method
+    if kwargs.method == 1
         [P(1:3, k), fval2(k), exitflag, output] = fmincon(@(Pp) ...
             SourceFitMultiP8(Pp, Xc, Yc, bDataCropped, kwargs.display, ...
-            kwargs.method, kwargs.quad, kwargs.mOrder), P0, [], [], [], [], ...
+            kwargs.method, kwargs.quad, kwargs.fitOrder), P0, [], [], [], [], ...
             [x0 - kwargs.boxwidth, y0 - kwargs.boxwidth, 2e-5], ...
             [x0 + kwargs.boxwidth, y0 + kwargs.boxwidth, 3e-5], [], options);
     else
         [P(1:3, k), fval2(k), resd, exitflag, output] = lsqnonlin(@(Pp) ...
             SourceFitMultiP8(Pp, Xc, Yc, bDataCropped, kwargs.display, ...
-            kwargs.method, kwargs.quad, kwargs.mOrder), P0, [], [], options);
+            kwargs.method, kwargs.quad, kwargs.fitOrder), P0, [], [], options);
     end
 
     %% calculate the model after fitting
     [resid, BzModel, M] = SourceFitMultiP8(P(1:3, k), Xc, Yc, bDataCropped, ...
-                 kwargs.display, kwargs.method, kwargs.quad, kwargs.mOrder);
+                 kwargs.display, kwargs.method, kwargs.quad, kwargs.fitOrder);
 
     Mx = M(1);
     My = M(2);
@@ -304,7 +305,7 @@ for k = 1:kwargs.nRuns
     end
 
     %Quadrupole moment
-    if kwargs.mOrder > 1
+    if kwargs.fitOrder > 1
         P(7, k) = M(4);
         P(8, k) = M(5);
         P(9, k) = M(6);
@@ -313,7 +314,7 @@ for k = 1:kwargs.nRuns
     end
 
     %Octupole moment
-    if kwargs.mOrder > 2
+    if kwargs.fitOrder > 2
         P(12, k) = M(9);
         P(13, k) = M(10);
         P(14, k) = M(11);
@@ -324,12 +325,12 @@ for k = 1:kwargs.nRuns
     end
    
     if size(P, 1) > 6
-        Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90, P(7:terms(kwargs.mOrder) + 3, k)'];
+        Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90, P(7:terms(kwargs.fitOrder) + 3, k)'];
     else
         Paux = [P(1:4, k)', 90 - P(5, k), P(6, k) + 90];
     end
 
-    [~, bModel] = SourceFitMultiP8(Paux, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.mOrder);
+    [~, bModel] = SourceFitMultiP8(Paux, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
     fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped)); %??????????????????????????
     
     %% display calculation and counter
@@ -378,7 +379,7 @@ Popt(2) = sum(P(2, i).*fval(i)) / sum(fval(i));
 Popt(3) = sum(P(3, i).*fval(i)) / sum(fval(i));
 hopt = Popt(3);
 
-for kk = 7:terms(kwargs.mOrder) + 3
+for kk = 7:terms(kwargs.fitOrder) + 3
     Popt(kk) = sum(P(kk, i).*fval(i)) / sum(fval(i));
 end
 
@@ -392,9 +393,9 @@ fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (mi
 
 %% calculate residuals
 % parameters for model
-Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.mOrder) + 3)];
+Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.fitOrder) + 3)];
 % calculate the model
-[resid, bModel] = SourceFitMultiP8(Popt2, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.mOrder);
+[resid, bModel] = SourceFitMultiP8(Popt2, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
 residex = bModel - bDataCropped;
 resids = sqrt(sum(sum(residex.^2))/sum(sum(bDataCropped.^2)));
 
@@ -454,7 +455,7 @@ end
 
 if kwargs.save
     % save figure
-    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.mOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
     
     % add line to dipoleinversions.txt
     fid = fopen([filePath, '/', outFileName], 'r');
