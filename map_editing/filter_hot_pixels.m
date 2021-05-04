@@ -5,25 +5,23 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % 
 % Parameters
 % ----------
-%     data:
+%     data: double
 %         data matrix to be filtered
-%     cutOff: 
+%     cutOff: double ['none']
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
-%         optional, default = 'none'
-%     includeHotPixel:
+%     includeHotPixel: bool [false]
 %         if true: the mean will be calculated including the hot pixel
 %         if false: the mean is calculated after setting the pixel to nan
-%     chi: array
+%     chi: array [0]
 %         if chi is provided the data will be filtered according to the chi
 %         values.
-%     winSize: int
+%     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
 %         if nan: values are replaced by nan
 %         if 0: values are replaced by 0
-%         if nan: values are replaced by nan
-%     checkPlot:
+%     checkPlot: bool [false]
 %         creates a new figure to check if the filtering worked
 
 
