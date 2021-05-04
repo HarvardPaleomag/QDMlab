@@ -9,6 +9,8 @@ arguments
     kwargs.single = false;
 end
 
+logMsg('input', kwargs.title, 1,0);
+
 if strcmp(nFolders, 'none')
 	nFolders = {};
 

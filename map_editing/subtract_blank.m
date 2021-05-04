@@ -36,8 +36,8 @@ laserFileName = 'laser.jpg';
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-nFolders = automatic_input_ui__(kwargs.nFolders);
-blankFolder = automatic_input_ui__(kwargs.blankFolder);
+nFolders = automatic_input_ui__(kwargs.nFolders, 'title', 'Select measurement folder');
+blankFolder = automatic_input_ui__(kwargs.blankFolder, 'title', 'Select blank folder');
 blankFolder = blankFolder{:};
 
 
