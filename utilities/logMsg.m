@@ -13,7 +13,7 @@ levels = containers.Map({'ALL', 'DEBUG','INFO', 'WARN', 'ERROR', 'NONE'}, {-1, 0
 try 
     logLevel = evalin('base','logLevel');
 catch
-    logLevel = 'ERROR';
+    logLevel = 'INFO';
 end
 
 % if a non standard level is passed e.g. FIT
