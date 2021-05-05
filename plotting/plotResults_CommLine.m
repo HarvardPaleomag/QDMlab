@@ -111,7 +111,7 @@ linkaxes(ax);
 saveas(f6, fullfile(myDir, folderName, 'allPlots.png'),'png');
 
 map = [ 1 1 1; 1 0 0];
-f7=figure; imagesc( pixelAlerts ); axis equal tight; colormap(map); title('failed Pixels'); set(gca,'YDir','normal');
+f7=figure; imagesc( pixelAlerts ); axis equal tight; colormap(map); title('pixel alerts'); set(gca,'YDir','normal');
 saveas(f7, fullfile(myDir, folderName,  'pixelAlerts.png'),'png');
 
 if kwargs.checkPlot
