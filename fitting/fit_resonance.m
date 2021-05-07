@@ -177,11 +177,15 @@ end
 %% fittiing related
 tolerance = 1e-10;
 initialPreGuess = 'none';
-
+kwargs.slope_correction = true
 if kwargs.type == 2
     % initial parameters
+    if kwargs.slope_correction
+        gpudata = slope_correction(gpudata, freq);
+    end
+    
     initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
-
+    
     %initiate badPixels structure
     pixelAlerts = struct();
     if strcmp(kwargs.diamond, 'N14')
@@ -257,6 +261,20 @@ if kwargs.checkPlot
     waitfor(fig)
 end
 
+end
+
+%%
+function data = slope_correction(data, freq)
+% data = slope_correction(data, freq)
+% calculates slope between 1st - last pixel and removes this from data
+    delta = diff(data(:,[1,end]),1,3)/numel(freq);
+    correction = zeros(size(data));
+
+    for i = 1:numel(freq)
+        correction(:,i) = delta*(i-1);
+    end
+
+    data = data - correction;
 end
 
 %% fitting helper functions
