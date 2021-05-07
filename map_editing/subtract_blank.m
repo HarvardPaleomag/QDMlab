@@ -36,8 +36,8 @@ laserFileName = 'laser.jpg';
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file', 'input', 'file');
-blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true, 'input', 'file');
+nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file', 'type', 'file');
+blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true, 'type', 'file');
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
