@@ -96,27 +96,20 @@ for i = 1 : size(nFolders, 2)
                  'Position',[0.1 0.1 0.8 0.8], 'Name', 'Blank Subtraction');
         
         sp1 = subplot(2,2,1);
-        imagesc(fileB111ferro);
-        title('Original');
-        
+        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original') 
         sp2 = subplot(2,2,2);
-        imagesc(blankData.B111ferro);
-        title('Blank');
-        
+        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank')        
         sp3 = subplot(2,2,3);
-        blank = re_bin(blankData.B111ferro, fileData.B111ferro);
-        imagesc(fileB111ferro - blank);
-        title('Unaligned subtraction');
-        
+        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction')      
         sp4 = subplot(2,2,4);
-        imagesc(fileData.B111ferro);
-        title('Aligned subtraction');
+        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction') 
+
         ax = [sp1, sp2, sp3, sp4];
         linkaxes(ax)
         
         for a = ax
            colorbar(a)
-           set(ax, 'CLim', [-1, 1]*(med + 4 * st));
+%            set(ax, 'CLim', [-1, 1]*(med + 4 * st));
         end
     end
 end
