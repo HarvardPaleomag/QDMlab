@@ -156,9 +156,9 @@ corners=[lin,col];
 B=B(max([1 lin(1)]):min([lin(2) size(B,1)]) , max([1 col(1)]):min([col(2) size(B,2)]) );
 
 %crop the LED image in the same way
-croppoint1=round(corners(1,1)*LEDcropfactor);
+croppoint1=round(1+(corners(1,1)-1)*LEDcropfactor);
 croppoint2=round(corners(2,1)*LEDcropfactor);
-croppoint3=round(corners(1,2)*LEDcropfactor);
+croppoint3=round(1+(corners(1,2)-1)*LEDcropfactor);
 croppoint4=round(corners(2,2)*LEDcropfactor);
 
 newLED=ledImg(croppoint1:croppoint2,croppoint3:croppoint4);
