@@ -4,10 +4,10 @@ function subtractedData = subtract_blank(kwargs)
 %
 % Parameters
 % ----------
-%   nFolders ['none']
+%   nFiles ['none']
 %       A path (char) or cell of paths that contain the data and are to be
 %       corrected.
-%   blankFolder: path ['none']
+%   blankFile: path ['none']
 %       The path of the blank B111 map.
 %   checkPlot: bool [false]
 %       if true: creates a plot to check if the subtraction worked as
@@ -18,7 +18,7 @@ function subtractedData = subtract_blank(kwargs)
 %
 % Note
 % ----
-%   If no :code:`nFolders` or :code:`blankFolder` is passed to the function,
+%   If no :code:`nFiles` or :code:`blankFile` is passed to the function,
 %   you will be prompted to select them.
 
 arguments
@@ -36,8 +36,8 @@ laserFileName = 'laser.jpg';
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file');
-blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true);
+nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file', 'input', 'file');
+blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true, 'input', 'file');
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
