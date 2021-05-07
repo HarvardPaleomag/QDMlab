@@ -22,49 +22,48 @@ function subtractedData = subtract_blank(kwargs)
 %   you will be prompted to select them.
 
 arguments
-    kwargs.nFolders = 'none'
-    kwargs.blankFolder = 'none'
+    kwargs.nFiles = 'none'
+    kwargs.blankFile = 'none'
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
-
 close all
 
-fileName = 'B111dataToPlot.mat';
+subtractedData = containers.Map();
+
 laserFileName = 'laser.jpg';
 
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-nFolders = automatic_input_ui__(kwargs.nFolders, 'title', 'Select measurement folder');
-blankFolder = automatic_input_ui__(kwargs.blankFolder, 'title', 'Select blank folder', 'single', true);
+nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file');
+blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true);
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
-nFolders = correct_cell_shape(nFolders);
+nFiles = correct_cell_shape(nFiles);
 
-msg = sprintf('loading blank file: << %s >>', blankFolder);
+msg = sprintf('loading blank file: << %s >>', blankFile);
 logMsg('info',msg,1,0);
 
-blankFile = fullfile(blankFolder, fileName);
 blankData = load(blankFile);
 
 % [nTransForms, nRefFrames] = get_tform_multi(blankFolder, nFolders, ...
 %                             'reverse', true, ...
 %                             'laser',true, 'checkPlot', checkPlot);
-
+[blankFolder ]= fileparts(blankFile);
 movingData = imread(fullfile(blankFolder, laserFileName));
-subtractedData = containers.Map();
 
-for i = 1 : size(nFolders, 2)
-    iFolder = nFolders{i};
-    iFile = fullfile(iFolder, filesep, fileName);
+for i = 1 : size(nFiles, 2)
+    iFile = nFiles{i};
+    [iFolder fileName ext] = fileparts(iFile);
 
     msg = sprintf('loading laser & magnetic data: << %s >>', iFolder);
     logMsg('info',msg,1,0);
     
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
+    newFileData = fileData;
     
     [transForm, refFrame] = get_image_tform(fixedData, movingData,...
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
@@ -74,18 +73,24 @@ for i = 1 : size(nFolders, 2)
     B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame);
 
     % crop the FOV and subtract blank
-    [x, y, w, h] = get_mask_extent(B111ferroTransformed);
-    fileB111ferro = fileData.B111ferro(y:y+h, x:x+w);
-    fileB111para = fileData.B111para(y:y+h, x:x+w);
+%     [x, y, w, h] = get_mask_extent(B111ferroTransformed);
+%     B111ferro = fileData.B111ferro;
     
-    fileData.B111ferro = fileB111ferro- B111ferroTransformed(y:y+h, x:x+w);
-    fileData.B111para = fileB111para - B111paraTransformed(y:y+h, x:x+w);
+    B111ferroTransformed(B111ferroTransformed==0) = nan;
+    fileB111ferro = fileData.B111ferro;
+    fileB111para = fileData.B111para;
+    
+    newFileData.B111ferro = fileB111ferro- B111ferroTransformed;
+    newFileData.B111para = fileB111para - B111paraTransformed;
 %     B111para = fileData.B111para - B111paraTransformed;
-    subtractedData(iFolder) = fileData;
+    newFileData.blank = blankFile;
+    newFileData.blankB111ferro = B111ferroTransformed;
+    newFileData.blankB111Para = B111paraTransformed;
+    subtractedData(iFolder) = newFileData;
     
     if kwargs.save
-        saveFilePath = fullfile(iFolder, 'B111BlankSub.mat');
-        save(saveFilePath, '-struct', 'fileData');
+        saveFilePath = fullfile(iFolder, sprintf('%s_sub.mat', fileName));
+        save(saveFilePath, '-struct', 'newFileData');
     end
 
     if kwargs.checkPlot
