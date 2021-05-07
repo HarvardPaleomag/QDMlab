@@ -130,28 +130,39 @@ else
     XY = kwargs.xy;
 end
 
+%% check NV distance (h)
 if exists_struct(expData, 'h')
     h = expData.h;
 else
     %ask user for the NV layer-sample distance
-    h = input('<>   INPUT << NV-sample distance [5 µm] >>: ');
+    msg = logMsg('input', 'NV-sample distance [5 µm]:', 0,0,'returnOnly', true);
+    h = input(msg);
     if isempty(h)
         h=5e-6;
     end
 end
-
-
-step = expData.step; % Pixel Size
-
 % check if h/step is too large
 if h > 0.1
     h = h * 1e-6;
+end
+
+%% check pixel size (step)
+if exists_struct(expData, 'step')
+    step = expData.step; % Pixel Size
+else
+    %ask user for the NV layer-sample distance
+    msg = logMsg('input', 'Pixel Size [4.70 (µm)]:', 0,0,'returnOnly', true);
+    step = input(msg);
+    if isempty(step)
+        step = 4.7e-6;
+    end
 end
 
 if step > 1e-2
     step = step*1e-6;
 end
 
+%%
 [bool, dataName,ledName] = is_B111(expData);
 led = expData.(ledName);
 
