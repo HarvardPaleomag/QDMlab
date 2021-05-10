@@ -56,15 +56,15 @@ function fit = fit_resonance(expData, binSize, nRes, kwargs)
 arguments
     expData struct
     binSize double
-    nRes(1, 1) int16
+    nRes (1, 1) int16
     % keyword arguments
-    kwargs.type(1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
-    kwargs.globalFraction(1, 1) {mustBeNumeric} = 0.5
-    kwargs.forceGuess(1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
-    kwargs.checkPlot(1, 1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.gaussianFit(1, 1) {mustBeBoolean(kwargs.gaussianFit)} = 0
-    kwargs.gaussianFilter(1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
-    kwargs.smoothDegree(1, 1) {mustBeNumeric, mustBePositive} = 2
+    kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
+    kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
+    kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = 0
+    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
+    kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
 end
 
