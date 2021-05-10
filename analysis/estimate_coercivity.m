@@ -132,15 +132,13 @@ fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
 % load the reference data
 refFile = load(fixedFile);
+[bool, dataName, ledName] = is_B111(refFile);
 
-% check for variable names
-if contains(fileName, 'B111')
-    fixedData = refFile.B111ferro;
-    fixedLed = refFile.ledImg;
-else
-    fixedData = refFile.Bz;
-    fixedLed = refFile.newLED;
-end
+% read data and threshold to 5
+fixedData = refFile.(dataName);
+fixedData = filter_hot_pixels(fixedData, 'threshold', filter.threshold);
+% read LED
+fixedLed = refFile.(ledName);
 
 if kwargs.removeHotPixels
     if kwargs.chi
