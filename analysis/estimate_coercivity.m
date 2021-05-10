@@ -190,7 +190,6 @@ for j = 1:size(nFiles, 2)
     iFileData = transformedData(iFile);
     files{j} = iFileData;
 
-%     disp('<> ------------------------------------------------------------')
     % iterate over each mask
     for i = 1:size(nMasks, 2)
         iMask = nMasks{:, i};
@@ -238,14 +237,19 @@ for j = 1:size(nFiles, 2)
         for n = 1:error.bootStrapN
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
-            if error.bootStrapN
+            if error.bootStrapN > 1
                 dx = randi([-error.pixelError, error.pixelError]);
                 dy = randi([-error.pixelError, error.pixelError]);
             end
-
-            mask = shift_matrix(iMask, dx, dy);
+            
+            if dx ~= 0 && dy ~= 0
+                mask = shift_matrix(iMask, dx, dy);
+            else
+                mask = iMask;
+            end
+            
             mData = iFileData.transData .* mask;
-            mDataCut = limit_mask(mData);
+            mDataCut = crop_data(mData, mask);
 
             nPixel(n) = numel(nonzeros(d0Cut));
             pPixel(n) = numel(nonzeros(mDataCut>0));
