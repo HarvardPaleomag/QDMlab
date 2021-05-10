@@ -14,7 +14,7 @@ parameters:
 if refFrame.ImageSize ~= size(data)
     binning = detect_binning(data, 'refFrame', refFrame);
     msg = ['binning (' num2str(binning) ') detected correcting the tform'];
-    logMsg('info',msg,1,0);
+    logMsg('debug',msg,1,0);
     [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
 end
 
