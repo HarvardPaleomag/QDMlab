@@ -167,16 +167,17 @@ files = cell(numel(nFolders));
 
 % preallocate the cells:
 iFiles = {};
-pPixels = [];
-nPixels = [];
-pPixelRats = [];
-iPixelThreshs = [];
-sumDiffs = [];
-errs = [];
-maskSums = [];
-iMasks = {};
-transDatas = {};
-transLeds = {};
+pPixels = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+nPixels = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+pPixelRats = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+iPixelThreshs = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+sumDiffs = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+errs = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+maskSums = zeros(size(nMasks, 2), size(nFiles, 2), 2);
+iFiles = cell(size(nMasks, 2), size(nFiles, 2));
+iMasks = cell(1, size(nMasks, 2));
+transDatas = cell(1, size(nFiles, 2));
+transLeds = cell(1, size(nFiles, 2));
 
 % if checkPlot
 %     checkfig = figure;
@@ -203,25 +204,26 @@ for j = 1:size(nFiles, 2)
         % create masked_data: mask is array with 0 where is should be
         % masked and 1 where it should not
         mData = iMask .* iFileData.transData;
-        mData = mData - nanmedian(mData, 'all');
+%         mData = mData - nanmedian(mData, 'all');
 
         % masked reference
-        d0Select = crop_data(fixedData, nROI{i});
+        d0ROI = crop_data(fixedData, nROI{i});
         d0 = iMask .* fixedData;
 
-        % cut around the mask
+        % cut around the ROI/mask
         mDataCut = crop_data(mData, iMask);
         d0Cut = crop_data(d0, iMask);
 
 %         disp(['<> masking << ...', iFile(end-40:end), ' >>'])
 
         % predefine the variables
-        pPixel = [];
-        pPixelRat = [];
-        sumDiff = [];
-        err = [];
-        maskSum = [];
-        iPixelThresh = [];
+        nPixel = zeros(error.bootStrapN,1);
+        pPixel = zeros(error.bootStrapN,1);
+        pPixelRat = zeros(error.bootStrapN,1);
+        sumDiff = zeros(error.bootStrapN,1);
+        err = zeros(error.bootStrapN,1);
+        maskSum = zeros(error.bootStrapN,1);
+        iPixelThresh = zeros(error.bootStrapN,1);
 
 
         if size(mDataCut) ~= size(d0Cut)
@@ -245,44 +247,37 @@ for j = 1:size(nFiles, 2)
             mData = iFileData.transData .* mask;
             mDataCut = limit_mask(mData);
 
-            nPixel = numel(nonzeros(d0Cut));
-            pPixel = [pPixel, numel(nonzeros(sign(nonzeros(mDataCut))+1))];
-            pPixelRat = [pPixelRat, pPixel / nPixel];
-            sumDiff = [sumDiff, sum(sum(mDataCut-d0Cut))];
-            err = [err, immse(mDataCut, d0Cut)];
-            maskSum = [maskSum, sum(mDataCut, 'all')];
+            nPixel(n) = numel(nonzeros(d0Cut));
+            pPixel(n) = numel(nonzeros(mDataCut>0));
+            pPixelRat(n) = pPixel(n) / nPixel(n);
+            sumDiff(n) = sum(sum(mDataCut-d0Cut));
+            err(n) = immse(mDataCut, d0Cut);
+            maskSum(n) = sum(mDataCut, 'all');
 
             % Pixel above threshold
             thresh = mDataCut >= selection.selectionThreshold * max(mDataCut, [], 'all');
-            iPixelThresh = [iPixelThresh, numel(nonzeros(thresh))];
+            iPixelThresh(n) = numel(nonzeros(thresh));
         end
 
         % Pixel above threshold
-        thresh = mDataCut >= mean(d0Select,'all') + selection.selectionThreshold * std(d0Select, 0, 'all');
+        thresh = mDataCut >= mean(d0ROI,'all') + selection.selectionThreshold * std(d0ROI, 0, 'all');
         iPixelThresh = numel(nonzeros(thresh));
 
         % store everything
         iFiles{i, j} = iFile;
         % number of non 0 pixels in mask
-        nPixels(i, j, 1) = mean(nPixel);
-        nPixels(i, j, 2) = std(nPixel);
+        nPixels(i, j, :) = [mean(nPixel) std(nPixel)];
         % number of positive pixels in mask
-        pPixels(i, j, 1) = mean(pPixel);
-        pPixels(i, j, 2) = std(pPixel);
+        pPixels(i, j, :) = [mean(pPixel) std(pPixel)];
         % ratio of positive / total pixels in mask
-        pPixelRats(i, j, 1) = mean(pPixelRat);
-        pPixelRats(i, j, 2) = std(pPixelRat);
+        pPixelRats(i, j, :) = [ mean(pPixelRat)  std(pPixelRat)];
         % number of pixels above threshold
-        iPixelThreshs(i, j, 1) = mean(iPixelThresh);
-        iPixelThreshs(i, j, 2) = std(iPixelThresh);
+        iPixelThreshs(i, j, :) = [mean(iPixelThresh) std(iPixelThresh)];
         % sum of difference between mask and same mask in fixedData
-        sumDiffs(i, j, 1) = mean(sumDiff);
-        sumDiffs(i, j, 2) = std(sumDiff);
-        errs(i, j, 1) = mean(err);
-        errs(i, j, 2) = std(err);
+        sumDiffs(i, j, :) = [mean(sumDiff)  std(sumDiff)];
+        errs(i, j, :) = [mean(err) std(err)];
         % Sum of the Mask
-        maskSums(i, j, 1) = mean(maskSum);
-        maskSums(i, j, 2) = std(maskSum);
+        maskSums(i, j, :) = [mean(maskSum) std(maskSum)];
         % mask itself
         iMasks{i} = iMask;
         % transformed data
