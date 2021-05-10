@@ -52,15 +52,13 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs, 
 %         default: false
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
-%     bootStrapError: int, bool [1]
+%     bootStrapN: int, bool [1]
 %         This uses a boot strapping approach to estimate errors. It will
-%         shift the mask by 'pixelError' 'bootStrapError' times. The
+%         shift the mask by 'pixelError' 'bootStrapN' times. The
 %         result value is calculated from the mean of all calculations and an
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%         Note: if bootStrapError == 1, 'pixelError' should be 0
-%         otherwise the mask is shifted and the result will be wrong.
 %     pixelError: int [0]
 %         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
@@ -95,7 +93,7 @@ arguments
     
     kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
-    kwargs.nROI (1,1) {mustBeBoolean(kwargs.nROI)} = false
+    kwargs.nROI = false
     
     selection.freeHand  (1,1) {mustBeBoolean(selection.freeHand)} = false
     selection.freeHandSelection (1,1) {mustBeBoolean(selection.freeHandSelection)} = false
