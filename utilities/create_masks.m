@@ -42,8 +42,7 @@ else
         % limit the data to only the selected region all other values set
         % to 0
         selData = data .* nROI{iSelect};
-%         pcolor(selData);
-%         axis xy; axis equal; axis tight; shading flat;
+%         selData = selData - median(selData, 'all', 'omitnan');
 
         % The masked data now gets filtered to create the final mask
         iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');

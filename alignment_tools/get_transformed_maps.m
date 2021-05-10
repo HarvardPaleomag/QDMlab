@@ -97,8 +97,8 @@ for i = 1:size(nFolders, 2)
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, kwargs.fileName);
     
-    msg = sprintf('loading << %s >> target file for transformation', iFile(end-40:end)');
-    logMsg('info',msg,1,0);
+    msg = sprintf('loading << %s >> target file for transformation', iFile(end-30:end)');
+    logMsg('debug',msg,1,0);
 %     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
     nFiles{end+1} = iFile;
@@ -159,7 +159,7 @@ for i = 1:size(nFolders, 2)
         transData = targetData;
         transLed = targetLed;
     else
-        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-40:end));
+        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-30:end));
         logMsg('info',msg,1,0);
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
