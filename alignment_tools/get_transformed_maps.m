@@ -77,10 +77,10 @@ refFileData = load(refFile);
 % get transformations and rframes
 if kwargs.checkPlot
     [nTransForms, nRefFrames] = align_images(nFolders, 'transformFile', 0, ...
-        'kwargs.fileName', kwargs.fileName, 'kwargs.fixedIdx', kwargs.fixedIdx);
+        'fileName', kwargs.fileName, 'fixedIdx', kwargs.fixedIdx);
 else
     [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
-    'kwargs.transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
+    'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
 end
 
 if contains(kwargs.fileName, 'B111')

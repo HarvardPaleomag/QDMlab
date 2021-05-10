@@ -3,7 +3,7 @@ function results = dipole_fit_series(nFolders, kwargs)
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
 % (3) calculates the upwards continuation (UC) for each source (passed through
-%     'kwargs.upCont' parameter
+%     'upCont' parameter
 % (4) fits a dipole to each source in each map at every UC distance
 %     -> output structure is {source, map, UC}
 % 
@@ -189,7 +189,7 @@ for j = 1 : numberoffolders
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, ...
-                'kwargs.imageFolder',kwargs.imageFolder,'sourceName',SOURCENAME);
+                'imageFolder',kwargs.imageFolder,'sourceName',SOURCENAME);
             
             %% results
             iResult.xLims = xLim;
