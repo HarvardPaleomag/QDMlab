@@ -5,7 +5,7 @@ arguments
     selectionThreshold
     kwargs.nROI = false;
     kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = false
-    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = false
+    kwargs.freeHandSelection (1,1) {mustBeBoolean(kwargs.freeHandSelection)} = false
 end
 nROI = kwargs.nROI;
 
@@ -31,9 +31,9 @@ data(abs(data) >= 5) = nan;
 %%
 % CREATE MASK FROM SELECTIONS
 %
-% if freeHand and freeHandFilter is true then you can draw the mask
+% if freeHand and freeHandSelection is true then you can draw the mask
 % directly in the image
-if all([kwargs.freeHandFilter, kwargs.freeHand])
+if all([kwargs.freeHandSelection, kwargs.freeHand])
     nMasks = nROI;
 % otherwise the mask will be calculated from the selection
 else
