@@ -91,7 +91,7 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = num2cell(zeros(size(nFolders,1)))
+    kwargs.upCont = num2cell(zeros(1, size(nFolders,2)))
     
     kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
@@ -109,9 +109,6 @@ arguments
     filter.includeHotPixel = 0
     filter.chi = 0
     filter.winSize (1,1) = 4
-    
-
-
 end
 
 % define optional function parameters
