@@ -51,7 +51,7 @@ data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
 
 % binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
-logMsg('info',msg,1,0);
+logMsg('debug',msg,1,0);
 
 binData = imresize(data, 1/binSize, 'method', 'box');
 
