@@ -78,7 +78,7 @@ end
 
 %%
 % Create axes
-axis off
+axis(ax, kwargs.axis);
 hold(ax, 'on');
 
 % Create image

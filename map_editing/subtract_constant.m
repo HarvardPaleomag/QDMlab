@@ -32,12 +32,12 @@ if kwargs.save
     expData.([dataName '_original']) = expData.(dataName);
     expData.(dataName) = bData;
 
-    [filePath,fileName,~]=fileparts(filePath{1,1});
+    [fPath,fileName,~]=fileparts(filePath{1,1});
 
     iFileNew = strrep(filePath{1,1}, '.mat', sprintf('_%sSub.mat', dataName));
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     
-    saveas(fig,fullfile(filePath, sprintf('%s_%sSub.png', fileName, dataName)))
+    saveas(fig,fullfile(fPath, sprintf('%s_%sSub.png', fileName, dataName)))
     save(iFileNew,'-struct','expData');
 end
 

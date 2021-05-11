@@ -1,4 +1,4 @@
-function globalFraction = globalFraction_estimator(expData, kwargs)
+function globalFraction = globalFraction_estimator(kwargs)
 % globalFraction_estimator lets you test different globalFraction values.
 %
 % Parameters
@@ -17,14 +17,25 @@ function globalFraction = globalFraction_estimator(expData, kwargs)
     
     %% load/prepare data
     arguments
-        expData
-        kwargs.binSize = 2
-        kwargs.nRes = 1
+        kwargs.expData = 'none'
+        kwargs.binSize = 'none'
+        kwargs.nRun = 'none'
+        kwargs.nRes = 'none'
     end
     
-    if isstring(expData)
-        expData = load(expData);
+    defaults = struct('binSize', 4, 'nRun',1, 'nRes', 1);
+    kwargs = ask_arguments(kwargs, defaults);
+    
+    if ~isstruct(kwargs.expData)
+        filePath = automatic_input_ui__(kwargs.expData, 'type', 'dir', 'single', true);
+        fileName = sprintf('run_0000%i.mat', kwargs.nRun - 1);
+        msg = sprintf('loading: %s', fullfile(filePath, fileName));
+        logMsg('debug',msg,1,0);
+        expData = load(fullfile(filePath, fileName));
+    else
+        expData = kwargs.expData;
     end
+    
     
     [binDataNorm, freq] = prepare_raw_data(expData, kwargs.binSize, kwargs.nRes);
     

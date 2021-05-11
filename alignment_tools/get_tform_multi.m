@@ -74,7 +74,7 @@ nRefFrames = containers.Map;
 if transFormFile ~= 0
     if isfile(transFormFile)
         msg = sprintf('transformation file already exists, overwrite? (y/[n])? ');
-        msg = logMsg('input',msg,1,0, 'returnOnly', true);
+        msg = logMsg('input',msg,0,0, 'returnOnly', true);
         newFile = input(msg, 's');
         
         if strcmp(newFile, 'y')
