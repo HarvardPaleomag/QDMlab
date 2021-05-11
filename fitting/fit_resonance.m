@@ -350,7 +350,7 @@ end
 end
 
 function fit = make_fit_struct(fit, preGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, diamond)
-msg = sprintf('reshaping data into (%4i, %4i)', nRes, sizeY, sizeX);
+msg = sprintf('%i: reshaping data into (%4i, %4i)', nRes, sizeY, sizeX);
 logMsg('debug',msg,1,0);
 
 %make parameters matrix into 3d matrix with x pixels, y pixels, and parameters
