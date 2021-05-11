@@ -66,6 +66,7 @@ arguments
     kwargs.gaussianFilter(1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree(1, 1) {mustBeNumeric, mustBePositive} = 2
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
+    kwargs.slopeCorrection = false;
 end
 
 msg = sprintf('--------------------------------------------------------------------');
@@ -177,14 +178,16 @@ end
 %% fittiing related
 tolerance = 1e-10;
 initialPreGuess = 'none';
-kwargs.slope_correction = true
+kwargs.slopeCorrection = 3;
 if kwargs.type == 2
     % initial parameters
-    if kwargs.slope_correction
-        gpudata = slope_correction(gpudata, freq);
+    if kwargs.slopeCorrection
+        gpudata_ = slope_correction(gpudata, freq, kwargs.slopeCorrection);
+    else
+        gpudata_ = gpudata;
     end
     
-    initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
+    initialPreGuess = get_initial_guess(gpudata_, freq, kwargs.diamond);
     
     %initiate badPixels structure
     pixelAlerts = struct();
@@ -250,7 +253,7 @@ logMsg('info',msg,1,0);
 
 if numel(nonzeros(states)) > 0
     badPre = numel(nonzeros(states));
-    msg = sprintf('%i: %i / %i pixels failed the final fit. See fit.states!', badPre, imgPts);
+    msg = sprintf('%i: %i / %i pixels failed the final fit. See fit.states!', nRes, badPre, imgPts);
     logMsg('warn',msg,1,0);
 end
 
@@ -264,14 +267,22 @@ end
 end
 
 %%
-function data = slope_correction(data, freq)
+function data = slope_correction(data, freq, nPoints)
 % data = slope_correction(data, freq)
 % calculates slope between 1st - last pixel and removes this from data
-    delta = diff(data(:,[1,end]),1,3)/numel(freq);
+    msg = sprintf('correcting slope of for the initial guess calculation');
+    logMsg('debug',msg,1,0);
+    
+    d1 = mean(data(1:nPoints+1,:));
+    dend = mean(data(end+1-nPoints:end,:));
+    
+    delta = (dend-d1);
+    slope = delta/numel(freq);
+    
     correction = zeros(size(data));
 
     for i = 1:numel(freq)
-        correction(:,i) = delta*(i-1);
+        correction(i,:) = slope*(i-1);
     end
 
     data = data - correction;

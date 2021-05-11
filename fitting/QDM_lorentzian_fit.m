@@ -28,7 +28,10 @@ function fits = QDM_lorentzian_fit(kwargs)
 %   show diagnostics plots
 %   plotGuessSpectra: bool (1)
 %   forceGuess: bool (0)
-%
+%   slope_correction: bool [false]
+%       uses a linear slope correction on the raw data to determine the
+%       initial guess. 
+%       Note: only works for type = 2
 
 arguments
     kwargs.nFolders {foldersMustExist(kwargs.nFolders)} = 'none';
@@ -46,6 +49,7 @@ arguments
     kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.slopeCorrection = false;
 end
 
 defaults = struct('binSizes', [4], 'globalFraction', 0.25);
@@ -80,6 +84,7 @@ for dataFolder = nFolders
                         'forceGuess', kwargs.forceGuess,...
                         'checkPlot', kwargs.checkPlot,...
                         'smoothDegree', kwargs.smoothDegree,...
+                        'slopeCorrection', kwargs.slopeCorrection,...
                         'save', kwargs.save);
                     
         fits.kwargs = kwargs;
@@ -89,18 +94,20 @@ for dataFolder = nFolders
 
         fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
         
-        % copy laser image and csv
-        msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
-        logMsg('info',msg,1,0);
-        
-        copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
-        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
-        
-        fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
-        msg = sprintf('saving %s into %s', fName, dataFolder);
-        logMsg('info',msg,1,0);
-        
-        save(fullfile(dataFolder, fName), '-struct', 'fits');
+        if kwargs.save
+            % copy laser image and csv
+            msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
+            logMsg('info',msg,1,0);
+
+            copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
+            copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+
+            fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
+            msg = sprintf('saving %s into %s', fName, dataFolder);
+            logMsg('info',msg,1,0);
+
+            save(fullfile(dataFolder, fName), '-struct', 'fits');
+        end
     end
 end
 
