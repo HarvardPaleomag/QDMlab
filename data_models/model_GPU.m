@@ -29,6 +29,9 @@ end
 
 x = freq;
 if strcmp(kwargs.diamond, 'N14')
+    msg = sprintf('calculating lorentzian for N14 diamond');
+    logMsg('debug',msg,1,0);
+
     Ahyp = 0.002158; % longitudinal hyperfine for 14N
 
     model = p(6)...
@@ -37,6 +40,9 @@ if strcmp(kwargs.diamond, 'N14')
         -p(5)*p(2).^2./((x-p(1)-Ahyp).^2+p(2).^2);
 end
 if strcmp(kwargs.diamond, 'N15')
+    msg = sprintf('calculating lorentzian for N15 diamond');
+    logMsg('debug',msg,1,0);
+    
     Ahyp = 0.0015; % 1/2 longitudinal hyperfine for 15N
 
     model = p(5)...

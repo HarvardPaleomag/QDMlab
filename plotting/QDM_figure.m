@@ -1,22 +1,58 @@
-function  map_figure = QDM_figure(data, kwargs)
-%CREATEFIGURE(cdata1)
+function map_figure = QDM_figure(data, kwargs)
 % Create figure
+% Parameter
+% ---------
+%     fig: figure ['none'];
+%         figure object will be used if passed to function. Otherwise one
+%         will be created
+%     ax: axis ['none']
+%         axis object will be used if passed to function, otherwise created
+%         at runtime.
+%     led: bool [false]
+%         to plot LED data
+%     nROI: ['none']
+%         adds ROI to the plot if passed
+%     pixelAlerts: array ['none']
+%         If pixelAlerts array is passed pixels that, during fitting created
+%         an alert (see. fit_resonance) will be replaced by nan
+%     std: int [6]
+%         defines how many standard deviations are used to calculate the
+%         clims
+%     filter_hot_pixels: [0]
+%         If value (n) >0 pixels will be filtered according to the data
+%         with n standard deviations and replaced by nan.
+%     title: ['QDM DATA']
+%         Title of the axis
+%     cbTitle: ['       B_z (T)'];
+%         Title of the color bar.
+%     axis: ['on']
+%         if 'on' x/y labels and box around plot are created,
+%         if 'off' x/y labels and box around plot will NOT created
+%     return: ['fig']
+%         if 'fig' function returns the figure object
+%         if 'ax' function returns the axis object. Useful for adding data
+%         to a plot
 
 arguments
     data
     kwargs.fig = 'none';
     kwargs.ax = 'none';
+    kwargs.led = false;
     kwargs.nROI = 'none';
-    kwargs.fitSuccess = 'none';
+    kwargs.pixelAlerts = 'none';
     kwargs.filter_hot_pixels = 0;
     kwargs.title = 'QDM DATA';
+    kwargs.cbTitle = 'B_z (T)';
+    kwargs.axis = 'on';
+    kwargs.return = 'fig';
+    kwargs.std {mustBeInteger} = 6;
 end
 
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
-        map_figure = figure('Name','QDM map','units','normalized','outerposition',[0.2 0.2 0.6 0.6]);
+        map_figure = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
     else
-        map_figure = ancestor(kwargs.ax,{'figure'},'toplevel');
+        map_figure = ancestor(kwargs.ax, {'figure'}, 'toplevel');
     end
 else
     map_figure = kwargs.fig;
@@ -27,7 +63,7 @@ if ~all(all(data > 5))
 end
 
 if kwargs.ax == 'none'
-    ax = axes('Parent',map_figure);
+    ax = axes('Parent', map_figure);
 else
     ax = kwargs.ax;
 end
@@ -36,45 +72,66 @@ if kwargs.filter_hot_pixels
     data = filter_hot_pixels(data, 'cutOff', kwargs.filter_hot_pixels, 'winSize', nan);
 end
 
-if ~strcmp(kwargs.fitSuccess, 'none')
-    data(~kwargs.fitSuccess) = nan;
+if ~strcmp(kwargs.pixelAlerts, 'none')
+    data(kwargs.pixelAlerts) = nan;
 end
+
 %%
 % Create axes
-axis off
-hold(ax,'on');
+axis(ax, kwargs.axis);
+hold(ax, 'on');
 
 % Create image
-pcolor(data,'Parent',ax);
+% pcolor(data, 'Parent', ax);
+imAlpha=ones(size(data));
+imAlpha(isnan(data))=0;
+imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+
+colormap(ax, jet);
 shading flat;
 set(ax, 'ydir', 'reverse');
-% imagesc(data,'Parent',ax,'CDataMapping','scaled');
 
 % Create title
-title(kwargs.title);
+title(kwargs.title, 'Fontsize', 12);
 
-box(ax,'on');
-axis(ax,'tight');
+% box(ax, 'on');
+axis(ax, 'tight');
+axis equal, axis tight, axis xy
 
-% Set the remaining axes properties
-med = abs(nanmedian(data,'all')); st = nanstd(data,[],'all'); 
-mx = max(abs(data), [], 'all'); mn = min(abs(data), [], 'all');
-
-if ~all(data>0)
-    fprintf('<>    setting Clim: +-%.3f, according to: median (%.3f) + 4*std (%.3f)\n', med + 4*st, med, st);
-    set(ax,'CLim',[-1 1] * (med + 4*st));
-else
-    delta = mx-mn;
-    set(ax,'CLim',[med-delta/10 med+delta/10]);
-    fprintf('<>    setting Clim: (%.3f, %.3f) according to: median (%.3f) +- (max(%.3f)-min(%.3f))/10\n',med-delta/2, med+delta/2, med, mn, mx);
+if strcmp(kwargs.return, 'ax')
+    map_figure = ax;
 end
 
-axis equal, axis tight, axis xy
+if kwargs.led
+    colormap(ax, bone);
+    return
+end
+
+% Set the remaining axes properties
+med = abs(median(data, 'all', 'omitnan'));
+st = std(data, [], 'all', 'omitnan');
+mx = max(abs(data), [], 'all');
+mn = min(abs(data), [], 'all');
+
+if ~all(data > 0, 'all')
+    msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
+    logMsg('debug',msg,1,0);
+    set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
+else
+    msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
+                 med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
+    logMsg('info',msg,1,0);
+    set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+end
+
+if strcmp(kwargs.axis, 'off')
+    axis off
+end
 
 if iscell(kwargs.nROI)
     add_ROI(kwargs.nROI, 'ax', ax)
 end
 
 % Create colorbar
-colorbar(ax);
-
+cb = colorbar(ax);
+title(cb, kwargs.cbTitle, 'Fontsize', 12);

@@ -5,23 +5,23 @@ function filteredData = filter_hot_pixels(data, kwargs)
 % 
 % Parameters
 % ----------
-%     data:
+%     data: double
 %         data matrix to be filtered
-%     cutOff: 
+%     cutOff: double ['none']
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
-%         optional, default = 4
-%     includeHotPixel:
+%     includeHotPixel: bool [false]
 %         if true: the mean will be calculated including the hot pixel
 %         if false: the mean is calculated after setting the pixel to nan
-%     chi: array
+%     chi: array [0]
 %         if chi is provided the data will be filtered according to the chi
 %         values.
-%     winSize: int
+%     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
 %         if nan: values are replaced by nan
-%     checkPlot:
+%         if 0: values are replaced by 0
+%     checkPlot: bool [false]
 %         creates a new figure to check if the filtering worked
 
 
@@ -29,9 +29,10 @@ arguments
    data
    kwargs.cutOff = 'none';
    kwargs.includeHotPixel {mustBeBoolean(kwargs.includeHotPixel)} = 0
-   kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= 0
+   kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
    kwargs.chi = 0
    kwargs.winSize = 3
+   kwargs.threshold = 5
 end
 
 % define optional arguments
@@ -45,12 +46,13 @@ winSize = kwargs.winSize;
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) >= 5;
+aboveStd = abs(data) >= kwargs.threshold;
 data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: data where data/chi is %i standard deviations above the median\n', cutOff)
+    msg = sprintf('filtered data where data/chi is %i standard deviations above the median', cutOff);
+    logMsg('info',msg,1,0);
 
     if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
@@ -62,7 +64,9 @@ if ~strcmp(cutOff, 'none')
 
         %calculate the standard deviation of all pixels
         dStd = nanstd(chi, 0, 'all');
-        disp(['<>             using chi2 values: median = ' num2str(dMed) '; std = ' num2str(dStd)])
+        
+        msg = sprintf('using chi2 values: median = %.2e; std = %.2e',dMed, dStd);
+        logMsg('debug',msg,1,0);
 
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
@@ -75,6 +79,9 @@ if ~strcmp(cutOff, 'none')
         dStd = nanstd(data, 0, 'all');
         %create boolean array with pixels with intensity higher than cutoff
         aboveStd = aboveStd | abs(data) > dMed + cutOff * dStd;
+        
+        msg = sprintf('using data values: median = %.2e; std = %.2e',dMed, dStd);
+        logMsg('debug',msg,1,0);
     end
 end
 
@@ -85,20 +92,24 @@ filteredData = data;
 % initiate filtered pixel array for plotting
 filteredPixels = zeros(dshape);
 
-dataMedian = nanmedian(abs(data), 'all');
+dataMedian = median(abs(data), 'all', 'omitnan');
 
-% replace poixels with nan if specified
-
+% replace pixels with nan if specified
 if isnan(winSize)
     % set pixel value to nan
     filteredData(aboveStd) = nan;
+    filteredPixels(aboveStd) = 1;
+% replace pixels with 0 if specified
+elseif winSize == 0
+    % set pixel value to nan
+    filteredData(aboveStd) = 0;
     filteredPixels(aboveStd) = 1;
 % otherwise calculate the mean over winSize
 else
     for row = 1:dshape(1)
         for col = 1:dshape(2)
-            % pixels that exceed the mean + 4 std deviations are replaced by
-            % the mean of a square of pixels 7x7 pixels
+            % pixels that exceed the mean + cutOff std deviations are replaced by
+            % the mean of a square of winSize pixels
             if aboveStd(row, col)
                 % set pixel to 1 to check which pixel were removed
                 filteredPixels(row, col) = 1;
@@ -150,9 +161,15 @@ end
 n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
-    fprintf('<>     FILTER: B > +- 5G: removed %i / %i pixel = %.2f%%\n', n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100)
+    if n_pixels
+        msg = sprintf('B > +- %.1fG: removed %i / %i pixel = %.2f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
+        logMsg('info',msg,1,0);
+    end
 else
-    fprintf('<>     FILTER: by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd)
+    if n_pixels
+        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
+        logMsg('info',msg,1,0);
+    end
 end
 
 %% checkplot

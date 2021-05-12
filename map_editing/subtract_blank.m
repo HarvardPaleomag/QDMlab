@@ -1,13 +1,13 @@
-function subtractedData = subtract_blank(nFolders, blankFolder, kwargs)
+function subtractedData = subtract_blank(kwargs)
 % function subtractedData = subtract_blank(kwargs)
 % Subtracts a blank map from the Data
 %
 % Parameters
 % ----------
-%   nFolders ['none']
+%   nFiles ['none']
 %       A path (char) or cell of paths that contain the data and are to be
 %       corrected.
-%   blankFolder: path ['none']
+%   blankFile: path ['none']
 %       The path of the blank B111 map.
 %   checkPlot: bool [false]
 %       if true: creates a plot to check if the subtraction worked as
@@ -18,77 +18,54 @@ function subtractedData = subtract_blank(nFolders, blankFolder, kwargs)
 %
 % Note
 % ----
-%   If no :code:`nFolders` or :code:`blankFolder` is passed to the function,
+%   If no :code:`nFiles` or :code:`blankFile` is passed to the function,
 %   you will be prompted to select them.
 
 arguments
-    nFolders
-    blankFolder
-    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false
+    kwargs.nFiles = 'none'
+    kwargs.blankFile = 'none'
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
-
 close all
 
-checkPlot = kwargs.checkPlot;
+subtractedData = containers.Map();
 
-fileName = 'B111dataToPlot.mat';
 laserFileName = 'laser.jpg';
 
 %% manual
 % if nFoilders and blankData uses default values i.e. false
 
-if strcmp(nFolders, 'none')
-    %Load the correct "B111dataToPlot.mat" file
-    f = helpdlg('Pick a B111 file');
-    pause(2)
-
-    if ishghandle(f)
-        close(f)
-    end
-
-    [longfilename, pathname] = uigetfile('*.mat', 'Pick a B111 file');
-    fullfilename = [pathname longfilename];
-    nFolders = {pathname};
-end
-
-if strcmp(blankFolder, 'none')
-    f = helpdlg('Pick a blank file');
-    pause(2)
-
-    if ishghandle(f)
-        close(f)
-    end
-
-    [longfilenameBLANK, pathnameBLANK] = uigetfile('*.mat', 'Pick a Blank file');
-    fullfilenameBLANK=[pathnameBLANK longfilenameBLANK];
-    blankFolder = fullfilenameBLANK;
-end
+nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file', 'type', 'file');
+blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true, 'type', 'file');
 
 %% automatic subtraction for all folders
 % checks if none of the default arguments is used
-nFolders = correct_cell_shape(nFolders);
+nFiles = correct_cell_shape(nFiles);
 
-disp(['<> loading blank file: <<' blankFolder '>>'])
-blankFile = fullfile(blankFolder, fileName);
+msg = sprintf('loading blank file: << %s >>', blankFile);
+logMsg('info',msg,1,0);
+
 blankData = load(blankFile);
 
 % [nTransForms, nRefFrames] = get_tform_multi(blankFolder, nFolders, ...
 %                             'reverse', true, ...
 %                             'laser',true, 'checkPlot', checkPlot);
-
+[blankFolder ]= fileparts(blankFile);
 movingData = imread(fullfile(blankFolder, laserFileName));
-subtractedData = containers.Map();
 
-for i = 1 : size(nFolders, 2)
-    iFolder = nFolders{i};
-    iFile = fullfile(iFolder, filesep, fileName);
+for i = 1 : size(nFiles, 2)
+    iFile = nFiles{i};
+    [iFolder fileName ext] = fileparts(iFile);
 
-    disp(['<> reading: << ' iFile ' >> and blankData'])
+    msg = sprintf('loading laser & magnetic data: << %s >>', iFolder);
+    logMsg('info',msg,1,0);
+    
     fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
+    newFileData = fileData;
     
-    [transForm, refFrame] = get_image_tform2(fixedData, movingData,...
+    [transForm, refFrame] = get_image_tform(fixedData, movingData,...
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
 
     % transform the blank
@@ -96,36 +73,48 @@ for i = 1 : size(nFolders, 2)
     B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame);
 
     % crop the FOV and subtract blank
-    [x, y, w, h] = get_mask_extent(B111ferroTransformed);
-    fileB111ferro = fileData.B111ferro(y:y+h, x:x+w);
-    fileB111para = fileData.B111para(y:y+h, x:x+w);
+%     [x, y, w, h] = get_mask_extent(B111ferroTransformed);
+%     B111ferro = fileData.B111ferro;
     
-    fileData.B111ferro = fileB111ferro- B111ferroTransformed(y:y+h, x:x+w);
-    fileData.B111para = fileB111para - B111paraTransformed(y:y+h, x:x+w);
-%     B111ferro = fileData.B111ferro - B111ferroTransformed;
+    B111ferroTransformed(B111ferroTransformed==0) = nan;
+    fileB111ferro = fileData.B111ferro;
+    fileB111para = fileData.B111para;
+    
+    newFileData.B111ferro = fileB111ferro- B111ferroTransformed;
+    newFileData.B111para = fileB111para - B111paraTransformed;
 %     B111para = fileData.B111para - B111paraTransformed;
-    subtractedData(iFolder) = fileData;
+    newFileData.blank = blankFile;
+    newFileData.blankB111ferro = B111ferroTransformed;
+    newFileData.blankB111Para = B111paraTransformed;
+    subtractedData(iFolder) = newFileData;
     
     if kwargs.save
-        saveFilePath = fullfile(iFolder, 'B111BlankSub.mat');
-        save(saveFilePath, '-struct', 'fileData');
+        saveFilePath = fullfile(iFolder, sprintf('%s_sub.mat', fileName));
+        save(saveFilePath, '-struct', 'newFileData');
     end
 
     if kwargs.checkPlot
-        figure
+        med = abs(median(fileB111ferro, 'all', 'omitnan'));
+        st = std(fileB111ferro, [], 'all', 'omitnan');
+        
+        fig = figure('Units', 'normalized', ...
+                 'Position',[0.1 0.1 0.8 0.8], 'Name', 'Blank Subtraction');
+        
         sp1 = subplot(2,2,1);
-        imagesc(fileData.B111ferro);
-        title('Original');
+        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original') 
         sp2 = subplot(2,2,2);
-        imagesc(blankData.B111ferro);
-        title('Blank');
+        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank')        
         sp3 = subplot(2,2,3);
-        blank = re_bin(blankData.B111ferro, fileData.B111ferro);
-        imagesc(fileData.B111ferro - blank);
-        title('Unaligned subtraction');
+        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction')      
         sp4 = subplot(2,2,4);
-        imagesc(B111ferro);
-        title('Aligned subtraction');
-        linkaxes([sp1, sp2, sp3, sp4])
+        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction') 
+
+        ax = [sp1, sp2, sp3, sp4];
+        linkaxes(ax)
+        
+        for a = ax
+           colorbar(a)
+%            set(ax, 'CLim', [-1, 1]*(med + 4 * st));
+        end
     end
 end

@@ -1,55 +1,93 @@
-function [transForm, refFrame] = get_image_tform(fixedData, movingData, varargin)
-%{
-takes reference data and calculate tform, rframe that tranforms target data
-to match the reference in the reference frame
+function [transForm, refFrame] = get_image_tform(fixedData, movingData, kwargs)
+% takes reference data and calculate tform, rframe that tranforms target data
+% to match the reference in the reference frame
+% 
+% Parameters
+% ----------
+%     fixedData: double
+%         Reference QDM/LED data
+%     movingData: double
+%         QDM/LED data to be matched to the reference data
+%     checkPlot: bool [false]
+%         Adds a plot to check alignment if true
+%     title: char ['checkPlot alignment']
+%         Adds a title to the checkPlot
 
-DEPRECATED - superseeded by get_image_tform2
-
-parameters:
-    fixedData: QDM/LED data
-    movingData: QDM/LED data
-        data to be matched to the refernce data
-
-optional parameters:
-    checkPlot: bool 
-        default: false
-        Adds a plot to check alignment if true
-    title: char
-        Adds a title to the checkPlot
-%}
-% Last change: April 21, 2020: Mike
-p = inputParser;
-addRequired(p, 'fixedData');
-addRequired(p, 'movingData');
-addParameter(p, 'checkPlot', false, @islogical);
-addParameter(p, 'title', 'checkPlot alignment', @ischar);
-parse(p, fixedData, movingData, varargin{:});
+arguments
+    fixedData
+    movingData
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= false
+    kwargs.sharpen = false;
+    kwargs.title {ischar} = 'checkPlot alignment';
+end
 
 if fixedData == movingData
-    disp('<> INFO: Transformation not needed. Same image detected')
+    msg = sprintf('Transformation not needed. Same image detected');
+    logMsg('info',msg,1,0);
     transForm = affine2d([[1 0 0]; [0 1 0]; [0 0 1]]);
     refFrame = imref2d(size(fixedData));
     return
 end
+    
+fixedData = uint8(255 * mat2gray(fixedData));
+fixedData = imadjust(fixedData);
+movingData = uint8(255 * mat2gray(movingData));
+movingData = imadjust(movingData);
+
+if kwargs.sharpen
+    PSF = fspecial('gaussian',7,10);
+    fixedData = deconvblind(fixedData,PSF);
+    movingData = deconvblind(movingData,PSF);
+end
+    
+msg = sprintf('detecting features in fixed and moving data');
+logMsg('debug',msg,1,1);
+
+ptsOriginal  = detectSURFFeatures(fixedData);
+ptsDistorted = detectSURFFeatures(movingData);
+[featuresOriginal,validPtsOriginal] = extractFeatures(fixedData,ptsOriginal);
+[featuresDistorted,validPtsDistorted] = extractFeatures(movingData,ptsDistorted);
+
+%% matching features
+msg = sprintf('matching features in fixed and moving data');
+logMsg('debug',msg,1,1);
+
+index_pairs = matchFeatures(featuresOriginal,featuresDistorted);
+matchedPtsOriginal  = validPtsOriginal(index_pairs(:,1));
+matchedPtsDistorted = validPtsDistorted(index_pairs(:,2));
 
 
-disp('<> CALCULATING: Transformation, Used for imwarp(data, tform,''OutputView'', imref2d).  ')
-transForm = imregtform(movingData, fixedData, 'similarity', optimizer, metric);
+%% remove outliers
+[transForm,inlierPtsDistorted,inlierPtsOriginal] = ...
+    estimateGeometricTransform(matchedPtsDistorted,matchedPtsOriginal,...
+    'similarity');
 refFrame = imref2d(size(fixedData));
 
-% do checkPlot
-if p.Results.checkPlot
-    transformedData = tform_data(movingData, transForm, refFrame); %imwarp(moving_data, tform,'OutputView', rframe);
+if kwargs.checkPlot
+    transformedData = imwarp(movingData,transForm, 'OutputView', refFrame);
 
-    checkFigure = figure('Name', 'Align images');
+    checkFigure = figure('Position', [610,150,378,835]);
 
-    subplot(2, 1, 1)
+    subplot(3,1, 1)
     imshowpair(fixedData, movingData, 'Scaling', 'joint')
     title('uncorrected')
     axis xy; axis equal, axis tight
+    a = gca;
 
-    subplot(2, 1, 2)
+    subplot(3,1,2)
+    showMatchedFeatures(fixedData,movingData, inlierPtsOriginal,inlierPtsDistorted);
+    title('Matched features');
+    axis xy; axis equal, axis tight
+    b = gca;
+
+    subplot(3,1, 3)
     imshowpair(fixedData, transformedData, 'Scaling', 'joint')
     title('corrected')
     axis xy; axis equal, axis tight
+    c = gca;
+
+    linkaxes([a b c])
 end
+
+    
+    

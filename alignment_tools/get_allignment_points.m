@@ -1,4 +1,4 @@
-function allignment_points = get_allignment_points(folders, filename, savefile)
+function allignment_points = get_allignment_points(nFolders, filename, savefile)
 %{
 These codes (1) register the maps and (2) fit the sources in each map%
 parameters:
@@ -33,12 +33,12 @@ if isfile(savefile)
 else
     % check if the shift_file had not been created
     % i.e. allalignementpoints, anglesm dx, dy have to be 0
-    all_aps = zeros(size(folders,1),4);
+    all_aps = zeros(size(nFolders,1),4);
 end
 
 if all(all_aps==0) && all(angles==0) && all(dx==0) && all(dy==0)
-    for i= 1 :size(folders,1)
-        fname=[deblank(folders(i,:)) filesep filename];
+    for i= 1 :size(nFolders,1)
+        fname=[deblank(nFolders(i,:)) filesep filename];
 
         load(fname,'newLED')
 

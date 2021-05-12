@@ -12,5 +12,6 @@ end
 [x, y, w, h] = get_mask_extent(kwargs.reference);
 
 % cut around data
-% disp('<>   cutting around mask')
+msg = sprintf('cutting around mask lower left (x:%i, y:%i, w:%i, h:%i)', x,y,w,h);
+logMsg('debug',msg,1,0);
 lMask = mask(y:y+h, x:x+w);

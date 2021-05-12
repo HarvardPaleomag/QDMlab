@@ -17,7 +17,8 @@ arguments
 end
 
 %%
-disp('<>      generating initial guess from global resonance parameters');
+msg = sprintf('generating initial guess from global resonance parameters');
+logMsg('info',msg,1,0);
 
 sizeX = size(data,2); % binned image x-dimensions
 sizeY = size(data,1); % binned image y-dimensions

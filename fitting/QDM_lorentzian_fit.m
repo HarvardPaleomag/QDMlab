@@ -1,11 +1,12 @@
-function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
+function fits = QDM_lorentzian_fit(kwargs)
 % :code:`QDM_lorentzian_fit` uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
 %
 % Parameters
 % ----------
-%   nFolders:
-%   binSize:
+%   nFolders: cell ['none']
+%       if 'none' lets you pick a folder
+%   binSize: cell(int) [4]
 %   fieldPolarity: (0)
 %     0 = neg & pos,
 %     1 = neg,
@@ -27,15 +28,18 @@ function fits = QDM_lorentzian_fit(nFolders, binSizes, kwargs)
 %   show diagnostics plots
 %   plotGuessSpectra: bool (1)
 %   forceGuess: bool (0)
-%
+%   slope_correction: bool [false]
+%       uses a linear slope correction on the raw data to determine the
+%       initial guess. 
+%       Note: only works for type = 2
 
 arguments
-    nFolders {foldersMustExist(nFolders)}
-    binSizes double
+    kwargs.nFolders {foldersMustExist(kwargs.nFolders)} = 'none';
+    kwargs.binSizes = 'none'
     % keyword arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
-    kwargs.globalFraction (1,1) {mustBeNumeric} = 0.25
+    kwargs.globalFraction = 'none';
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = 0
@@ -45,7 +49,13 @@ arguments
     kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.slopeCorrection = false;
 end
+
+defaults = struct('binSizes', [4], 'globalFraction', 0.25);
+nFolders = automatic_input_ui__(kwargs.nFolders);
+kwargs = ask_arguments(kwargs, defaults);
+binSizes = kwargs.binSizes;
 
 % check if there is more than one folder
 nFolders = correct_cell_shape(nFolders);
@@ -74,32 +84,30 @@ for dataFolder = nFolders
                         'forceGuess', kwargs.forceGuess,...
                         'checkPlot', kwargs.checkPlot,...
                         'smoothDegree', kwargs.smoothDegree,...
-                        'nucSpinPol', kwargs.nucSpinPol,...
+                        'slopeCorrection', kwargs.slopeCorrection,...
                         'save', kwargs.save);
                     
         fits.kwargs = kwargs;
         fits.nFolder = dataFolder;
         
         folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
-        mkdir(fullfile(dataFolder, folderName));
-        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
-        save(fullfile(dataFolder, sprintf('final_fits_(%ix%i).mat', binSize, binSize)), '-struct', 'fits');
 
-        %foldername=[num2str(bin) 'x' num2str(bin) 'Binned_' num2str(GF)];
-        movefile(fullfile(dataFolder, 'run_00000.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
-        movefile(fullfile(dataFolder, 'run_00001.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
-        if strcmp(type, 'nppn')
-        movefile(fullfile(dataFolder, 'run_00002.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
-        movefile(fullfile(dataFolder, 'run_00003.matdeltaBFit.mat'),fullfile(dataFolder, folderName))
+        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        
+        if kwargs.save
+            % copy laser image and csv
+            msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
+            logMsg('info',msg,1,0);
+
+            copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
+            copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+
+            fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
+            msg = sprintf('saving %s into %s', fName, dataFolder);
+            logMsg('info',msg,1,0);
+
+            save(fullfile(dataFolder, fName), '-struct', 'fits');
         end
-%         movefile(fullfile(dataFolder, 'B111dataToPlot.mat'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'negCurrent.png'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'posCurrent.png'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'ferromagImg.png'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'paramagImg.png'),fullfile(dataFolder, folderName))
-%         copyfile(fullfile(dataFolder, 'ledImg.png'),fullfile(dataFolder, folderName))
-%         movefile(fullfile(dataFolder, 'allPlots.png'),fullfile(dataFolder, folderName))
-        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
     end
 end
 

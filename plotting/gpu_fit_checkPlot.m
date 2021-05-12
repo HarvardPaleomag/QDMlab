@@ -50,7 +50,7 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         hold on
         idx = xy2index(x, y,rows);
         plot(freq, 1+model_GPU(fit.p(:,idx), freq, 'diamond', diamond), 'b','DisplayName','Fit')
-        plot(freq, 1+model_GPU(fit.g(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
+        plot(freq, 1+model_GPU(fit.initialGuess.p(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
         plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
         ylabel('Intensity')
         xlabel('f (Hz)')

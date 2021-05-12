@@ -7,46 +7,40 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %     binSize: int
 %         number of pixels to be binned into one.
 %         Uses 'BinImage' function
-
-%     optional
-%     ========
-%     fielpolarity: int 
-%         default: 0 
+%     fielpolarity: int [0]
 %         0: both polarities
 %         1: first polarity only
 %         2: second polarity only
 %         4: Neg Pos Pos Neg
-%     type: int
-%         default: 0
+%     quadBgSub: bool [true]
+%         Decides if a quadratic background is to be subtracted from the
+%         data
+%     type: int [0]
 %         0: ONLY global guess parameters
 %         1: local guess parameters
 %            use 'gaussianFit' to get peak positions if findpeaks fails
 %         2: local guess using a gaussian pre fit
 %         3: manual guess parameters %redundant???
 %             todo:(set values in guess1 and guess2 matricies)
-%     forceGuess: bool (false)
-%     gaussianFit: bool (false)
+%     forceGuess: bool [false]
+%     gaussianFit: bool [false]
 %         Only used if the findpeaks function fails to find 3 peaks.
 %         if true: uses a gaussian fit to estimate the center peak of the
 %                  triplet. 
 %         if false: uses the locations from the global estimation
-%     gaussianFilter: numeric (0)
+%     gaussianFilter: numeric [0]
 %         if 0: no filter is applied
 %         if != 0: applies gaussian filter with a standard deviation of
 %                 'gaussianFilter'. Previous versions of the code used 0.5.
-%     checkPlot: bool (false)
+%     checkPlot: bool [false]
 %         display the fitted resonances. useful to establish the initial guesses for diagnostics
-%     smoothDegree: int(2)
-%     globalFraction: double (0.5)
+%     smoothDegree: int[2]
+%     globalFraction: double [0.5]
 %         amount of global illumination signal to subtract from data. 
 %         Calls 'correct_global' function
-%     save: bool (true)
+%     save: bool [true]
 %         if true the results are saved to 'dataFolder'
-
-%     nucSpinPol: bool (false)
-%         this is used for nuclear spin polarization -> NMR. Calls the
-%         function guessNucSpinPol. Uses code in original state (< Nov 2020).
-%     diamond: str (N14)
+%     diamond: str [N14]
 %         The type of diamond. Choses the type of fitting.
 %
 % Notes
@@ -63,14 +57,15 @@ arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
+    kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = 1
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.slopeCorrection = false;
 end
 
 tStart = tic;
@@ -80,20 +75,8 @@ type = kwargs.type;
 
 %% global variables
 gamma = 0.0028;  % NV gyromagnetic ratio, in GHz / gauss
-zfs = 2.870;     % NV zero-field splitting, in GHz
-Ahyp = 0.002158; % longitudinal hyperfine for 14N
-globalFraction = kwargs.globalFraction;
-
-% smoothing and filter related
-gaussianFilter = kwargs.gaussianFilter;
-smoothDegree = kwargs.smoothDegree;  % degree of smoothing for 'sgolay' smoothing
-nucSpinPolFlg = kwargs.nucSpinPol;  % nuclear spin polarization -> NMR
-
-quadBGsubFlg = 1 ;
-LEDimgFlg = 0;
-diagplots = 0;
-
-Mag = 15;
+%zfs = 2.870;     % NV zero-field splitting, in GHz
+%Ahyp = 0.002158; % longitudinal hyperfine for 14N
 
 %% determine how many files need to be loaded
 polarityMap = containers.Map([0,1,2,4],{[1 2];[1 1];[2 2];[1 4]});
@@ -102,8 +85,9 @@ startN = startEnd(1);
 endN = startEnd(2);
 %%
 
-disp(['<>   WORKING DIR: << ' dataFolder ' >>']);
-headerFiles = dir(fullfile(dataFolder,'*_header.txt'));
+msg = sprintf('WORKING DIR: << %s >>', dataFolder);
+logMsg('info',msg,1,0);
+
 dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
 % filter files that are not run0000.mat
 idx = ~cellfun('isempty', regexpi({dataFiles.name}, 'run_[0-9]{5}\.mat$','match'));
@@ -115,7 +99,6 @@ fits = struct();
 
 %% GUESS PARAMETER ESTIMATION
 for fileNum=startN:1:endN
-    start = tic; % for timing 
     pol = polarities{fileNum};
     
     %%% select header and data file
@@ -124,35 +107,30 @@ for fileNum=startN:1:endN
     %%%
     LEDimgFile = 'laser.csv';
     
-    loadStart = tic;
-    fprintf('<>   loading data file:  %s\n', fullfile(dataFolder, dataFile));
+    loadStart = tic; % for timing 
+    msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
+    logMsg('debug',msg,1,0);
+    
     expData = load(fullfile(dataFolder, dataFile));
 
-    fprintf('<>      loading of file %i/%i complete (%.1f s)\n', fileNum, size(startN:1:endN, 2), toc(loadStart));
+    msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
+    logMsg('info',msg,1,1);
 
     SpanXTrans = 1:expData.imgNumCols;
     SpanYTrans = 1:expData.imgNumRows;
 
-    if LEDimgFlg==1
-        transImg = load(fullfile(dataFolder,LEDimgFile));
-        transImg = transImg(SpanYTrans,SpanXTrans);
-        transImgBin = BinImage(transImg, binSize);
-        transImgBinUint = im2uint8forExportDG(transImgBin,min(min(transImgBin)), max(max(transImgBin)) );
-    end
-
-    badPixels = struct();
+    pixelAlerts = struct();
     for nRes = 1:2
         side = sides{nRes};
             
-        [Resfit, guess, badPixel] = fit_resonance(expData, binSize, nRes, ...
+        Resfit = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
+            'slopeCorrection', kwargs.slopeCorrection,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
-            'smoothDegree', kwargs.smoothDegree, 'nucSpinPol', kwargs.nucSpinPol,...
-            'checkPlot', kwargs.checkPlot);
+            'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
         Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
-        badPixels.([side pol]) = badPixel;
     end
 
     Resonance1 = fits.(['left' pol]).resonance; 
@@ -189,7 +167,7 @@ for fileNum=startN:1:endN
     ResDiff = (Resonance2 - Resonance1)/2;
     ResSum = (Resonance2 + Resonance1)/2;
       
-    if quadBGsubFlg
+    if kwargs.quadBgSub
         %PARABOLIC BACKGROUND SUBTRACTION
         dB = QuadBGsub(ResDiff)/gamma;     
     else
@@ -197,36 +175,44 @@ for fileNum=startN:1:endN
     end
     
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
-    fitFailed = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
-    fitSuccess = ~fitFailed;
-    fits.(['fitSuccess' pol]) = fitSuccess;
-    fits.(['fitFailed' pol]) = fitFailed;
+    pixelAlerts = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
+    fits.(['pixelAlerts' pol]) = pixelAlerts;
 
     %% SAVE FIT RESULTS%
     sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
 
     if kwargs.save
-        fprintf('<>      INFO: saving data of %s\n',dataFile);
+        folderName = sprintf('%ix%iBinned', binSize, binSize);
+        
+        if isfolder(fullfile(dataFolder, folderName))
+            msg = sprintf('folder < %s > already exists', folderName);
+            logMsg('warn',msg,1,0);
+        else
+            msg = sprintf('creating folder < %s >', folderName);
+            logMsg('info',msg,1,0);
+            mkdir(fullfile(dataFolder, folderName));
+        end
+        
+        msg = sprintf('saving data of %s',dataFile);
+        logMsg('info',msg,1,0);        
+        
         if strcmp(kwargs.diamond, 'N14')
-            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
                 'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
-                'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
+                'binSize','type','gaussianFit', 'pixelAlerts');
         elseif strcmp(kwargs.diamond, 'N15')
-            save(fullfile(dataFolder, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
-            'binSize','type','gaussianFit', 'fitFailed', 'fitSuccess');
+            'binSize','type','gaussianFit', 'pixelAlerts');
         end
-        
-        if LEDimgFlg==1
-            saveas(f5, [LEDimgFile 'CROPBIN.png'],'png');
-            imwrite(transImgBinUint,gray, [LEDimgFile 'CROPBINPure.png'], 'png');
-        end        
+   
     end
 end
-fprintf('<>   INFO: all GPU fitting tasks completed in: %.1f s\n', toc(tStart)');
+msg = sprintf('all GPU fitting tasks completed in: %.1f s', toc(tStart));
+logMsg('FINAL',msg,1,0);

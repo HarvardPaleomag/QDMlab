@@ -73,7 +73,10 @@ nRefFrames = containers.Map;
 % check if file exists an/or should be created
 if transFormFile ~= 0
     if isfile(transFormFile)
-        newFile = input('transformation file already exists, overwrite? (y/n)? ', 's');
+        msg = sprintf('transformation file already exists, overwrite? (y/[n])? ');
+        msg = logMsg('input',msg,0,0, 'returnOnly', true);
+        newFile = input(msg, 's');
+        
         if strcmp(newFile, 'y')
             nTransForms = containers.Map;
             nRefFrames = containers.Map;
@@ -112,13 +115,15 @@ for iFolder = nMovingFolders
     end
     
     if reverse
-        [tForm, refFrame] = get_image_tform2(movingLed, fixedLed, 'checkPlot', checkPlot);
-        disp(['<>   ', fixedFile, '->'])
-        disp(['<>   ', movingFile])
+        [tForm, refFrame] = get_image_tform(movingLed, fixedLed, 'checkPlot', checkPlot);
+        msg = sprintf('%s ->', fixedFile);
+        logMsg('debug',msg,1,0);
+        logMsg('debug',movingFile,1,0);
     else
-        [tForm, refFrame] = get_image_tform2(fixedLed, movingLed, 'checkPlot', checkPlot);
-        disp(['<>   ', movingFile, '->'])
-        disp(['<>   ', fixedFile])
+        [tForm, refFrame] = get_image_tform(fixedLed, movingLed, 'checkPlot', checkPlot);
+        msg = sprintf('%s ->', movingFile);
+        logMsg('debug',msg,1,0);
+        logMsg('debug',fixedFile,1,0);
     end
     
     nTransForms(movingFile) = tForm;
@@ -127,9 +132,12 @@ for iFolder = nMovingFolders
 end
 
 if transFormFile == 0
-    disp('<>   returning: Map(tForms), Map(refFrames)')
+    msg = sprintf('returning: Map(tForms), Map(refFrames)');
+    logMsg('info',msg,1,0);
     return
 else
-    disp(['<>   saving... to ', transFormFile])
+    msg = sprintf('saving... to ', transFormFile');
+    logMsg('info',msg,1,0);
+%     disp(['<>   saving... to ', transFormFile])
     save(transFormFile, 'nTransForms', 'nRefFrames')
 end

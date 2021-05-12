@@ -17,15 +17,15 @@ ledFiles = dir(fullfile(myDir,'led.csv'));   %grab the first / only CSV
 ledImgPath = fullfile(myDir, ledFiles(1).name);
 ledImg = load(ledImgPath);
 
-laserFiles = dir(fullfile(myDir,'laser.jpg'));   %grab the first / only CSV
+laserFiles = dir(fullfile(myDir,'laser.csv'));   %grab the first / only CSV
 laserImgPath = fullfile(myDir, laserFiles(1).name);
-laserImg = imread(laserImgPath);
+laserImg = load(laserImgPath);
 
 gamma = 0.0028;
  
 if type == 'np  '
-    negB111Output = load(fullfile(myDir, 'run_00000.matdeltaBFit.mat'));
-    posB111Output = load(fullfile(myDir, 'run_00001.matdeltaBFit.mat'));
+    negB111Output = load(fullfile(myDir, folderName, 'run_00000.matdeltaBFit.mat'));
+    posB111Output = load(fullfile(myDir, folderName, 'run_00001.matdeltaBFit.mat'));
     
     negDiff = - real( (negB111Output.Resonance2-negB111Output.Resonance1)/2 / gamma );
     posDiff = real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
@@ -34,14 +34,14 @@ if type == 'np  '
     B111para = (posDiff - negDiff)/2;
 else
   if type == 'nppn'
-    negB111Output = load(fullfile(myDir, 'run_00000.matdeltaBFit.mat'));
-    posB111Output = load(fullfile(myDir, 'run_00001.matdeltaBFit.mat'));
+    negB111Output = load(fullfile(myDir, folderName, 'run_00000.matdeltaBFit.mat'));
+    posB111Output = load(fullfile(myDir, folderName, 'run_00001.matdeltaBFit.mat'));
     
     negDiff = - real( (negB111Output.Resonance2-negB111Output.Resonance1)/2 / gamma );
     posDiff = real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
     
-    negB111Output2 = load(fullfile(myDir, 'run_00003.matdeltaBFit.mat'));
-    posB111Output2 = load(fullfile(myDir, 'run_00002.matdeltaBFit.mat'));
+    negB111Output2 = load(fullfile(myDir, folderName, 'run_00003.matdeltaBFit.mat'));
+    posB111Output2 = load(fullfile(myDir, folderName, 'run_00002.matdeltaBFit.mat'));
     
     negDiffR = - real( (negB111Output2.Resonance2-negB111Output2.Resonance1)/2 / gamma );
     posDiffR = real( (posB111Output2.Resonance2-posB111Output2.Resonance1)/2 / gamma );
@@ -63,26 +63,27 @@ chi2Neg1 = reshape(chi2Neg1, size(B111ferro));
 chi2Neg2 = reshape(chi2Neg2, size(B111ferro));
 
 %% determine overall fit Success
-fitFailed = posB111Output.fitFailed | negB111Output.fitFailed;
-fitSuccess = ~fitFailed;
+pixelAlerts = posB111Output.pixelAlerts | negB111Output.pixelAlerts;
 
 %% SAVE results for plotting later
 B111dataToPlot.negDiff = double(negDiff); B111dataToPlot.posDiff = double(posDiff); 
 B111dataToPlot.B111ferro = double(B111ferro); B111dataToPlot.B111para = double(B111para);
 B111dataToPlot.chi2Pos1 = double(chi2Pos1); B111dataToPlot.chi2Pos2 = double(chi2Pos2); 
 B111dataToPlot.chi2Neg1 = double(chi2Neg1); B111dataToPlot.chi2Neg2 = double(chi2Neg2);
-B111dataToPlot.ledImg = ledImg; B111dataToPlot.fitFailed = fitFailed; 
+B111dataToPlot.ledImg = ledImg; B111dataToPlot.pixelAlerts = pixelAlerts; 
+B111dataToPlot.laser = laserImg;
+
 save(fullfile(myDir, folderName, 'B111dataToPlot.mat'), '-struct', 'B111dataToPlot');
 
 fits.negDiff = negDiff; fits.posDiff = posDiff; 
 fits.B111ferro = B111ferro; fits.B111para = B111para;
 fits.ledImg = ledImg; fits.laserImg = laserImg; 
-fits.fitFailed = fitFailed; fits.fitSuccess = fitSuccess; 
+fits.pixelAlerts = pixelAlerts;
 
 %% PLOTS
 rng = .03;
 
-r1 = nanmean(B111para(fitSuccess))-rng;    r2 = nanmean(B111para(fitSuccess))+rng;
+r1 = nanmean(B111para(~pixelAlerts))-rng;    r2 = nanmean(B111para(~pixelAlerts))+rng;
  
 f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap jet; title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
 saveas(f1, fullfile(myDir, folderName,  'negCurrent.png'),'png');
@@ -110,8 +111,8 @@ linkaxes(ax);
 saveas(f6, fullfile(myDir, folderName, 'allPlots.png'),'png');
 
 map = [ 1 1 1; 1 0 0];
-f7=figure; imagesc( fitFailed ); axis equal tight; colormap(map); title('failed Pixels'); set(gca,'YDir','normal');
-saveas(f7, fullfile(myDir, folderName,  'fitFailed.png'),'png');
+f7=figure; imagesc( pixelAlerts ); axis equal tight; colormap(map); title('pixel alerts'); set(gca,'YDir','normal');
+saveas(f7, fullfile(myDir, folderName,  'pixelAlerts.png'),'png');
 
 if kwargs.checkPlot
     fig = figure('Name', 'spectra');

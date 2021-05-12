@@ -1,10 +1,11 @@
-function nFolders = correct_cell_shape(nFolders)
+function elements = correct_cell_shape(elements)
 % Takes a cell and converts its shape to (1,n) if the shape is (n,1)
-if ischar(nFolders)
-    nFolders = {nFolders};
+if ischar(elements)
+    elements = {elements};
 end
+
 % fix shape for nFolders
-folderShape = size(nFolders);
+folderShape = size(elements);
 if folderShape(1) > folderShape(2)
-    nFolders = transpose(nFolders);
+    elements = transpose(elements);
 end

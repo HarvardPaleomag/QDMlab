@@ -88,6 +88,7 @@ h=h;
 newLED=ledImg;
 
 corners=0;
+
 if exist('corners')
     corners=corners;
 else
@@ -108,8 +109,11 @@ hh=colorbar;
 set(gca,'Fontsize',14);
 title(hh,sprintf('       B_z (%s)',UNIT),'Fontsize',14);
 colormap(jet);
+
 saveas(gcf,[filepath '/BzCropped.png'])
 
 if SAVE
+    msg = sprintf('SAVING data to %s/Bz.mat', filepath');
+    logMsg('info',msg,1,0);
     eval(['save ' filepath '/Bz.mat Bz Bt h step corners newLED -mat']);
 end
