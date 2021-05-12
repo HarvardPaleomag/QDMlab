@@ -1,4 +1,4 @@
-function nRects = pick_box(data, varargin)
+function nROI = pick_box(data, varargin)
 % pick_box lets you pick the ceter of an image and a box around it
 % 
 % positional parameters
@@ -33,24 +33,24 @@ closeFig = p.Results.closeFig;
 retCoord = p.Results.returnCoordinates;
 
 if led == 1
-%     fig = LEDimage(data);
-    fig = figure;
-    imagesc(data);
+    fig = QDM_figure(data, 'led', true);
 else
     fig = QDM_figure(data);
 end
+
 figTitle = 'Pick Sources (ESC to exit)';
 
 title(figTitle)
-nRects = {};
+nROI = {};
 n = 1;
 
 while n
-    %    rect = getrect(gca());
-    iRect = drawrectangle(gca, 'Label', num2str(n), 'LabelVisible', 'on', ...
+    iROI = drawrectangle(gca, 'Label', num2str(n), 'LabelVisible', 'on', ...
                          'HandleVisibility', 'off', 'InteractionsAllowed', 'none');
+    
+    if iROI.Position
 
-    if iRect.Position
+        loc = iROI.Position;
 
         loc = iRect.Position;
 
@@ -71,17 +71,20 @@ while n
         % save all points you continue getting
         % rounded and negative values -> 0
         if retCoord
-            fprintf('<>      creating coordinates of box #%i (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy)
-            nRects{end+1} = max(round([x0, y0, dx, dy]), 0);
+            x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
+            msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
+            logMsg('info',msg,1,0);
+            nROI{end+1} = max(round([x0, y0, dx, dy]), 0);
         else
             iMask = zeros(size(data));
             iMask(y0:y1,x0:x1)=1;
             m = limit_mask(iMask);
-            fprintf('<>      creating mask for box #%i (%ix%i : %i pixel)\n', n, size(m,2), size(m,1), numel(m))
-            nRects{end+1} = iMask;
+            msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
+            logMsg('info',msg,1,0);
+            
+            nROI{end+1} = iMask;
         end
 
-        %
         n = n + 1;
     else
         n = false;

@@ -1,5 +1,7 @@
 function [ imOut ] = QuadBGsub( imIn )
 %Does quadratic backgound subtraction on image imIn and returns the result
+msg = sprintf('subtracting quadratic background');
+logMsg('debug',msg,1,0);
 
 x = 1:size(imIn,2); y = 1:size(imIn,1);
 [X,Y] = meshgrid(x,y);

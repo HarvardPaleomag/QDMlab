@@ -12,6 +12,7 @@
 %      Copyright (C) 2017-2020 MIT Paleomagnetism Lab, Harvard Paleomagnetics Lab
 % -----------------------------------------------------------------------------------
 
+show_references()
 
 UNIT='T';
 SAVE=1;         %1 = save processed data to disk
@@ -155,10 +156,10 @@ corners=[lin,col];
 B=B(max([1 lin(1)]):min([lin(2) size(B,1)]) , max([1 col(1)]):min([col(2) size(B,2)]) );
 
 %crop the LED image in the same way
-croppoint1=min(1, round(corners(1,1)*LEDcropfactor));
-croppoint2=max(size(ledImg,1), round(corners(2,1)*LEDcropfactor));
-croppoint3=min(1, round(corners(1,2)*LEDcropfactor));
-croppoint4=max(size(ledImg,2), round(corners(2,2)*LEDcropfactor));
+croppoint1=round(1+(corners(1,1)-1)*LEDcropfactor);
+croppoint2=round(corners(2,1)*LEDcropfactor);
+croppoint3=round(1+(corners(1,2)-1)*LEDcropfactor);
+croppoint4=round(corners(2,2)*LEDcropfactor);
 
 newLED=ledImg(croppoint1:croppoint2,croppoint3:croppoint4);
 
@@ -225,11 +226,7 @@ end
 Calib=CAL;
 
 %perform quadratic background subtraction
-quadbkg=input('Perfom quadratic fitting and subtraction [Y]:','s');
-if isempty(quadbkg)
-    disp('Doing Quad BG subtraction...');
-    Bback=QuadBGsub(Bback);
-end
+quadbkg=input('Perfom quadratic fitting and subtraction [N]:','s');
 
 if quadbkg=='y' | quadbkg=='Y'
     disp('Doing Quad BG subtraction...');
@@ -252,7 +249,7 @@ up=input('Upward continuation distance [0]): ','s');
 if isempty(up)
     updist=0e-6;
 else
-    updist=str2num(up)*1e-6;
+    updist=str2double(up)*1e-6;
 end
 
 sspreup=s;
@@ -287,7 +284,7 @@ bxi=interp2(XX,YY,bx,XXi,YYi,'linear');
 if MEDFILTER
     bzi=medfilt2(bzi,[4 4]);
     bui=medfilt2(bui,[4 4]);
-end;
+end
 
 
 %show figures

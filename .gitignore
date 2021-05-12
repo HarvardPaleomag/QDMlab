@@ -3,3 +3,5 @@
 *.asv
 *.m~
 .idea
+.ides/*
+matlab.mat

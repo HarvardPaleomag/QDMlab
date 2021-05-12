@@ -14,7 +14,8 @@ function reBinned = re_bin(data, refData)
 
 if size(refData) ~= size(data)
     binning = (size(refData,1) / size(data,1));
-    disp(['<>   WARNING: binning (' num2str(binning) ') difference detected -> correcting'])
+    msg = sprintf('binning (%i) difference detected -> correcting', binning);
+    logMsg('warn',msg,1,0);
     resize_binning = affine2d([binning, 0, 0; 0, binning, 0; 0, 0, 1]);
     reBinned = imwarp(data, resize_binning);
 else

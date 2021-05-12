@@ -1,12 +1,11 @@
 function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
 %%
-% transForms and refFrames are now in data coordinates
 arguments
     data
     selectionThreshold
     kwargs.nROI = false;
-    kwargs.freeHand  (1,1) {mustBeMember(kwargs.freeHand, [1, 0])} = 0
-    kwargs.freeHandFilter (1,1) {mustBeMember(kwargs.freeHandFilter, [1, 0])} = 0
+    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = false
+    kwargs.freeHandSelection (1,1) {mustBeBoolean(kwargs.freeHandSelection)} = false
 end
 nROI = kwargs.nROI;
 
@@ -18,7 +17,9 @@ if iscell(nROI)
     end
 else
     % pick n areas from the QDM DATA for calculation
-    disp('<> ATTENTION: pick your masks. ESC to exit')
+    msg = sprintf('pick your masks. press ESC to exit');
+    logMsg('INPUT',msg,1,0);
+    
     if kwargs.freeHand
         nROI = pick_area(data);
     else
@@ -30,9 +31,9 @@ data(abs(data) >= 5) = nan;
 %%
 % CREATE MASK FROM SELECTIONS
 %
-% if freeHand and freeHandFilter is true then you can draw the mask
+% if freeHand and freeHandSelection is true then you can draw the mask
 % directly in the image
-if all([kwargs.freeHandFilter, kwargs.freeHand])
+if all([kwargs.freeHandSelection, kwargs.freeHand])
     nMasks = nROI;
 % otherwise the mask will be calculated from the selection
 else
@@ -41,13 +42,13 @@ else
         % limit the data to only the selected region all other values set
         % to 0
         selData = data .* nROI{iSelect};
-%         pcolor(selData);
-%         axis xy; axis equal; axis tight; shading flat;
+%         selData = selData - median(selData, 'all', 'omitnan');
 
         % The masked data now gets filtered to create the final mask
-        iMaskData = selData >= selectionThreshold * nanmax(selData, [], 'all');
+        iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
         m = limit_mask(nROI{iSelect});
-        fprintf('<>      creating mask #%i containing %i/%i pixel (%.2f %%)\n', iSelect, numel(nonzeros(iMaskData)), numel(m), numel(nonzeros(iMaskData))/numel(m)*100)
+        msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)));
+        logMsg('debug',msg,1,0);
 
         % set mask
         nMasks{end+1} = iMaskData;
