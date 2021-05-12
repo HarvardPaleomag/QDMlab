@@ -500,6 +500,10 @@ if kwargs.save
     fclose(fid);
 end
 
+if kwargs.checkPlot
+    checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+end
+
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
     'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
