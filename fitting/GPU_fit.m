@@ -109,7 +109,7 @@ for fileNum=startN:1:endN
     
     loadStart = tic; % for timing 
     msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
-    logMsg('info',msg,1,0);
+    logMsg('debug',msg,1,0);
     
     expData = load(fullfile(dataFolder, dataFile));
 
