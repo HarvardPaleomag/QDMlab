@@ -353,8 +353,8 @@ for k = 1:kwargs.nRuns
     fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped)); %??????????????????????????
     
     %% display calculation and counter
-    perc = round(k/kwargs.nRuns) *100;
-    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,100-perc),']'];
+    perc = round(k/kwargs.nRuns *50);
+    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
     % str to replace all previous characters
     strCR = repmat('\b',1,length(strOut));
     if k ~= 1; fprintf(strCR); end
@@ -410,9 +410,6 @@ msg = sprintf('M = %1.3d; I = %1.3f; D = %1.3f', mopt, iopt, dopt);
 logMsg('result',msg,1,1);
 msg = sprintf('h = %1.3d; x = %1.3d; y = %1.3d', hopt, xopt, yopt);
 logMsg('result',msg,1,1);
-% fprintf('<>      M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
-% fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
-
 
 %% calculate residuals
 % parameters for model
@@ -422,10 +419,9 @@ Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.fitOrder) + 
 residuals = bModel - bDataCropped;
 resids = sqrt(sum(sum(residuals.^2))/sum(sum(bDataCropped.^2)));
 
-
 dipolarity = 1-(rms(residuals-mean(mean(residuals)))/rms(bDataCropped-mean(mean(bDataCropped))));
-msg = sprintf('dipolarity parameter for the fitted region is: %.2f', dipolarity);
-logMsg('info',msg,1,0);
+msg = sprintf('dipolarity parameter: %.2f', dipolarity);
+logMsg('RESULT',msg,1,1);
     
 nameext = [name, ext];
 
