@@ -90,6 +90,8 @@ for i = 1 : size(nFiles, 2)
     
     if kwargs.save
         saveFilePath = fullfile(iFolder, sprintf('%s_sub.mat', fileName));
+        msg = sprintf('%s', saveFilePath);
+        logMsg('SAVE',msg,1,0);
         save(saveFilePath, '-struct', 'newFileData');
     end
 
