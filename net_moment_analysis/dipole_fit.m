@@ -194,12 +194,12 @@ i = round(XY(2)/kwargs.downSample);
 % check if the optional parameters dx and dy are not 0
 if all([kwargs.dx,kwargs.dy])
     % define cropj, cropi from dx, dy instead of CROPFACT
-    cropj = round([j j+kwargs.dx]);
-    cropi = round([i i+kwargs.dy]);
+    xCrop = round([j j+kwargs.dx]);
+    yCrop = round([i i+kwargs.dy]);
     i = i+kwargs.dy/2; j = j+kwargs.dx/2;
 else
-    cropj = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
-    cropi = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
+    xCrop = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
+    yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
 end
 
 x0 = j * step;
@@ -209,25 +209,25 @@ y0 = i * step;
 scansize = size(bData);
 
 for p = 1:2
-    if cropj(p) < 1
-        cropj(p) = 1;
+    if xCrop(p) < 1
+        xCrop(p) = 1;
     end
-    if cropi(p) < 1
-        cropi(p) = 1;
+    if yCrop(p) < 1
+        yCrop(p) = 1;
     end
-    if cropj(p) > scansize(2)
-        cropj(p) = scansize(2);
+    if xCrop(p) > scansize(2)
+        xCrop(p) = scansize(2);
     end
-    if cropi(p) > scansize(1)
-        cropi(p) = scansize(1);
+    if yCrop(p) > scansize(1)
+        yCrop(p) = scansize(1);
     end
 end
 
-bDataCropped = bData(cropi(1):cropi(2), cropj(1):cropj(2));
-Xc = X(cropi(1):cropi(2), cropj(1):cropj(2));
-Yc = Y(cropi(1):cropi(2), cropj(1):cropj(2));
-xc = x(cropj(1):cropj(2));
-yc = y(cropi(1):cropi(2));
+bDataCropped = bData(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+Xc = X(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+Yc = Y(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+xc = x(xCrop(1):xCrop(2));
+yc = y(yCrop(1):yCrop(2));
 
 if kwargs.checkPlot
     figure
@@ -419,9 +419,11 @@ logMsg('result',msg,1,1);
 Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.fitOrder) + 3)];
 % calculate the model
 [resid, bModel] = SourceFitMultiP8(Popt2, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
-residex = bModel - bDataCropped;
-resids = sqrt(sum(sum(residex.^2))/sum(sum(bDataCropped.^2)));
+residuals = bModel - bDataCropped;
+resids = sqrt(sum(sum(residuals.^2))/sum(sum(bDataCropped.^2)));
 
+
+    
 nameext = [name, ext];
 
 %% plotting / saving
@@ -433,7 +435,7 @@ if kwargs.checkPlot
     ax1 = subplot(1, 2, 1);
     QDM_figure(bData, 'ax', ax1);
     hold on
-    rectPos = [cropj(1), cropi(1), cropj(2)-cropj(1), cropi(2)-cropi(1)];
+    rectPos = [xCrop(1), yCrop(1), xCrop(2)-xCrop(1), yCrop(2)-yCrop(1)];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
@@ -441,7 +443,7 @@ if kwargs.checkPlot
     QDM_figure(led, 'ax', ax2, 'led',true, 'title', 'LED map');
     binning = detect_binning(expData);
     hold on
-    rectPos = [cropj(1)*binning, cropi(1)*binning, (cropj(2)-cropj(1))*binning, (cropi(2)-cropi(1))*binning];
+    rectPos = [xCrop(1)*binning, yCrop(1)*binning, (xCrop(2)-xCrop(1))*binning, (yCrop(2)-yCrop(1))*binning];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
@@ -460,7 +462,7 @@ if kwargs.checkPlot
     colorbar
     title('Model Scan');
     ax3 = subplot(2, 2, 4);
-    imagesc(xc, yc, residex);
+    imagesc(xc, yc, residuals);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
@@ -497,64 +499,64 @@ end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
-    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residex,...
+    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel);
+    'xCrop', xCrop, 'yCrop', yCrop);
 end
 
 function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+    figure
+    subplot(2,3,1)
+    plot(P(1, :), fval, '.')
+    title('Moment');
+    hold on
+    plot(P(1, i), fval(i), 'ko')
+    plot(P(1, i0), fval(i0), 'go')
+    plot([mopt, mopt], ylim, 'm--');
+    hold off
 
-figure
-subplot(2,3,1)
-plot(P(1, :), fval, '.')
-title('Moment');
-hold on
-plot(P(1, i), fval(i), 'ko')
-plot(P(1, i0), fval(i0), 'go')
-plot([mopt, mopt], ylim, 'm--');
-hold off
+    subplot(2,3,2)
+    plot(P(2, :), fval, '.')
+    title('Inclination');
+    hold on
+    plot(P(2, i), fval(i), 'ko')
+    plot(P(2, i0), fval(i0), 'go')
+    plot([iopt, iopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,2)
-plot(P(2, :), fval, '.')
-title('Inclination');
-hold on
-plot(P(2, i), fval(i), 'ko')
-plot(P(2, i0), fval(i0), 'go')
-plot([iopt, iopt], ylim, 'm--');
-hold off
+    subplot(2,3,3)
+    plot(P(3, :), fval, '.')
+    title('Declination');
+    hold on
+    plot(P(3, i), fval(i), 'ko')
+    plot(P(3, i0), fval(i0), 'go')
+    plot([dopt, dopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,3)
-plot(P(3, :), fval, '.')
-title('Declination');
-hold on
-plot(P(3, i), fval(i), 'ko')
-plot(P(3, i0), fval(i0), 'go')
-plot([dopt, dopt], ylim, 'm--');
-hold off
+    subplot(2,3,4)
+    plot(P(6, :), fval, '.')
+    title('Height');
+    hold on
+    plot(P(6, i), fval(i), 'ko')
+    plot(P(6, i0), fval(i0), 'go')
+    plot([hopt, hopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,4)
-plot(P(6, :), fval, '.')
-title('Height');
-hold on
-plot(P(6, i), fval(i), 'ko')
-plot(P(6, i0), fval(i0), 'go')
-plot([hopt, hopt], ylim, 'm--');
-hold off
+    subplot(2,3,5)
+    plot(P(4, :), fval, '.')
+    title('X displacement');
+    hold on
+    plot(P(4, i), fval(i), 'ko')
+    plot(P(4, i0), fval(i0), 'go')
+    plot([xopt, xopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,5)
-plot(P(4, :), fval, '.')
-title('X displacement');
-hold on
-plot(P(4, i), fval(i), 'ko')
-plot(P(4, i0), fval(i0), 'go')
-plot([xopt, xopt], ylim, 'm--');
-hold off
-
-subplot(2,3,6)
-plot(P(5, :), fval, '.')
-title('Y displacement');
-hold on
-plot(P(5, i), fval(i), 'ko')
-plot(P(5, i0), fval(i0), 'go')
-plot([yopt, yopt], ylim, 'm--');
-hold off
+    subplot(2,3,6)
+    plot(P(5, :), fval, '.')
+    title('Y displacement');
+    hold on
+    plot(P(5, i), fval(i), 'ko')
+    plot(P(5, i0), fval(i0), 'go')
+    plot([yopt, yopt], ylim, 'm--');
+    hold off
 end
