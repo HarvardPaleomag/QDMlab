@@ -423,6 +423,9 @@ residuals = bModel - bDataCropped;
 resids = sqrt(sum(sum(residuals.^2))/sum(sum(bDataCropped.^2)));
 
 
+dipolarity = 1-(rms(residuals-mean(mean(residuals)))/rms(bDataCropped-mean(mean(bDataCropped))));
+msg = sprintf('dipolarity parameter for the fitted region is: %.2f', dipolarity);
+logMsg('info',msg,1,0);
     
 nameext = [name, ext];
 
@@ -490,17 +493,17 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tResiduals\r\n');
+        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tDipolarity\r\n');
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), resids);
+    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), dipolarity);
     fclose(fid);
 end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
     'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
-    'data', bDataCropped, 'model', bModel);
+    'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
     'xCrop', xCrop, 'yCrop', yCrop);
 end
 
