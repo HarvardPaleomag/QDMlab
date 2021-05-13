@@ -1,5 +1,5 @@
 function fit = fit_resonance(expData, binSize, nRes, kwargs)
-%fit = fit_resonance(expData, binSize, nRes, kwargs)
+%[fit] = fit_resonance(expData, binSize, nRes; <checkPlot>, <diamond>, <forceGuess>, <gaussianFilter>, <gaussianFit>, <globalFraction>, <slopeCorrection>, <smoothDegree>, <type>)
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -274,7 +274,7 @@ end
 
 %%
 function data = slope_correction(data, freq, nPoints)
-% data = slope_correction(data, freq)
+%[data] = slope_correction(data, freq, nPoints)
 % calculates slope between 1st - last pixel and removes this from data
     msg = sprintf('correcting slope of for the initial guess calculation');
     logMsg('debug',msg,1,0);
@@ -296,6 +296,7 @@ end
 
 %% fitting helper functions
 function initialGuess = get_initial_guess(gpudata, freq, diamond)
+%[initialGuess] = get_initial_guess(gpudata, freq, diamond)
 initialGuess = zeros(4, size(gpudata, 2), 'single');
 %     n = 1; % cut off outer points
 %     gpudata = gpudata(n:end-n,:);
@@ -328,6 +329,7 @@ initialGuess(4, :) = mx;
 end
 
 function guess = parameters_to_guess(parameters, diamond)
+%[guess] = parameters_to_guess(parameters, diamond)
 if strcmp(diamond, 'N14')
     guess = zeros(6, size(parameters, 2));
     guess(1, :) = parameters(2, :); % location
@@ -350,6 +352,7 @@ end
 end
 
 function fit = make_fit_struct(fit, preGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, diamond)
+%[fit] = make_fit_struct(fit, preGuess, initialGuess, parameters, states, chiSquares, n_iterations, nRes, sizeX, sizeY, diamond)
 msg = sprintf('%i: reshaping data into (%4i, %4i)', nRes, sizeY, sizeX);
 logMsg('debug',msg,1,0);
 

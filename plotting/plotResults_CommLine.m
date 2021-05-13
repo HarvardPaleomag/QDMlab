@@ -1,4 +1,5 @@
 function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
+%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; <checkPlot>)
 
 arguments
     dataFolder
@@ -132,6 +133,7 @@ end
 
 end
 function clickFitFcn(hObj, event, binSize, posB111Output, negB111Output, points, ax, fig)
+%clickFitFcn(hObj, event, binSize, posB111Output, negB111Output, points, ax, fig)
     % Get click coordinate
     spec = findobj( 'Type', 'Figure', 'Name', 'spectra' );
     dat = findobj( 'Type', 'Figure', 'Name', 'data' );

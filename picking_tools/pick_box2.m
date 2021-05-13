@@ -1,4 +1,5 @@
 function [row, col] = pick_box2(kwargs)
+%[row, col] = pick_box2(<even>, <expData>, <point>, <title>)
 %
 % Parameters
 % ----------
@@ -44,7 +45,7 @@ logMsg('SELECT',msg,1,0);
 pickFigure = figure('Units', 'normalized', ...
                'Position',[0.1 0.2 0.8 0.8],'NumberTitle', 'off', 'Name', 'Pick Point(s)');
            
-ax = QDM_figure(bData, 'fig', pickFigure, 'title', kwargs.title, 'return', 'ax');
+[pickFigure, ax] = QDM_figure(bData, 'fig', pickFigure, 'title', kwargs.title);
 
 hold(ax, 'on')
 
@@ -118,6 +119,7 @@ logMsg('debug',msg,1,0);
 end
 
 function vals = makeEven(vals)
+%[vals] = makeEven(vals)
     %  return if not 2 elements in vals
     if size(vals,2) ~= 2
         return

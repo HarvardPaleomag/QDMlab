@@ -1,4 +1,5 @@
 function index = xy2index(x,y, nRows, kwargs)
+%[index] = xy2index(x, y, nRows; <type>)
 % returns the index of a pixel in the gpudata array from given x,y of the
 % pixel
 %

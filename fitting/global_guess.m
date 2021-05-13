@@ -1,4 +1,5 @@
 function guess = global_guess(data, freq, kwargs)
+%[guess] = global_guess(data, freq; <checkPlot>, <forceGuess>, <minPeakDistance>, <smoothDegree>)
 % Returns a global guess for the given dataset
 % 
 % Returns

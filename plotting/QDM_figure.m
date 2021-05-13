@@ -1,4 +1,5 @@
-function map_figure = QDM_figure(data, kwargs, filter) 
+function [fig, ax] = QDM_figure(data, kwargs, filter) 
+%[fig, ax] = QDM_figure(data; <ax>, <axis>, <cbTitle>, <fig>, <filterStruct>, <led>, <nROI>, <pixelAlerts>, <preThreshold>, <std>, <title>)
 % Creates a QDM figure
 %
 % Parameter
@@ -47,7 +48,6 @@ arguments
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = 'B_z (T)';
     kwargs.axis = 'on';
-    kwargs.return = 'fig';
     kwargs.std {mustBeInteger} = 6;
     
     filter.filterStruct struct = struct();
@@ -56,12 +56,12 @@ end
 
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
-        map_figure = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
+        fig = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
     else
-        map_figure = ancestor(kwargs.ax, {'figure'}, 'toplevel');
+        fig = ancestor(kwargs.ax, {'figure'}, 'toplevel');
     end
 else
-    map_figure = kwargs.fig;
+    fig = kwargs.fig;
 end
 
 if filter.preThreshold
@@ -69,7 +69,7 @@ if filter.preThreshold
 end
 
 if kwargs.ax == 'none'
-    ax = axes('Parent', map_figure);
+    ax = axes('Parent', fig);
 else
     ax = kwargs.ax;
 end
@@ -104,10 +104,6 @@ title(kwargs.title, 'Fontsize', 12);
 % box(ax, 'on');
 axis(ax, 'tight');
 axis equal, axis tight, axis xy
-
-if strcmp(kwargs.return, 'ax')
-    map_figure = ax;
-end
 
 if kwargs.led
     colormap(ax, bone);

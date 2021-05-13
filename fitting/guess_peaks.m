@@ -1,4 +1,5 @@
 function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs, kwargs)
+%[peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs; <checkPlot>, <forceGuess>, <gaussianFit>, <pixel>, <smoothDegree>)
 %{
 helper function to determine an initial guess of a QDM spectra (i.e.
 pixel).

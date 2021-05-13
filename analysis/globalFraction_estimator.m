@@ -1,5 +1,5 @@
 function globalFraction = globalFraction_estimator(kwargs)
-% globalFraction_estimator lets you test different globalFraction values.
+%[globalFraction] = globalFraction_estimator()
 %
 % Parameters
 % ----------

@@ -1,4 +1,5 @@
 function [nFolders] = automatic_input_ui__(nFolders, kwargs)
+%[nFolders] = automatic_input_ui__(nFolders; <MultiSelect>, <single>, <title>, <type>)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 %

@@ -1,5 +1,5 @@
 function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
-% threshold_QDM_map(nFiles, kwargs) loads a file, removes all pixels above
+%[filteredMaps] = threshold_QDM_map(filterArgs; <checkPlot>, <chi>, <cutOff>, <includeHotPixel>, <nFiles>, <removePixelAlerts>, <save>, <threshold>, <winSize>)
 % a threshold and saves it with '_thresh' tag.
 %
 % Parameters

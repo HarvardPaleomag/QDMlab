@@ -1,4 +1,5 @@
 function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, kwargs)
+%[nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders; <binning>, <checkPlot>, <laser>, <reverse>, <transFormFile>)
 % parameters:
 %     fixedFile: str
 %         Path to the reference image. Needs to be a file not folder

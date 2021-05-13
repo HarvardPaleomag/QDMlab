@@ -1,4 +1,5 @@
 function results = dipole_fit(kwargs)
+%[results] = dipole_fit(<AUTO>, <SNR>, <boxwidth>, <checkPlot>, <constrained>, <cropFactor>, <display>, <downSample>, <dx>, <dy>, <expData>, <filePath>, <fitOrder>, <hguess>, <imagefolder>, <m0>, <maxheight>, <method>, <minTol>, <minheight>, <nRuns>, <nStats>, <noise>, <outputtrue>, <quad>, <save>, <sourceName>, <statistics>, <xy>)
 %fitOrder is : 
 %
 %
@@ -508,6 +509,7 @@ results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
 end
 
 function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+%checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt, xopt, yopt)
     figure
     subplot(2,3,1)
     plot(P(1, :), fval, '.')

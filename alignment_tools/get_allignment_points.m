@@ -1,4 +1,5 @@
 function allignment_points = get_allignment_points(nFolders, filename, savefile)
+%[allignment_points] = get_allignment_points(nFolders, filename, savefile)
 %{
 These codes (1) register the maps and (2) fit the sources in each map%
 parameters:

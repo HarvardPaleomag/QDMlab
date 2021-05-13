@@ -1,4 +1,5 @@
 function M = shift_matrix(M, dx, dy)
+%[M] = shift_matrix(M, dx, dy)
 %{
 Shifts a mask by dx, dy.
 %}

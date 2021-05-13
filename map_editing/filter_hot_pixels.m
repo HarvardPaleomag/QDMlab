@@ -1,4 +1,5 @@
 function filteredData = filter_hot_pixels(data, kwargs)
+%[filteredData] = filter_hot_pixels(data; <checkPlot>, <chi>, <cutOff>, <includeHotPixel>, <threshold>, <winSize>)
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments

@@ -1,5 +1,5 @@
 function nROI = pick_box(data, varargin)
-% pick_box lets you pick the ceter of an image and a box around it
+%[nROI] = pick_box(data, varargin)
 % 
 % positional parameters
 %     data: QDM/LED data

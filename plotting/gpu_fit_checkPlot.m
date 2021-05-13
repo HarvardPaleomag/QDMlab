@@ -1,4 +1,5 @@
 function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
+%[fig] = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
 
     ax1 = subplot(1,3,1);

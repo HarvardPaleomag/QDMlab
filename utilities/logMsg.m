@@ -1,4 +1,5 @@
 function msg = logMsg(level,message,lineEnd,indent,kwargs)
+%[msg] = logMsg(level, message, lineEnd, indent; <returnOnly>)
 % simple logging function
 arguments
     level
@@ -67,6 +68,7 @@ end
 
 
 function newMsg = split_msg(textWidth, msg, message)
+%[newMsg] = split_msg(textWidth, msg, message)
 % function clips the text to a fixed length
 % it does not work properly and can clip text if it becomes too large
 
