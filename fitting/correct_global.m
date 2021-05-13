@@ -1,5 +1,5 @@
 function [corrected, debug] = correct_global(data, globalFraction, kwargs)
-%[corrected, debug] = correct_global(data, globalFraction; <mean>)
+%[corrected, debug] = correct_global(data, globalFraction; 'mean')
 % global spectra subtraction
 % Find global averaged spectra
 

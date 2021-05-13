@@ -1,5 +1,5 @@
 function binning = detect_binning(inData, kwargs)
-%[binning] = detect_binning(inData; <refFrame>)
+%[binning] = detect_binning(inData; 'refFrame')
 
 arguments
    inData

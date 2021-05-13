@@ -1,5 +1,5 @@
 function fit = fit_resonance(expData, binSize, nRes, kwargs)
-%[fit] = fit_resonance(expData, binSize, nRes; <checkPlot>, <diamond>, <forceGuess>, <gaussianFilter>, <gaussianFit>, <globalFraction>, <slopeCorrection>, <smoothDegree>, <type>)
+%[fit] = fit_resonance(expData, binSize, nRes; 'checkPlot', 'diamond', 'forceGuess', 'gaussianFilter', 'gaussianFit', 'globalFraction', 'slopeCorrection', 'smoothDegree', 'type')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %

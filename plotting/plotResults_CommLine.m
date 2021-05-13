@@ -1,5 +1,5 @@
 function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
-%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; <checkPlot>)
+%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot')
 
 arguments
     dataFolder

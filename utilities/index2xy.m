@@ -1,5 +1,5 @@
 function [x,y] = index2xy(index, nRows, kwargs)
-%[x, y] = index2xy(index, nRows; <type>)
+%[x, y] = index2xy(index, nRows; 'type')
 % returns the x,y coordinates of a pixel given the index of the gpu array
 %
 % index: int

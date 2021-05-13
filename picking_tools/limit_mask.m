@@ -1,5 +1,5 @@
 function lMask = limit_mask(mask, kwargs)
-%[lMask] = limit_mask(mask; <reference>)
+%[lMask] = limit_mask(mask; 'reference')
 %Takes a mask and retuns the smallest possible rectangle where values ~= 0.
 arguments
     mask

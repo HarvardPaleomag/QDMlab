@@ -1,5 +1,5 @@
 function msg = logMsg(level,message,lineEnd,indent,kwargs)
-%[msg] = logMsg(level, message, lineEnd, indent; <returnOnly>)
+%[msg] = logMsg(level, message, lineEnd, indent; 'returnOnly')
 % simple logging function
 arguments
     level

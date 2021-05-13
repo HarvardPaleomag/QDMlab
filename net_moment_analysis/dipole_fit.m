@@ -1,5 +1,5 @@
 function results = dipole_fit(kwargs)
-%[results] = dipole_fit(<AUTO>, <SNR>, <boxwidth>, <checkPlot>, <constrained>, <cropFactor>, <display>, <downSample>, <dx>, <dy>, <expData>, <filePath>, <fitOrder>, <hguess>, <imagefolder>, <m0>, <maxheight>, <method>, <minTol>, <minheight>, <nRuns>, <nStats>, <noise>, <outputtrue>, <quad>, <save>, <sourceName>, <statistics>, <xy>)
+%[results] = dipole_fit('AUTO', 'SNR', 'boxwidth', 'checkPlot', 'constrained', 'cropFactor', 'display', 'downSample', 'dx', 'dy', 'expData', 'filePath', 'fitOrder', 'hguess', 'imagefolder', 'm0', 'maxheight', 'method', 'minTol', 'minheight', 'nRuns', 'nStats', 'noise', 'outputtrue', 'quad', 'save', 'sourceName', 'statistics', 'xy')
 %fitOrder is : 
 %
 %

@@ -1,5 +1,5 @@
 function [fig, ax] = QDM_figure(data, kwargs, filter) 
-%[fig, ax] = QDM_figure(data; <ax>, <axis>, <cbTitle>, <fig>, <filterStruct>, <led>, <nROI>, <pixelAlerts>, <preThreshold>, <std>, <title>)
+%[fig, ax] = QDM_figure(data; 'ax', 'axis', 'cbTitle', 'fig', 'filterStruct', 'led', 'nROI', 'pixelAlerts', 'preThreshold', 'std', 'title')
 % Creates a QDM figure
 %
 % Parameter
@@ -36,7 +36,6 @@ function [fig, ax] = QDM_figure(data, kwargs, filter)
 %     preThreshold: int [5]
 %         Thresholding the map by 'preThreshold' (Gauss), applied before
 %         filtering (i.e. see 'filterStruct')
-
 
 arguments
     data
