@@ -1,5 +1,6 @@
-function map_figure = QDM_figure(data, kwargs)
-% Create figure
+function map_figure = QDM_figure(data, kwargs, filter) 
+% Creates a QDM figure
+%
 % Parameter
 % ---------
 %     fig: figure ['none'];
@@ -18,9 +19,6 @@ function map_figure = QDM_figure(data, kwargs)
 %     std: int [6]
 %         defines how many standard deviations are used to calculate the
 %         clims
-%     filter_hot_pixels: [0]
-%         If value (n) >0 pixels will be filtered according to the data
-%         with n standard deviations and replaced by nan.
 %     title: ['QDM DATA']
 %         Title of the axis
 %     cbTitle: ['       B_z (T)'];
@@ -32,6 +30,12 @@ function map_figure = QDM_figure(data, kwargs)
 %         if 'fig' function returns the figure object
 %         if 'ax' function returns the axis object. Useful for adding data
 %         to a plot
+%     filterStruct: struct [empty]
+%         a structure to be passed to filter_hot_pixels
+%     preThreshold: int [5]
+%         Thresholding the map by 'preThreshold' (Gauss), applied before
+%         filtering (i.e. see 'filterStruct')
+
 
 arguments
     data
@@ -40,12 +44,14 @@ arguments
     kwargs.led = false;
     kwargs.nROI = 'none';
     kwargs.pixelAlerts = 'none';
-    kwargs.filter_hot_pixels = 0;
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = 'B_z (T)';
     kwargs.axis = 'on';
     kwargs.return = 'fig';
     kwargs.std {mustBeInteger} = 6;
+    
+    filter.filterStruct struct = struct();
+    filter.preThreshold = 5
 end
 
 if kwargs.fig == 'none'
@@ -58,8 +64,8 @@ else
     map_figure = kwargs.fig;
 end
 
-if ~all(all(data > 5))
-    data = filter_hot_pixels(data);
+if filter.preThreshold
+    data = filter_hot_pixels(data, 'threshold', filter.threshold);
 end
 
 if kwargs.ax == 'none'
@@ -68,8 +74,9 @@ else
     ax = kwargs.ax;
 end
 
-if kwargs.filter_hot_pixels
-    data = filter_hot_pixels(data, 'cutOff', kwargs.filter_hot_pixels, 'winSize', nan);
+if ~all( structfun(@isempty, filter.filterStruct))
+    filterProps = namedargs2cell(filter.filterStruct);
+    data = filter_hot_pixels(data, filterProps{:});
 end
 
 if ~strcmp(kwargs.pixelAlerts, 'none')
@@ -113,7 +120,7 @@ st = std(data, [], 'all', 'omitnan');
 mx = max(abs(data), [], 'all');
 mn = min(abs(data), [], 'all');
 
-if ~all(data > 0, 'all')
+if ~all(data ' 0, 'all')
     msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
     logMsg('debug',msg,1,0);
     set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
