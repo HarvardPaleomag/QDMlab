@@ -1,5 +1,5 @@
 function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs, selection, error, filter)
-%[results, files, nROI, nMasks] = estimate_coercivity(nFolders, selection, error; 'bootStrapN', 'checkPlot', 'chi', 'fileName', 'fixedIdx', 'freeHand', 'freeHandSelection', 'includeHotPixel', 'nROI', 'pixelError', 'removeHotPixels', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont', 'winSize')
+%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'bootStrapN', 'checkPlot', 'chi', 'fileName', 'fixedIdx', 'freeHand', 'freeHandSelection', 'includeHotPixel', 'nROI', 'pixelError', 'removeHotPixels', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont', 'winSize')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %

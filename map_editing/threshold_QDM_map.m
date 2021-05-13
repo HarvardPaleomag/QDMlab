@@ -1,5 +1,5 @@
 function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
-%[filteredMaps] = threshold_QDM_map(filterArgs; 'checkPlot', 'chi', 'cutOff', 'includeHotPixel', 'nFiles', 'removePixelAlerts', 'save', 'threshold', 'winSize')
+%[filteredMaps] = threshold_QDM_map('checkPlot', 'chi', 'cutOff', 'includeHotPixel', 'nFiles', 'removePixelAlerts', 'save', 'threshold', 'winSize')
 % a threshold and saves it with '_thresh' tag.
 %
 % Parameters
