@@ -77,7 +77,7 @@ for j = 1:nFiles
     end
 
     ax = subplot(rows, 3, j);
-    QDM_figure(iFileData, 'ax', ax, 'title', title)
+    QDM_figure(iFileData, 'ax', ax, 'title', title);
     axes = [axes ax];
     
     for i = 1:nMasks
