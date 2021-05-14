@@ -63,7 +63,7 @@ else
     fig = kwargs.fig;
 end
 
-if filter.preThreshold
+if filter.preThreshold && ~kwargs.led
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 
