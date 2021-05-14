@@ -52,7 +52,12 @@ data(aboveStd) = nan;
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
-    msg = sprintf('filtered data where data/chi is %i standard deviations above the median', cutOff);
+    if all(size(chi) == dshape) 
+        dtype = 'chi';
+    else
+        dtype = 'data';
+    end
+    msg = sprintf('filtering where %s is %i standard deviations above the median', dtype, cutOff);
     logMsg('info',msg,1,0);
 
     if all(size(chi) == dshape)
