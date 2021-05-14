@@ -47,7 +47,7 @@ arguments
     kwargs.fileName = 'Bz_uc0';
     kwargs.transFormFile = 'none';
     kwargs.fixedIdx = 1;
-    kwargs.upCont = 'none';
+    kwargs.upCont = false;
     % other
     kwargs.reverse = false;
     kwargs.checkPlot = false;

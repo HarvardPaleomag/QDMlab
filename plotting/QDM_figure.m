@@ -90,7 +90,7 @@ hold(ax, 'on');
 % Create image
 % pcolor(data, 'Parent', ax);
 imAlpha=ones(size(data));
-imAlpha(isnan(data))=0;
+imAlpha(isnan(data)) = 0;
 imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 colormap(ax, jet);

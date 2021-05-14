@@ -90,7 +90,7 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = num2cell(zeros(1, size(nFolders,2)))
+    kwargs.upCont = false
     
     kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
@@ -109,6 +109,9 @@ arguments
     filter.chi = 0
     filter.winSize (1,1) = 4
 end
+%%
+% fix shape for nFolders
+nFolders = correct_cell_shape(nFolders);
 
 % define optional function parameters
 fileName = kwargs.fileName;
@@ -116,10 +119,9 @@ fileName = check_suffix(fileName);
 
 nROI = kwargs.nROI;
 
-%%
-% fix shape for nFolders
-nFolders = correct_cell_shape(nFolders);
-%%
+if ~kwargs.upCont
+    kwargs.upCont = num2cell(zeros(1, size(nFolders,2)));
+end
 
 % generate reference file name
 fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
