@@ -1,4 +1,4 @@
-function nROI = pick_box(data, kwargs)
+function [nROI, coordinates] = pick_box(data, kwargs)
 %[nROI] = pick_box(data, varargin)
 % 
 % positional parameters
@@ -37,7 +37,7 @@ figTitle = 'Pick Sources (ESC to exit)';
 
 title(figTitle)
 nROI = {};
-
+coordinates = {};
 n = 1;
 
 while n
@@ -62,22 +62,22 @@ while n
         plot(box(1, :), box(2, :), '-', 'linewidth', 2);
         drawnow
 
+
+        %% coordinates
         % save all points you continue getting
         % rounded and negative values -> 0
-        if kwargs.returnCoordinates
-            x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
-            msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
-            logMsg('info',msg,1,0);
-            nROI{end+1} = max(round([x0, y0, dx, dy]), 0);
-        else
-            iMask = zeros(size(data));
-            iMask(y0:y1,x0:x1)=1;
-            m = limit_mask(iMask);
-            msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
-            logMsg('info',msg,1,0);
-            
-            nROI{end+1} = iMask;
-        end
+        x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
+        msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
+        logMsg('info',msg,1,0);
+        coordinates{end+1} = max(round([x0, y0, dx, dy]), 0);
+        
+        % ROI
+        iMask = zeros(size(data));
+        iMask(y0:y1,x0:x1)=1;
+        m = limit_mask(iMask);
+        msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
+        logMsg('info',msg,1,0);
+        nROI{end+1} = iMask;
 
         n = n + 1;
     else
