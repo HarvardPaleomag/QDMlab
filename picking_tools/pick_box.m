@@ -1,4 +1,4 @@
-function nROI = pick_box(data, varargin)
+function nROI = pick_box(data, kwargs)
 %[nROI] = pick_box(data, varargin)
 % 
 % positional parameters
@@ -17,23 +17,18 @@ function nROI = pick_box(data, varargin)
 % Returns: cell
 %     a cell with n entries. Each consisting of [x1,x2,y1,y2], where (x1,x2)
 
-p = inputParser;
-str_or_char = @(x) isstring(x) | ischar(x);
-
-addRequired(p, 'data');
-addParameter(p, 'led', 'false', @islogical);
-addParameter(p, 'closeFig', 0);
-addParameter(p, 'returnCoordinates', false, @islogical);
-parse(p, data, varargin{:});
+arguments
+    data
+    kwargs.led (1,1) {mustBeBoolean(kwargs.led)} = false
+    kwargs.closeFig (1,1) {mustBeBoolean(kwargs.closeFig)} = false
+    kwargs.returnCoordinates (1,1) {mustBeBoolean(kwargs.returnCoordinates)} = false
+end
 
 data = filter_hot_pixels(data);
 
-led = p.Results.led;
-closeFig = p.Results.closeFig;
-retCoord = p.Results.returnCoordinates;
 
-if led == 1
-    fig = QDM_figure(data, 'led', true);
+if kwargs.led == 1
+    fig = QDM_figure(data, 'kwargs.led', true);
 else
     fig = QDM_figure(data);
 end
@@ -42,6 +37,7 @@ figTitle = 'Pick Sources (ESC to exit)';
 
 title(figTitle)
 nROI = {};
+
 n = 1;
 
 while n
@@ -68,7 +64,7 @@ while n
 
         % save all points you continue getting
         % rounded and negative values -> 0
-        if retCoord
+        if kwargs.returnCoordinates
             x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
             msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
             logMsg('info',msg,1,0);
@@ -90,6 +86,6 @@ while n
     end
 end
 
-if closeFig
+if kwargs.closeFig
     close(fig)
 end
