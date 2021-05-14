@@ -18,7 +18,7 @@ arguments
     kwargs.steps  (1,:) = 0
     kwargs.stepUnit  (1,:) = 'mT'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
-
+    kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
 end
     
 [nMasks, nFiles] = size(results.nFiles);
@@ -108,7 +108,11 @@ for i = 1:nMasks
     ylabel('norm. n(+)pixel')
     legend
 end
-
+if kwargs.mean
+    mn = mean(results.pPixelRats); 
+    st = std(results.pPixelRats); 
+    errorbar(steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
+end
 
 %% additional LED plot
 if kwargs.led
