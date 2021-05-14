@@ -52,11 +52,7 @@ arguments
     kwargs.reverse = false;
     kwargs.checkPlot = false;
     % filter related
-    filter.removeHotPixels = false;
-    filter.includeHotPixel = false;
-    filter.chi = 0;
-    filter.winSize = 4;
-    filter.threshold = 5;
+    filter.filterStruct struct = struct();
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -129,20 +125,14 @@ for i = 1:size(nFolders, 2)
     end
 
     %% filtering
-    if filter.removeHotPixels
-        if filter.chi
-            chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
-        else
-            chi = filter.chi;
+    if ~all( structfun(@isempty, filter.filterStruct))
+        if filter.filterStruct.chi
+            filter.filterStruct.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
         end
+        filterProps = namedargs2cell(filter.filterStruct);
         msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
         logMsg('info',msg,1,0);
-
-        targetData = filter_hot_pixels(targetData, ...
-            'cutOff',filter.removeHotPixels, ...
-            'includeHotPixel',filter.includeHotPixel, ...
-            'winSize', filter.winSize, 'threshold', filter.threshold, ...
-            'checkPlot', kwargs.checkPlot,'chi', chi);
+        targetData = filter_hot_pixels(targetData, filterProps{:});
     end
 
     iTransForm = nTransForms(iFile);
