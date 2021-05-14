@@ -32,8 +32,8 @@ end
 if size(steps) ~= size(results.pPixels, 2)
     s = size(steps,2);
     s2 = size(results.pPixels,2);
-    disp(['<>   WARNING: number of steps (' num2str(s) ') does not match number of results (' num2str(s2) ')' ])
-    return
+    msg = sprintf('WARNING: number of steps (%i) does not match number of results (%i)', s, s2);
+    error(msg)
 end
 
 rows = fix(nFiles/3)+ double(mod(nFiles,3)>0)+1;
