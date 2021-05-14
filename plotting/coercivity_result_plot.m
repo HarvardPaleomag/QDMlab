@@ -16,6 +16,7 @@ function coercivity_result_plot(results, kwargs)
 arguments
     results struct
     kwargs.steps  (1,:) = 0
+    kwargs.stepUnit  (1,:) = 'mT'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
 
 end
@@ -26,8 +27,8 @@ if iscell(kwargs.steps)
     steps = kwargs.steps;
 else
     steps = 1:nFiles;
-    
 end
+
 if size(steps) ~= size(results.pPixels, 2)
     s = size(steps,2);
     s2 = size(results.pPixels,2);
@@ -68,14 +69,15 @@ for j = 1:nFiles
     
     fileName = results.nFiles{1, j};
     fNameSplit = split(fileName,filesep);
-    step = fNameSplit(end-2);
+    
+    title = fNameSplit{end-2};
+    
+    if ~ all(steps == 1:nFiles,'all')
+        title = sprintf('%s (%.1f %s)', title, steps(j), kwargs.stepUnit);
+    end
 
     ax = subplot(rows, 3, j);
-    imagesc(ax, iFileData)
-    axis equal, axis tight, axis xy
-
-    hold on
-    title(ax, step);
+    QDM_figure(iFileData, 'ax', ax, 'title', title)
     axes = [axes ax];
     
     for i = 1:nMasks
