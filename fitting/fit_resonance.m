@@ -58,7 +58,6 @@ arguments
     expData struct
     binSize double
     nRes (1, 1) int16
-    % keyword arguments
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
     kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0

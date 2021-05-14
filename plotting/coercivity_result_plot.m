@@ -1,5 +1,5 @@
 function coercivity_result_plot(results, kwargs)
-%coercivity_result_plot(results; 'led', 'steps')
+%coercivity_result_plot(results; 'led', 'mean', 'stepUnit', 'steps')
 % plots results from estimate_coercivity
 % 
 % Parameters

@@ -1,5 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'chi', 'fileName', 'fixedIdx', 'includeHotPixel', 'removeHotPixels', 'reverse', 'threshold', 'transFormFile', 'upCont', 'winSize')
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'reverse', 'transFormFile', 'upCont')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
