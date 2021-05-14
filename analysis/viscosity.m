@@ -25,10 +25,10 @@ arguments
 
 end
 
-viscousFile = automatic_input_ui__(kwargs.visc, 'type', 'file', 'single', true);
+viscousFile = automatic_input_ui__(kwargs.visc, 'type', 'file', 'single', true, 'title', 'select viscous measurement file');
 viscousFile = check_suffix(viscousFile);
 
-nonViscousFile = automatic_input_ui__(kwargs.nonVisc, 'type', 'file', 'single', true);
+nonViscousFile = automatic_input_ui__(kwargs.nonVisc, 'type', 'file', 'single', true, 'title', 'select NON-viscous measurement file');
 nonViscousFile = check_suffix(nonViscousFile);
 
 %% align images
