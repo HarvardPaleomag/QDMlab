@@ -93,7 +93,7 @@ imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
 imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-colormap(ax, jet);
+colormap(ax, parula);
 shading flat;
 set(ax, 'ydir', 'reverse');
 
