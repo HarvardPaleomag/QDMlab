@@ -64,7 +64,7 @@ else
 end
 
 if filter.preThreshold
-    data = filter_hot_pixels(data, 'threshold', filter.threshold);
+    data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 
 if kwargs.ax == 'none'
@@ -115,7 +115,7 @@ st = std(data, [], 'all', 'omitnan');
 mx = max(abs(data), [], 'all');
 mn = min(abs(data), [], 'all');
 
-if ~all(data ' 0, 'all')
+if ~all(data > 0, 'all')
     msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
     logMsg('debug',msg,1,0);
     set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
