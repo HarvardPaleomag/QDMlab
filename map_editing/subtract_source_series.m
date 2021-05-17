@@ -1,4 +1,4 @@
-function results = pick_sources_and_fit(nFolders, varargin)
+function results = subtract_source_series(nFolders, varargin)
 % pick_sources_and_fit is used to bulk analyze datasets it 
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -78,6 +78,8 @@ addParameter(nParams, 'save', false, @islogical);
 addParameter(nParams, 'upCont', {0}, @iscell);
 addParameter(nParams, 'nROI', false, @iscell);
 addParameter(nParams, 'imageFolder', false, @ischar);
+addParameter(nParams, 'unTransform', true, @islogical);
+addParameter(nParams, 'saveAllSub', false, @islogical);
 parse(nParams, nFolders, varargin{:});
 
 % define optional parameters
@@ -88,6 +90,7 @@ checkPlot = nParams.Results.checkPlot;
 outputTrue = nParams.Results.outputTrue;
 upCont = nParams.Results.upCont;
 imageFolder=nParams.Results.imageFolder;
+unTransform=nParams.Results.unTransform;
 
 % define QDM parameters
 pixelsize = 4.68e-6;
@@ -127,15 +130,25 @@ numberoffolders=size(nFolders,1);
 
 % preallocate the cells:
 iFiles = {};
-moments = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-inclinations = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-declinations = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-heights = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-residuals = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-xMin = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-xMax = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-yMin = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-yMax = zeros(size(nROI,2),numberoffolders,size({0,10},2));
+moments = zeros(size(nROI,2),numberoffolders);
+inclinations = zeros(size(nROI,2),numberoffolders);
+declinations = zeros(size(nROI,2),numberoffolders);
+heights = zeros(size(nROI,2),numberoffolders);
+residuals = zeros(size(nROI,2),numberoffolders);
+xMin = zeros(size(nROI,2),numberoffolders);
+xMax = zeros(size(nROI,2),numberoffolders);
+yMin = zeros(size(nROI,2),numberoffolders);
+yMax = zeros(size(nROI,2),numberoffolders);
+
+if nParams.Results.saveAllSub
+    BzSub = cell(size(nROI,2),numberoffolders);
+else
+    BzSub = cell(1,numberoffolders);
+end
+
+% list to record failed fits
+errList = [];
+
 
 %%
 % cycle through all folders
@@ -146,6 +159,7 @@ for j = 1 : numberoffolders
         iFile = fullfile(nFolders{j}, filesep, [fileName '.mat']);
     end
     iData = load(iFile);
+    binning = round(detect_binning(iData));
     
     % get transformation for that file
     tForm = nTransForms(iFile);
@@ -172,37 +186,39 @@ for j = 1 : numberoffolders
     transDataUC = iData;
 
     fileResults = {};
-
+    disp(j)
+    
+    
     % cycle through all rectangles (i.e. sources)
     for i = 1:size(nROI, 2)
 
-        for k = 1:size(upCont, 2)
-            h = upCont{k};
+       
+        iRect = nROI{i};
 
-            if h > 0
-                % calculate the UC
-                msg = sprintf('calculating upward continuation (%i) micron', h);
-                logMsg('info',msg,1,0);
-                
-                % replace the last Bz data with UC data of non UC iData
-                transDataUC.Bz = UpCont(iData.Bz, h*1e-6, 1/pixelsize);
-            end
+        xLim = round([iRect(1), iRect(1) + iRect(3)]);
+        yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
-            iRect = nROI{i};
-
-            xLim = round([iRect(1), iRect(1) + iRect(3)]);
-            yLim = round([iRect(2), iRect(2) + iRect(4)]);
-            
-            %% actual fitting
-            SOURCENAME=['Source' num2str(i) '_Step' num2str(j) ];
-            
+        %% actual fitting
+        SOURCENAME=['Source' num2str(i) '_Step' num2str(j) ];
+        try
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
-            iResult = dipole_fit('filePath', iFile, 'mOrder', 1, ...
+            iResult = dipole_fit('filePath', iFile, 'fitOrder', 1, ...
                 'cropFactor', 20, 'save', nParams.Results.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
-                'expData', transDataUC, ...
+                'expData', transDataUC, 'method', 0, ...
                 'imageFolder',imageFolder,'sourceName',SOURCENAME);
-            
+
+            % reassign subtracted region
+            ic = 1;
+            for is = xLim(1):xLim(2)
+                jc = 1;
+                for js = yLim(1):yLim(2)
+                    transDataUC.Bz(js, is) = -iResult.residuals(jc, ic);%-residualMap(jc, ic);
+                    jc = jc + 1;
+                end
+                ic = ic + 1;
+            end
+
             %% results
             iResult.xLims = xLim;
             iResult.yLims = yLim;
@@ -210,24 +226,51 @@ for j = 1 : numberoffolders
             fileResults{end+1} = iResult;
 
             iFiles{end+1} = iFile;
-            moments(i,j,k) = iResult.m;
-            inclinations(i,j,k) = iResult.inc;
-            declinations(i,j,k) = iResult.dec;
-            heights(i,j,k) = iResult.h;
-            residuals(i,j,k) = iResult.res;
-            xMin(i,j,k) = xLim(1);
-            xMax(i,j,k) = xLim(2);
-            yMin(i,j,k) = yLim(1);
-            yMax(i,j,k) = yLim(2);
-            
-%             close all
+            moments(i,j) = iResult.m;
+            inclinations(i,j) = iResult.inc;
+            declinations(i,j) = iResult.dec;
+            heights(i,j) = iResult.h;
+            residuals(i,j) = iResult.res;
+            xMin(i,j) = xLim(1);
+            xMax(i,j) = xLim(2);
+            yMin(i,j) = yLim(1);
+            yMax(i,j) = yLim(2);
+        
+            if unTransform && nParams.Results.saveAllSub
+                BzSub{i,j} = tform_data(transDataUC.Bz, invert(tForm), rframe);
+            elseif nParams.Results.saveAllSub
+                BzSub{i,j} = transDataUC.Bz;
+            end
+
+            figure();imagesc(transDataUC.Bz);
+            axis xy, axis equal, axis tight;
+            colorbar;
+            colormap(jet);
+            caxis([-1,1]*8*10^(-7));
+        catch
+            errList(end+1,:) = [i,j];
+            % just don't want it to stop every time it can't fit something!
         end
+        
+        close all
+
+
     end
+    
+    
+    if unTransform && ~nParams.Results.saveAllSub
+        BzSub{1,j} = tform_data(transDataUC.Bz, invert(tForm), rframe);
+    elseif ~nParams.Results.saveAllSub
+        BzSub{1,j} = transDataUC.Bz;
+    end
+    
     allResults(iFile) = fileResults;
 end
 
 
 results = struct('nFiles', {iFiles}, 'moments', moments, 'incs', inclinations, ...
                  'decs', declinations, 'heights', heights, 'res', residuals, ...
-                 'xMin', xMin, 'xMax', xMax, 'yMin', yMin, 'yMax', yMax);
-
+                 'xMin', xMin, 'xMax', xMax, 'yMin', yMin, 'yMax', yMax, ...
+                 'BzSub', {BzSub},'errList',errList);           
+	
+             

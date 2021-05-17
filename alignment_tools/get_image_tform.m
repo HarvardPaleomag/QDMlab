@@ -21,7 +21,7 @@ arguments
     kwargs.title {ischar} = 'checkPlot alignment';
 end
 
-if fixedData == movingData
+if isequal(fixedData, movingData)
     msg = sprintf('Transformation not needed. Same image detected');
     logMsg('info',msg,1,0);
     transForm = affine2d([[1 0 0]; [0 1 0]; [0 0 1]]);

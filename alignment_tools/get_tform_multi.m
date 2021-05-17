@@ -110,7 +110,7 @@ for iFolder = nMovingFolders
         movingLed = moving;
         movingLed = movingLed - min(movingLed, [], 'all');
     end
-    if movingLed == fixedLed
+    if isequal(movingLed, fixedLed)
         
     end
     
