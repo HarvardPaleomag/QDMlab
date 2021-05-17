@@ -4,7 +4,7 @@ function subtractedData = subtract_blank(kwargs)
 %
 % Parameters
 % ----------
-%   nFiles ['none']
+%   nFiles: ['none']
 %       A path (char) or cell of paths that contain the data and are to be
 %       corrected.
 %   blankFile: path ['none']
