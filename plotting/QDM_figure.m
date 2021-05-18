@@ -48,7 +48,7 @@ arguments
     kwargs.cbTitle = 'B_z (T)';
     kwargs.axis = 'on';
     kwargs.std {mustBeInteger} = 10;
-    kwargs.scaleBar = true
+    kwargs.scaleBar = false
     
     filter.filterStruct struct = struct();
     filter.preThreshold = 5
@@ -147,10 +147,10 @@ end
 cb = colorbar(ax);
 title(cb, kwargs.cbTitle, 'Fontsize', 12);
 
-if kwargs.scaleBar
+if ~isequal(kwargs.scaleBar, false)
     msg = sprintf('adding scalebar to the figure. NOTE this is set to a default pixelSize of 4.7e-6 and should be called separately if the size is wrong.');
     logMsg('info',msg,1,0);
     msg = sprintf('e.g. >> [f,a,i] = QDM_figure(Bz); scalebar(''ax'', a, ''scaleBar'', 250, ''location'', ''bottom left'')');
     logMsg('info',msg,1,1);
-    scalebar('ax', ax)
+    scalebar('ax', ax, 'scaleBar', kwargs.scaleBar)
 end

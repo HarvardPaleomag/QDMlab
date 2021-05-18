@@ -53,20 +53,20 @@ pixelPerUnit = 1/kwargs.pixelSize;
 % nX = floor(right/500);
 % nY = floor(top/500);
 
-set(axisObjects, 'XData', 1:size(data, 2) * kwargs.pixelSize)
-set(axisObjects, 'YData', 1:size(data, 1) * kwargs.pixelSize)
+% set(axisObjects, 'XData', 1:size(data, 2) * kwargs.pixelSize)
+% set(axisObjects, 'YData', 1:size(data, 1) * kwargs.pixelSize)
 
 switch kwargs.location
     case 'bottom left'
-        xStart = 0.05*right;
-        yStart = 0.05*top;
-        textShift = 0.01*top;
+        xStart = 0.1*right*pixelPerUnit;
+        yStart = 0.15*top*pixelPerUnit;
+        textShift = 0.05*top*pixelPerUnit;
     case 'bottom right'
         xStart = 0.85*right;
-        yStart = 0.05*top;
-        textShift = 0.01*top;
+        yStart = 0.15*top;
+        textShift = 0.05*top;
     case 'top left'
-        xStart = 0.05*right;
+        xStart = 0.1*right;
         yStart = 0.9*top;
         textShift = -0.04*top;        
     case 'top right'
@@ -75,8 +75,8 @@ switch kwargs.location
         textShift = -0.04*top;
 end
 
-xEnd = xStart + kwargs.scaleBar;
-yEnd = yStart + 0.02*top;
+xEnd = xStart + kwargs.scaleBar * pixelPerUnit;
+yEnd = yStart + 0.07*top* pixelPerUnit;
 yCenter = mean([yStart, yEnd]);
 
 % left
@@ -85,7 +85,7 @@ plot(ax, [xStart, xStart],[yStart, yEnd], '-', 'LineWidth',2, 'color', kwargs.co
 plot(ax, [xEnd, xEnd],[yStart, yEnd], '-', 'LineWidth',2, 'color', kwargs.color)
 % line
 plot(ax, [xStart, xEnd],[yCenter, yCenter], '-', 'LineWidth',2, 'color', kwargs.color)
-text(ax, xStart+(kwargs.scaleBar/2), yStart-textShift, ...
+text(ax, xStart+(kwargs.scaleBar * pixelPerUnit/2), yStart-textShift, ...
     sprintf('%.0f %s', kwargs.scaleBar, strrep(kwargs.unit, 'micron', '\mum')), ...
     'color', kwargs.color, 'HorizontalAlignment', 'center')
 
