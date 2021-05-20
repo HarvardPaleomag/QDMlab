@@ -103,8 +103,7 @@ arguments
     error.bootStrapN = 1
     error.pixelError = 4
     
-    filter.threshold = 5;
-    filter.filterStruct struct = struct();
+    filter.filterProps struct = struct();
 
 end
 %%
@@ -129,24 +128,21 @@ refFile = load(fixedFile);
 [~, dataName, ledName] = is_B111(refFile);
 % read data and threshold to 5
 fixedData = refFile.(dataName);
-fixedData = filter_hot_pixels(fixedData, 'threshold', filter.threshold);
 % read LED
 fixedLed = refFile.(ledName);
 
 %%
-if ~all( structfun(@isempty, filter.filterStruct))
-	if filter.filterStruct.chi
-        filter.filterStruct.chi = refFile.chi2Pos1 + refFile.chi2Pos2 + refFile.chi2Neg1 + refFile.chi2Neg2;
-    end
-    filterProps = namedargs2cell(filter.filterStruct);
+if ~all( structfun(@isempty, filter.filterProps))
+    filterProps = namedargs2cell(filter.filterProps);
     fixedData = filter_hot_pixels(fixedData, filterProps{:});
 end
+
 %% tranformation / filtering
 [transformedData, nFiles] = get_transformed_maps(nFolders, ...
                   'fileName', kwargs.fileName, 'transFormFile', kwargs.transFormFile,...
                   'fixedIdx', kwargs.fixedIdx, 'reverse', kwargs.reverse, ...
                   'upCont', kwargs.upCont, 'checkPlot', kwargs.checkPlot, ...
-                  'filterStruct', filter.filterStruct);
+                  'filterProps', filter.filterProps);
 
 [nMasks, nROI] = create_masks(fixedData, selection.selectionThreshold,...
                       'nROI', nROI, 'freeHand', selection.freeHand,...

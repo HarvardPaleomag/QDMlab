@@ -52,7 +52,7 @@ arguments
     kwargs.reverse = false;
     kwargs.checkPlot = false;
     % filter related
-    filter.filterStruct struct = struct();
+    filter.filterProps struct = struct();
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -129,7 +129,7 @@ for i = 1:size(nFolders, 2)
         if isfield(filter.filterProps, 'chi') && isequal(filter.filterProps.chi, true)
             filter.filterProps.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
         end
-        filterProps = namedargs2cell(filter.filterStruct);
+        filterProps = namedargs2cell(filter.filterProps);
         msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
         logMsg('info',msg,1,0);
         targetData = filter_hot_pixels(targetData, filterProps{:});

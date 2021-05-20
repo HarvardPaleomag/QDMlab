@@ -48,7 +48,19 @@ dshape = size(data);
 
 % pefilter data values to catch extreme outlier
 aboveStd = abs(data) >= kwargs.threshold;
+
+if kwargs.threshold && numel(nonzeros(aboveStd))
+    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(aboveStd)), kwargs.threshold);
+    logMsg('debug',msg,1,0);
+end
+
 data(aboveStd) = nan;
+
+%% Check if cutOff value is  given
+if strcmp(cutOff, 'none') && ~isequal(chi, false)
+    msg = sprintf('filtering according to Chi alues, but no ''cutOff'' value set. Please check add: e.g. << ''cutOff'', 5 >> !');
+    logMsg('error',msg,1,0);
+end
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
