@@ -125,9 +125,9 @@ for i = 1:size(nFolders, 2)
     end
 
     %% filtering
-    if ~all( structfun(@isempty, filter.filterStruct))
-        if filter.filterStruct.chi
-            filter.filterStruct.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
+    if ~all( structfun(@isempty, filter.filterProps))
+        if isfield(filter.filterProps, 'chi') && isequal(filter.filterProps.chi, true)
+            filter.filterProps.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
         end
         filterProps = namedargs2cell(filter.filterStruct);
         msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
