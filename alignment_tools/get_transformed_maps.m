@@ -191,21 +191,18 @@ function check_plot(fileTransForm)
     figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
     ax1 = subplot(2,3,1);
     ref = fileTransForm.refData;
-    ref = filter_hot_pixels(ref);
     pcolor(ref);
     axis xy; axis equal; axis tight; shading flat;
     title('reference Data')
 
     ax2 = subplot(2,3,2);
     target = fileTransForm.targetData;
-    target = filter_hot_pixels(target);
     pcolor(target);
     axis xy; axis equal; axis tight;shading flat;
     title('target Data')
 
     ax3 = subplot(2,3,3);
     trans = fileTransForm.transData;
-    trans = filter_hot_pixels(trans);
     pcolor(trans);
     axis xy; axis equal; axis tight;shading flat;
     title('transformed Data')
