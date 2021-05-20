@@ -1,4 +1,5 @@
 function laserData = get_laser(path, kwargs)
+%[laserData] = get_laser(path)
 
     arguments
         path

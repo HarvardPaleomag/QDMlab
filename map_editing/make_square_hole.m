@@ -1,4 +1,5 @@
 function expData = make_square_hole(kwargs)
+%[expData] = make_square_hole('filePath', 'save', 'checkPlot')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 

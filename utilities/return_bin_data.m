@@ -1,4 +1,5 @@
 function window = return_bin_data(data, row, col, binSize)
+%[window] = return_bin_data(data, row, col, binSize)
 % returns the data used for the bin binnedData(row,col,:)
 
 % calculate the indices

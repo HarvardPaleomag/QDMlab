@@ -1,4 +1,5 @@
 function tform_data = tform_data(data, transForm, refFrame)
+%[tform_data] = tform_data(data, transForm, refFrame)
 %{
 Convenience function to transforms data into a different reference frame
 (e.g. 100G data -> NRM).

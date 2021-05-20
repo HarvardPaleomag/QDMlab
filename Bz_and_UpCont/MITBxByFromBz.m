@@ -1,4 +1,5 @@
 function [Bx, By] = MITBxByFromBz(Bz, fs)
+%[Bx, By] = MITBxByFromBz(Bz, fs)
 %   Retrieves the x and y components of the magnetic field from a map of the z component. It performs
 %   this operation in the frequency domain. See, for instance, Egli and Heller (eq. 12), and Roth and
 %   Wikswo.

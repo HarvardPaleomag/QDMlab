@@ -1,4 +1,5 @@
 function  [resid, Bzmodel, M] = SourceFitMultiP8(P,x,y,BzExp,display,method,quad,morder);
+%[resid, Bzmodel, M] = SourceFitMultiP8(P, x, y, BzExp, display, method, quad, morder;)
 %{
 
 parameters:

@@ -1,4 +1,5 @@
 function [transForm, refFrame] = get_image_tform(fixedData, movingData, kwargs)
+%[transForm, refFrame] = get_image_tform(fixedData, movingData; 'checkPlot', 'sharpen', 'title')
 % takes reference data and calculate tform, rframe that tranforms target data
 % to match the reference in the reference frame
 % 

@@ -1,4 +1,5 @@
 function out = exists_struct(structIn, key)
+%[out] = exists_struct(structIn, key)
 
 if isfield(structIn, key)
     msg = sprintf('found key %s in the structure', key);

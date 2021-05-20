@@ -1,4 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'reverse', 'checkPlot', 'removeHotPixels', 'includeHotPixel', 'chi', 'winSize', 'threshold')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -46,7 +47,7 @@ arguments
     kwargs.fileName = 'Bz_uc0';
     kwargs.transFormFile = 'none';
     kwargs.fixedIdx = 1;
-    kwargs.upCont = 'none';
+    kwargs.upCont = false;
     % other
     kwargs.reverse = false;
     kwargs.checkPlot = false;
@@ -196,6 +197,7 @@ end
 end
 
 function check_plot(fileTransForm)
+%check_plot(fileTransForm)
     figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
     ax1 = subplot(2,3,1);
     ref = fileTransForm.refData;

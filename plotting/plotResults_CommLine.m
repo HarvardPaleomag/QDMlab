@@ -1,4 +1,5 @@
 function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
+%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot')
 
 arguments
     dataFolder
@@ -6,7 +7,7 @@ arguments
     type
     fits
     binSize
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
 end
 
 close all;
@@ -132,6 +133,7 @@ end
 
 end
 function clickFitFcn(hObj, event, binSize, posB111Output, negB111Output, points, ax, fig)
+%clickFitFcn(hObj, event, binSize, posB111Output, negB111Output, points, ax, fig)
     % Get click coordinate
     spec = findobj( 'Type', 'Figure', 'Name', 'spectra' );
     dat = findobj( 'Type', 'Figure', 'Name', 'data' );

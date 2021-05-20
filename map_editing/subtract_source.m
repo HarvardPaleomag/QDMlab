@@ -1,4 +1,5 @@
 function expData = subtract_source(kwargs)
+%[expData] = subtract_source('filePath', 'save', 'fitOrder', 'checkPlot')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 %
@@ -39,23 +40,30 @@ end
 bData = expData.(dataName);
 expData.([dataName, '_original']) = bData;
 
-[expData, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false);
+[~, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false);
+%% maps ending in _dip for naming the file
+dipMaps = dir(sprintf('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/*-dip*.mat', fileName));
+nDipMaps = size(dipMaps,1);
 
-% residualMap = FitMoment(kwargs.fitOrder, filePath, [col(1, 1), row(1, 1)], [col(2, 1), row(2, 1)], 2, 0);
+%% calculate fit for the region
 fit = dipole_fit('filePath',filePath, 'expData', bData, ...
                 'xy', [col(1), row(1)], 'dx', diff(col), 'dy', diff(row), ...
                 'fitOrder', kwargs.fitOrder, 'nRuns', 2, ...
-                'cropFactor', max([diff(col) diff(row)]), 'save', false);
-            
-ic = 1;
-for i = col(1):col(2)
-    jc = 1;
-    for j = row(1):row(2)
-        bData(j, i) = fit.residuals(jc, ic);%-residualMap(jc, ic);
-        jc = jc + 1;
-    end
-    ic = ic + 1;
-end
+                'cropFactor', max([diff(col) diff(row)]), 'save', false,...
+                'checkPlot', kwargs.checkPlot);
+
+bData(row(1):row(2), col(1):col(2)) = fit.residuals;
+
+% bData
+% ic = 1;
+% for i = col(1):col(2)
+%     jc = 1;
+%     for j = row(1):row(2)
+%         bData(j, i) = fit.residuals(jc, ic);%-residualMap(jc, ic);
+%         jc = jc + 1;
+%     end
+%     ic = ic + 1;
+% end
 
 expData.(dataName) = bData;
 
@@ -68,7 +76,9 @@ end
 expData.Bt = sqrt(by.^2+bx.^2+bData.^2);
 
 if kwargs.save
-    save(fullfile(path, [fileName(1:end - 1), num2str(str2num(fileName(end)) + 1), '.mat']), '-struct', 'expData');
+    fit.datetime = datetime;
+    expData.(sprintf('dipSub_%i', nDipMaps+1)) = fit;
+    save(fullfile(path, [fileName, sprintf('-dip%i', nDipMaps+1), '.mat']), '-struct', 'expData');
 end
 
 end

@@ -1,4 +1,5 @@
 function filteredData = filter_hot_pixels(data, kwargs)
+%[filteredData] = filter_hot_pixels(data; 'cutOff', 'includeHotPixel', 'checkPlot', 'chi', 'winSize', 'threshold')
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments
@@ -167,7 +168,7 @@ if strcmp(cutOff, 'none')
     end
 else
     if n_pixels
-        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
+        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
         logMsg('info',msg,1,0);
     end
 end

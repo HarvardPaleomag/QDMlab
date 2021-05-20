@@ -1,4 +1,5 @@
 function results = dipole_fit_series(nFolders, kwargs)
+%[results] = dipole_fit_series(nFolders; 'transFormFile', 'refIdx', 'checkPlot', 'outputTrue', 'save', 'upCont', 'nROI', 'imageFolder', 'fileName')
 % pick_sources_and_fit is used to bulk analyze datasets it 
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -74,6 +75,7 @@ arguments
     kwargs.upCont = {0};
     kwargs.nROI = false;
     kwargs.imageFolder = false;
+    kwargs.fileName = 'Bz_uc0.mat';
 end
 
 % define QDM parameters
@@ -105,8 +107,7 @@ fixedLed = fixed.(ledName);
 if ~islogical(kwargs.nROI)
     nROI = kwargs.nROI;
 else
-    nROI = pick_box(fixedData, 'led', false, ...
-        'returnCoordinates', true, 'closeFig', true);
+    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true);
 end
 
 allResults = containers.Map;
@@ -188,8 +189,8 @@ for j = 1 : numberoffolders
             iResult = dipole_fit('filePath', iFile, 'fitOrder', 1, ...
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
-                'expData', transDataUC, ...
-                'imageFolder',kwargs.imageFolder,'sourceName',SOURCENAME);
+                'expData', transDataUC, 'checkPlot', kwargs.checkPlot...
+                'imageFolder',kwargs.imageFolder,'sourceName', SOURCENAME);
             
             %% results
             iResult.xLims = xLim;

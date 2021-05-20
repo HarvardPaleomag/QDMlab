@@ -1,4 +1,5 @@
 function kwargs = ask_arguments(kwargs, defaults)
+%[kwargs] = ask_arguments(defaults)
 % ask for arguments
 
 % get all default values in struct

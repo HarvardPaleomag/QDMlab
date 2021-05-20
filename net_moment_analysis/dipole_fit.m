@@ -1,4 +1,5 @@
 function results = dipole_fit(kwargs)
+%[results] = dipole_fit('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
 %fitOrder is : 
 %
 %
@@ -68,6 +69,7 @@ arguments
     kwargs.quad = 1;
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
+    kwargs.statsPlot (1,1) {mustBeBoolean(kwargs.statsPlot)} = false;
     kwargs.save {mustBeBoolean(kwargs.save)} = 'none';
     
     kwargs.constrained {mustBeBoolean(kwargs.constrained)} = false; 
@@ -82,8 +84,6 @@ arguments
     kwargs.SNR = 0; %signal-to-noise ratio in dB
     kwargs.AUTO = 0; %automatically find dipole position from Bt map
     kwargs.minTol = 1;
-    kwargs.statistics {mustBeBoolean(kwargs.statistics)} = false;
-    kwargs.nStats {mustBeInteger(kwargs.nStats)} = 50; % n iterations for statistics
     kwargs.display {mustBeBoolean(kwargs.display)} = false;
     
     kwargs.expData = 'none'; % loaded data passed -> no need to load data again
@@ -416,6 +416,8 @@ logMsg('result',msg,1,1);
 Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.fitOrder) + 3)];
 % calculate the model
 [resid, bModel] = SourceFitMultiP8(Popt2, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
+% [residFull, bModelFull] = SourceFitMultiP8(Popt2, X, Y, bData, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
+
 residuals = bModel - bDataCropped;
 resids = sqrt(sum(sum(residuals.^2))/sum(sum(bDataCropped.^2)));
 
@@ -496,7 +498,7 @@ if kwargs.save
     fclose(fid);
 end
 
-if kwargs.checkPlot
+if kwargs.statsPlot
     checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
 end
 
@@ -505,9 +507,12 @@ results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
     'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
     'xCrop', xCrop, 'yCrop', yCrop);
+%     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
+%     save full model
 end
 
 function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+%checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt, xopt, yopt)
     figure
     subplot(2,3,1)
     plot(P(1, :), fval, '.')

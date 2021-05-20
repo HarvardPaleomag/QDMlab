@@ -1,4 +1,5 @@
 function coercivity_result_plot(results, kwargs)
+%coercivity_result_plot(results; 'steps', 'stepUnit', 'led', 'mean')
 % plots results from estimate_coercivity
 % 
 % Parameters
@@ -15,8 +16,9 @@ function coercivity_result_plot(results, kwargs)
 arguments
     results struct
     kwargs.steps  (1,:) = 0
+    kwargs.stepUnit  (1,:) = 'mT'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
-
+    kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
 end
     
 [nMasks, nFiles] = size(results.nFiles);
@@ -25,13 +27,13 @@ if iscell(kwargs.steps)
     steps = kwargs.steps;
 else
     steps = 1:nFiles;
-    
 end
+
 if size(steps) ~= size(results.pPixels, 2)
     s = size(steps,2);
     s2 = size(results.pPixels,2);
-    disp(['<>   WARNING: number of steps (' num2str(s) ') does not match number of results (' num2str(s2) ')' ])
-    return
+    msg = sprintf('WARNING: number of steps (%i) does not match number of results (%i)', s, s2);
+    error(msg)
 end
 
 rows = fix(nFiles/3)+ double(mod(nFiles,3)>0)+1;
@@ -67,14 +69,15 @@ for j = 1:nFiles
     
     fileName = results.nFiles{1, j};
     fNameSplit = split(fileName,filesep);
-    step = fNameSplit(end-2);
+    
+    title = fNameSplit{end-2};
+    
+    if ~ all(steps == 1:nFiles,'all')
+        title = sprintf('%s (%.1f %s)', title, steps(j), kwargs.stepUnit);
+    end
 
     ax = subplot(rows, 3, j);
-    imagesc(ax, iFileData)
-    axis equal, axis tight, axis xy
-
-    hold on
-    title(ax, step);
+    QDM_figure(iFileData, 'ax', ax, 'title', title);
     axes = [axes ax];
     
     for i = 1:nMasks
@@ -105,7 +108,11 @@ for i = 1:nMasks
     ylabel('norm. n(+)pixel')
     legend
 end
-
+if kwargs.mean
+    mn = mean(results.pPixelRats); 
+    st = std(results.pPixelRats); 
+    errorbar(steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
+end
 
 %% additional LED plot
 if kwargs.led

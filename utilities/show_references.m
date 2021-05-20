@@ -1,4 +1,5 @@
 function show_references()
+%show_references()
     global messageDisplayed
 
     try

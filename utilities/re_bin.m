@@ -1,4 +1,5 @@
 function reBinned = re_bin(data, refData)
+%[reBinned] = re_bin(data, refData)
 % RE_BIN corrects binning for not equally binned datasets.
 % 
 % Example

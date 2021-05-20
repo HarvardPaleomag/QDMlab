@@ -1,4 +1,5 @@
 function g = model_gauss(x, p)
+%[g] = model_gauss(x, p)
 % 1: Amplitude
 % 2: Center
 % 3: Width
