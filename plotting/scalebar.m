@@ -1,4 +1,5 @@
 function scalebar(kwargs)
+%scalebar('fig', 'ax', 'im', 'pixelSize', 'scaleBar', 'unit', 'color', 'location')
 
 arguments
     kwargs.fig = 'none';

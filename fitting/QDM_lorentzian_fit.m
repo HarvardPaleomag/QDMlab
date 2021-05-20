@@ -1,5 +1,5 @@
 function fits = QDM_lorentzian_fit(kwargs)
-%[fits] = QDM_lorentzian_fit('binSizes', 'checkPlot', 'diamond', 'fieldPolarity', 'forceGuess', 'gaussianFilter', 'gaussianFit', 'globalFraction', 'nFolders', 'nucSpinPol', 'plotGuessSpectra', 'save', 'slopeCorrection', 'smoothDegree', 'type')
+%[fits] = QDM_lorentzian_fit('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'nucSpinPol', 'save', 'diamond', 'slopeCorrection')
 % and then determines B111 field values from the different polarities.
 %
 % Parameters
@@ -40,13 +40,12 @@ arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction = 'none';
-    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = 0
-    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
+    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = false;
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = false;
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
     kwargs.slopeCorrection = false;

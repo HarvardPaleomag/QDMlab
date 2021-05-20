@@ -1,5 +1,5 @@
 function viscData = viscosity(kwargs)
-%[viscData] = viscosity('checkPlot', 'nonVisc', 'visc')
+%[viscData] = viscosity('visc', 'nonVisc', 'checkPlot')
 % It takes two maps, where one is measured without viscous compensation and
 % the second one with viscous compensation. The diffeerence between the two
 % is the viscous component of the map.

@@ -1,5 +1,5 @@
 function out = RMSInBox(kwargs)
-%[out] = RMSInBox('binsize', 'filePath', 'saveCropMap')
+%[out] = RMSInBox('filePath', 'binsize', 'saveCropMap')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 

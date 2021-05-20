@@ -1,5 +1,5 @@
 function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs, selection, error, filter)
-%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'bootStrapN', 'checkPlot', 'chi', 'fileName', 'fixedIdx', 'freeHand', 'freeHandSelection', 'includeHotPixel', 'nROI', 'pixelError', 'removeHotPixels', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont', 'winSize')
+%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'checkPlot', 'reverse', 'nROI', 'freeHand', 'freeHandSelection', 'selectionThreshold', 'bootStrapN', 'pixelError', 'removeHotPixels', 'threshold', 'includeHotPixel', 'chi', 'winSize')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -90,10 +90,10 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = false
+    kwargs.upCont = false;
     
-    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
     kwargs.nROI = false
     
     selection.freeHand  (1,1) {mustBeBoolean(selection.freeHand)} = false
@@ -103,9 +103,9 @@ arguments
     error.bootStrapN = 1
     error.pixelError = 4
     
-    filter.removeHotPixels = 0
+    filter.removeHotPixels = false;
     filter.threshold = 5
-    filter.includeHotPixel = 0
+    filter.includeHotPixel = false;
     filter.chi = 0
     filter.winSize (1,1) = 4
 end

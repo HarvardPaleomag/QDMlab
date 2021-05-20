@@ -1,5 +1,5 @@
 function fit = fit_resonance(expData, binSize, nRes, kwargs)
-%[fit] = fit_resonance(expData, binSize, nRes; 'checkPlot', 'diamond', 'forceGuess', 'gaussianFilter', 'gaussianFit', 'globalFraction', 'slopeCorrection', 'smoothDegree', 'type')
+%[fit] = fit_resonance(expData, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -61,10 +61,10 @@ arguments
     % keyword arguments
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
     kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
-    kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
-    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = 0
-    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
+    kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = false;
+    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = false;
     kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
     kwargs.slopeCorrection = false;
