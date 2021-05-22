@@ -182,7 +182,6 @@ end
 %% fittiing related
 tolerance = 1e-13;
 initialPreGuess = 'none';
-kwargs.slopeCorrection = 3;
 
 if kwargs.type == 2
 
@@ -201,7 +200,7 @@ if kwargs.type == 2
         model_id = ModelID.GAUSS_1D;
         [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata_, [], ...
             model_id, initialPreGuess, tolerance, 1000, ...
-            [], EstimatorID.LSE, xValues);
+            [], EstimatorID.MLE, xValues);
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         fit.initialGuess.chi = chiSquares;
         fit.initialGuess.states = states;
@@ -241,7 +240,7 @@ logMsg('info',msg,1,0);
 
 % run Gpufit - Res 1
 [parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
-    model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.LSE, xValues);
+    model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.MLE, xValues);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
