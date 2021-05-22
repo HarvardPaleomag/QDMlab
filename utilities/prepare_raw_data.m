@@ -1,4 +1,4 @@
-function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
 %[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
@@ -15,6 +15,13 @@ function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
 %         binning size (can be 1)
 %     nRes: int
 %         number of resonance. Low frequencies = 1, High frequencies = 2
+
+arguments
+    expData
+    binSize
+    nRes
+    kwargs.gpuData = false
+end
 
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
@@ -64,3 +71,14 @@ NormalizationFactor = mean(binData,3);    % compute average
 for y = 1:length(freq)
     binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
 end
+
+%% return gpudata if kwargs.gpuData == true
+if isequal(kwargs.gpuData, true)
+    [sizeY,sizeX, sweepLength] = size(binDataNorm, [1,2,3]);
+    imgPts = sizeX*sizeY;
+    gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
+    gpudata = transpose(gpudata); %transpose to make it 51 x pixels
+    gpudata = single(gpudata);
+    binDataNorm = gpudata;
+end
+
