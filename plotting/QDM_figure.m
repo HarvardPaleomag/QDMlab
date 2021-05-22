@@ -4,6 +4,9 @@ function [fig, ax, im] = QDM_figure(data, kwargs, filter)
 %
 % Parameter
 % ---------
+%     data: double [false]
+%         Provide either LED or B111/Bz data. If nothing is provided, you
+%         get to pick the dataFile to be loaded.
 %     fig: figure ['none'];
 %         figure object will be used if passed to function. Otherwise one
 %         will be created
@@ -38,7 +41,7 @@ function [fig, ax, im] = QDM_figure(data, kwargs, filter)
 %         filtering (i.e. see 'filterStruct')
 
 arguments
-    data
+    data = false;
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.led = false;
@@ -54,6 +57,20 @@ arguments
     filter.preThreshold = 5
 end
 
+%% check for data
+if isequal(data, false)
+    dataFile = automatic_input_ui__('none', 'single', true, 'type', 'file');
+    expData = load(dataFile);
+    [bool, dataName,ledName] = is_B111(expData);
+    
+    if kwargs.led
+        data = expData.(ledName);
+    else
+        data = expData.(dataName);
+    end
+end
+
+%% find figure
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
         fig = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
