@@ -105,7 +105,7 @@ for dataFolder = nFolders
             msg = sprintf('saving %s into %s', fName, dataFolder);
             logMsg('info',msg,1,0);
 
-            save(fullfile(dataFolder, fName), '-struct', 'fits');
+            save(fullfile(dataFolder, folderName, fName), '-struct', 'fits');
         end
     end
 end
