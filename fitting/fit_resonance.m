@@ -182,7 +182,6 @@ end
 %% fittiing related
 tolerance = 1e-13;
 initialPreGuess = 'none';
-kwargs.slopeCorrection = 3;
 
 if kwargs.type == 2
 
