@@ -68,7 +68,7 @@ viscData.viscosityMap = delta;
 
 viscData.LED = refData.(ledName);
 
-if exists_struct(refData, 'laser')
+if isfield(refData, 'laser')
     viscData.laser = refData.laser;
 else
     viscData.laser = zeros(size(refData.(ledName),2));

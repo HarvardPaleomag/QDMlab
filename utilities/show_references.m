@@ -24,7 +24,7 @@ function show_references()
                               'GPUfit: Copyright (c) 2017 Mark Bates, Adrian Przybylski, Björn Thiel, and Jan Keller-Findeisen\n',...
                               '===============================================================================================\n'];
     
-    if ~exists_struct(messages, callerName)
+    if ~isfield(messages, callerName)
         return
     end
     

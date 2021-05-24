@@ -9,7 +9,7 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
     size(dataPosLeft)
     % prefilter data for hot pixels
-    data = filter_hot_pixels(Bzdata.B111ferro, 'cutOff', 12);
+    data = filter_hot_pixels(Bzdata.B111ferro);
     binning = detect_binning(Bzdata);
     
     % Create image

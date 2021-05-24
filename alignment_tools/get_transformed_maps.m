@@ -1,5 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'reverse', 'checkPlot', 'removeHotPixels', 'includeHotPixel', 'chi', 'winSize', 'threshold')
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'reverse', 'transFormFile', 'upCont')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -52,11 +52,7 @@ arguments
     kwargs.reverse = false;
     kwargs.checkPlot = false;
     % filter related
-    filter.removeHotPixels = false;
-    filter.includeHotPixel = false;
-    filter.chi = 0;
-    filter.winSize = 4;
-    filter.threshold = 5;
+    filter.filterProps struct = struct();
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -129,20 +125,14 @@ for i = 1:size(nFolders, 2)
     end
 
     %% filtering
-    if filter.removeHotPixels
-        if filter.chi
-            chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
-        else
-            chi = filter.chi;
+    if ~all( structfun(@isempty, filter.filterProps))
+        if isfield(filter.filterProps, 'chi') && isequal(filter.filterProps.chi, true)
+            filter.filterProps.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
         end
+        filterProps = namedargs2cell(filter.filterProps);
         msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
         logMsg('info',msg,1,0);
-
-        targetData = filter_hot_pixels(targetData, ...
-            'cutOff',filter.removeHotPixels, ...
-            'includeHotPixel',filter.includeHotPixel, ...
-            'winSize', filter.winSize, 'threshold', filter.threshold, ...
-            'checkPlot', kwargs.checkPlot,'chi', chi);
+        targetData = filter_hot_pixels(targetData, filterProps{:});
     end
 
     iTransForm = nTransForms(iFile);
@@ -201,21 +191,18 @@ function check_plot(fileTransForm)
     figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
     ax1 = subplot(2,3,1);
     ref = fileTransForm.refData;
-    ref = filter_hot_pixels(ref);
     pcolor(ref);
     axis xy; axis equal; axis tight; shading flat;
     title('reference Data')
 
     ax2 = subplot(2,3,2);
     target = fileTransForm.targetData;
-    target = filter_hot_pixels(target);
     pcolor(target);
     axis xy; axis equal; axis tight;shading flat;
     title('target Data')
 
     ax3 = subplot(2,3,3);
     trans = fileTransForm.transData;
-    trans = filter_hot_pixels(trans);
     pcolor(trans);
     axis xy; axis equal; axis tight;shading flat;
     title('transformed Data')

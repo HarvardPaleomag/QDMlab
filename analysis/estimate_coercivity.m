@@ -1,5 +1,5 @@
 function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs, selection, error, filter)
-%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'checkPlot', 'reverse', 'nROI', 'freeHand', 'freeHandSelection', 'selectionThreshold', 'bootStrapN', 'pixelError', 'removeHotPixels', 'threshold', 'includeHotPixel', 'chi', 'winSize')
+%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'bootStrapN', 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'freeHand', 'freeHandSelection', 'nROI', 'pixelError', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -103,11 +103,8 @@ arguments
     error.bootStrapN = 1
     error.pixelError = 4
     
-    filter.removeHotPixels = false;
-    filter.threshold = 5
-    filter.includeHotPixel = false;
-    filter.chi = 0
-    filter.winSize (1,1) = 4
+    filter.filterProps struct = struct();
+
 end
 %%
 % fix shape for nFolders
@@ -126,38 +123,26 @@ end
 % generate reference file name
 fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
+%% load the reference data
+refFile = load(fixedFile);
+[~, dataName, ledName] = is_B111(refFile);
+% read data and threshold to 5
+fixedData = refFile.(dataName);
+% read LED
+fixedLed = refFile.(ledName);
+
 %%
+if ~all( structfun(@isempty, filter.filterProps))
+    filterProps = namedargs2cell(filter.filterProps);
+    fixedData = filter_hot_pixels(fixedData, filterProps{:});
+end
+
 %% tranformation / filtering
 [transformedData, nFiles] = get_transformed_maps(nFolders, ...
                   'fileName', kwargs.fileName, 'transFormFile', kwargs.transFormFile,...
                   'fixedIdx', kwargs.fixedIdx, 'reverse', kwargs.reverse, ...
                   'upCont', kwargs.upCont, 'checkPlot', kwargs.checkPlot, ...
-                  'removeHotPixels', filter.removeHotPixels, 'winSize', filter.winSize, ...
-                  'includeHotPixel', filter.includeHotPixel, 'chi', filter.chi, ...
-                  'threshold', filter.threshold);
-
-% load the reference data
-refFile = load(fixedFile);
-[bool, dataName, ledName] = is_B111(refFile);
-
-% read data and threshold to 5
-fixedData = refFile.(dataName);
-fixedData = filter_hot_pixels(fixedData, 'threshold', filter.threshold);
-% read LED
-fixedLed = refFile.(ledName);
-
-if filter.removeHotPixels
-    if filter.chi
-        chi = refFile.chi2Pos1 + refFile.chi2Pos2 + refFile.chi2Neg1 + refFile.chi2Neg2;
-    else
-        chi = filter.chi;
-    end
-
-    fixedData = filter_hot_pixels(fixedData, 'cutOff', filter.removeHotPixels, ...
-                'chi', chi, 'includeHotPixel',false, 'checkPlot', filter.checkPlot);
-end
-
-
+                  'filterProps', filter.filterProps);
 
 [nMasks, nROI] = create_masks(fixedData, selection.selectionThreshold,...
                       'nROI', nROI, 'freeHand', selection.freeHand,...
