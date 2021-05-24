@@ -131,7 +131,7 @@ else
 end
 
 %% check NV distance (h)
-if exists_struct(expData, 'h')
+if isfield(expData, 'h')
     h = expData.h;
 else
     %ask user for the NV layer-sample distance
@@ -147,7 +147,7 @@ if h > 0.1
 end
 
 %% check pixel size (step)
-if exists_struct(expData, 'step')
+if isfield(expData, 'step')
     step = expData.step; % Pixel Size
 else
     %ask user for the NV layer-sample distance
