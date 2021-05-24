@@ -7,7 +7,7 @@ arguments
     type
     fits
     binSize
-    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
 end
 
 close all;

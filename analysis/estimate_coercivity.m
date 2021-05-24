@@ -90,10 +90,10 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = false
+    kwargs.upCont = false;
     
-    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
     kwargs.nROI = false
     
     selection.freeHand  (1,1) {mustBeBoolean(selection.freeHand)} = false

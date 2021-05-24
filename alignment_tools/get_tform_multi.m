@@ -1,5 +1,5 @@
 function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, kwargs)
-%[nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders; 'binning', 'checkPlot', 'laser', 'reverse', 'transFormFile')
+%[nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders; 'transFormFile', 'checkPlot', 'reverse', 'binning', 'laser')
 % parameters:
 %     fixedFile: str
 %         Path to the reference image. Needs to be a file not folder
@@ -30,10 +30,10 @@ arguments
     fixedFile
     nMovingFolders
     kwargs.transFormFile = 'none'
-    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
 	kwargs.binning (1,1) {mustBePositive} = 2;
-    kwargs.laser  (1,1) {mustBeBoolean(kwargs.laser)} = 0
+    kwargs.laser  (1,1) {mustBeBoolean(kwargs.laser)} = false;
 end
 
 transFormFile = kwargs.transFormFile;

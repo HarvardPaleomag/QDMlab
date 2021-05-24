@@ -1,5 +1,5 @@
 function expData = subtract_constant(kwargs)
-%[expData] = subtract_constant('editFigure', 'filePath', 'save')
+%[expData] = subtract_constant('filePath', 'save', 'editFigure')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 
