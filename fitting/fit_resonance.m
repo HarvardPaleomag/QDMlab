@@ -69,6 +69,7 @@ arguments
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
     kwargs.slopeCorrection = false;
 end
+show_references()
 
 msg = sprintf('--------------------------------------------------------------------');
 logMsg('info',msg,1,0);
