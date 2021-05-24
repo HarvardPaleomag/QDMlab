@@ -8,7 +8,8 @@ Release Notes
   - adds GPUfit modified files for compiling
   - adds `scalebar` function to add a scale-bar to the map (QDM_figure)
   - adds warning pop-up if NaN values are detected in B111 data, when converting to Bz
-
+  - filterProps can now be passed as a structure into `estimate_coercivity` and `QDM_figure`
+  
   minor fixes
   -----------
   - fixes bug where binning can not be automatically determined
@@ -18,6 +19,7 @@ Release Notes
   - fixes issue with wrong cropping of LED in QDMdataprocessing
   - `coercivity_results_plot` now has option to add mean for all ROIs
   - better first line comments
+  - replaces `exist_struct` with `isfield`
 
 2021.0.beta4
 ============
