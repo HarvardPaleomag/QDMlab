@@ -1,5 +1,9 @@
 function globalFraction = globalFraction_estimator(kwargs)
+<<<<<<< HEAD
 % globalFraction_estimator lets you test different globalFraction values.
+=======
+%[globalFraction] = globalFraction_estimator()
+>>>>>>> 2021.1.1
 %
 % Parameters
 % ----------

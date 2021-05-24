@@ -1,4 +1,5 @@
 function add_ROI(nROI, kwargs)
+%add_ROI(nROI; 'figure', 'ax')
 % adds a rectangle where the ROI is to a plot and labels it
 % Parameters
 % ----------

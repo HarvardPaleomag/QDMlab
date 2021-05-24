@@ -1,10 +1,18 @@
 function subtractedData = subtract_blank(kwargs)
+<<<<<<< HEAD
 % function subtractedData = subtract_blank(kwargs)
+=======
+%[subtractedData] = subtract_blank('nFiles', 'blankFile', 'checkPlot', 'save')
+>>>>>>> 2021.1.1
 % Subtracts a blank map from the Data
 %
 % Parameters
 % ----------
+<<<<<<< HEAD
 %   nFiles ['none']
+=======
+%   nFiles: ['none']
+>>>>>>> 2021.1.1
 %       A path (char) or cell of paths that contain the data and are to be
 %       corrected.
 %   blankFile: path ['none']
@@ -69,9 +77,14 @@ for i = 1 : size(nFiles, 2)
         'checkPlot', kwargs.checkPlot, 'title', 'laser alignment');
 
     % transform the blank
+<<<<<<< HEAD
     binning = detect_binning(fileData);
     B111ferroTransformed = tform_data(blankData.B111ferro, transForm, refFrame, binning);
     B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame, binning);
+=======
+    B111ferroTransformed = tform_data(blankData.B111ferro, transForm, refFrame);
+    B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame);
+>>>>>>> 2021.1.1
 
     % crop the FOV and subtract blank
 %     [x, y, w, h] = get_mask_extent(B111ferroTransformed);
@@ -90,7 +103,13 @@ for i = 1 : size(nFiles, 2)
     subtractedData(iFolder) = newFileData;
     
     if kwargs.save
+<<<<<<< HEAD
         saveFilePath = fullfile(iFolder, sprintf('%s_sub.mat', fileName));
+=======
+        saveFilePath = fullfile(iFolder, sprintf('%s-blank.mat', fileName));
+        msg = sprintf('%s', saveFilePath);
+        logMsg('SAVE',msg,1,0);
+>>>>>>> 2021.1.1
         save(saveFilePath, '-struct', 'newFileData');
     end
 

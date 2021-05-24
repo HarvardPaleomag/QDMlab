@@ -1,4 +1,5 @@
 function [transForm, refFrame] = tform_bin_down(transForm, refFrame, bin)
+%[transForm, refFrame] = tform_bin_down(transForm, refFrame, bin)
 %{
 Transforms the LED image down to binned data.
 

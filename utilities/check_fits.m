@@ -1,4 +1,5 @@
 function check_fits(Bzdata, rawDataPos, rawDataNeg)
+%check_fits(Bzdata, rawDataPos, rawDataNeg)
     close all
     disp(['<>   reshaping data: ' num2str(rawDataPos.numFreqs) 'x' num2str(rawDataPos.imgNumCols) 'x' num2str(rawDataPos.imgNumRows)])
     dataPosLeft = reshapeImg(rawDataPos.imgStack1, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);
@@ -8,7 +9,7 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
     size(dataPosLeft)
     % prefilter data for hot pixels
-    data = filter_hot_pixels(Bzdata.B111ferro, 'cutOff', 12);
+    data = filter_hot_pixels(Bzdata.B111ferro);
     binning = detect_binning(Bzdata);
     
     % Create image

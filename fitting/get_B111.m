@@ -1,4 +1,5 @@
 function [B111ferro, B111para] = get_B111(negRes, posRes)
+%[B111ferro, B111para] = get_B111(negRes, posRes)
 % get B111 calcuates the B111 value from pos and negive resonances
 %
 % Parameters

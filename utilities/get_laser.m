@@ -1,4 +1,5 @@
 function laserData = get_laser(path, kwargs)
+%[laserData] = get_laser(path)
 
     arguments
         path
@@ -6,7 +7,7 @@ function laserData = get_laser(path, kwargs)
     end
     
     if ~strcmp(kwargs.data, 'none')
-        if exists_struct(kwargs.data, 'laser')
+        if isfield(kwargs.data, 'laser')
             laserData = kwargs.data.laser;
             return
         end

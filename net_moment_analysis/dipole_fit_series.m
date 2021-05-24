@@ -1,4 +1,5 @@
 function results = dipole_fit_series(nFolders, kwargs)
+%[results] = dipole_fit_series(nFolders; 'transFormFile', 'refIdx', 'checkPlot', 'outputTrue', 'save', 'upCont', 'nROI', 'imageFolder', 'fileName')
 % pick_sources_and_fit is used to bulk analyze datasets it 
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -74,17 +75,27 @@ arguments
     kwargs.upCont = {0};
     kwargs.nROI = false;
     kwargs.imageFolder = false;
+    kwargs.fileName = 'Bz_uc0.mat';
+
+    filter.filterProps struct = struct();
 end
 
 % define QDM parameters
 pixelSize = 4.68e-6;
+
+if ~all( structfun(@isempty, filter.filterProps))
+    filterProps = namedargs2cell(filter.filterProps);
+    filtered = true;
+else
+    filtered = false;
+end
 
 % generate reference file name
 refFile = [nFolders{kwargs.refIdx}, filesep, kwargs.fileName];
 
 % get transformations and rframes
 [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
-    'transFormFile', kwargs.transFormFile, 'check', kwargs.checkPlot);
+                            'transFormFile', kwargs.transFormFile, 'check', kwargs.checkPlot);
 
 % pick source on data
 fixed = load(refFile);
@@ -98,15 +109,23 @@ end
 
 % read data and threshold to 5
 fixedData = fixed.(dataName);
-fixedData = filter_hot_pixels(fixedData);
+
+if filtered 
+    if isfield(filterProps, 'chi')
+        filterProps.chi = fixedData.chi2Pos1 + fixedData.chi2Pos2 + fixedData.chi2Neg1 + fixedData.chi2Neg2;
+    end
+    fixedData = filter_hot_pixels(fixedData, filterProps{:});
+end
+
+
+
 % read LED
 fixedLed = fixed.(ledName);
 
 if ~islogical(kwargs.nROI)
     nROI = kwargs.nROI;
 else
-    nROI = pick_box(fixedData, 'led', false, ...
-        'returnCoordinates', true, 'closeFig', true);
+    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true);
 end
 
 allResults = containers.Map;
@@ -149,8 +168,13 @@ for j = 1 : numberoffolders
     movedData = tform_data(iData.Bz, tForm, rframe);
     
     % todo add filter_hot_pixel
-    % movedData = filter_hot_pixels(movedData, 'cutOff', 12);
-    
+    if filtered 
+        if isfield(filterProps, 'chi')
+            filterProps.chi = movedData.chi2Pos1 + movedData.chi2Pos2 + movedData.chi2Neg1 + movedData.chi2Neg2;
+        end
+        fixedData = filter_hot_pixels(fixedData, filterProps{:});
+    end
+
     % replace data/LED with transformed data/LED
     iData.newLED = movedLed;
     iData.Bz = movedData;
@@ -188,8 +212,8 @@ for j = 1 : numberoffolders
             iResult = dipole_fit('filePath', iFile, 'fitOrder', 1, ...
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
-                'expData', transDataUC, ...
-                'imageFolder',kwargs.imageFolder,'sourceName',SOURCENAME);
+                'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
+                'imageFolder',kwargs.imageFolder,'sourceName', SOURCENAME);
             
             %% results
             iResult.xLims = xLim;

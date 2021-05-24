@@ -1,4 +1,5 @@
 function results = dipole_fit(kwargs)
+%[results] = dipole_fit('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
 %fitOrder is : 
 %
 %
@@ -68,6 +69,7 @@ arguments
     kwargs.quad = 1;
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
+    kwargs.statsPlot (1,1) {mustBeBoolean(kwargs.statsPlot)} = false;
     kwargs.save {mustBeBoolean(kwargs.save)} = 'none';
     
     kwargs.constrained {mustBeBoolean(kwargs.constrained)} = false; 
@@ -82,8 +84,6 @@ arguments
     kwargs.SNR = 0; %signal-to-noise ratio in dB
     kwargs.AUTO = 0; %automatically find dipole position from Bt map
     kwargs.minTol = 1;
-    kwargs.statistics {mustBeBoolean(kwargs.statistics)} = false;
-    kwargs.nStats {mustBeInteger(kwargs.nStats)} = 50; % n iterations for statistics
     kwargs.display {mustBeBoolean(kwargs.display)} = false;
     
     kwargs.expData = 'none'; % loaded data passed -> no need to load data again
@@ -131,7 +131,7 @@ else
 end
 
 %% check NV distance (h)
-if exists_struct(expData, 'h')
+if isfield(expData, 'h')
     h = expData.h;
 else
     %ask user for the NV layer-sample distance
@@ -147,7 +147,7 @@ if h > 0.1
 end
 
 %% check pixel size (step)
-if exists_struct(expData, 'step')
+if isfield(expData, 'step')
     step = expData.step; % Pixel Size
 else
     %ask user for the NV layer-sample distance
@@ -194,12 +194,12 @@ i = round(XY(2)/kwargs.downSample);
 % check if the optional parameters dx and dy are not 0
 if all([kwargs.dx,kwargs.dy])
     % define cropj, cropi from dx, dy instead of CROPFACT
-    cropj = round([j j+kwargs.dx]);
-    cropi = round([i i+kwargs.dy]);
+    xCrop = round([j j+kwargs.dx]);
+    yCrop = round([i i+kwargs.dy]);
     i = i+kwargs.dy/2; j = j+kwargs.dx/2;
 else
-    cropj = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
-    cropi = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
+    xCrop = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
+    yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
 end
 
 x0 = j * step;
@@ -209,25 +209,25 @@ y0 = i * step;
 scansize = size(bData);
 
 for p = 1:2
-    if cropj(p) < 1
-        cropj(p) = 1;
+    if xCrop(p) < 1
+        xCrop(p) = 1;
     end
-    if cropi(p) < 1
-        cropi(p) = 1;
+    if yCrop(p) < 1
+        yCrop(p) = 1;
     end
-    if cropj(p) > scansize(2)
-        cropj(p) = scansize(2);
+    if xCrop(p) > scansize(2)
+        xCrop(p) = scansize(2);
     end
-    if cropi(p) > scansize(1)
-        cropi(p) = scansize(1);
+    if yCrop(p) > scansize(1)
+        yCrop(p) = scansize(1);
     end
 end
 
-bDataCropped = bData(cropi(1):cropi(2), cropj(1):cropj(2));
-Xc = X(cropi(1):cropi(2), cropj(1):cropj(2));
-Yc = Y(cropi(1):cropi(2), cropj(1):cropj(2));
-xc = x(cropj(1):cropj(2));
-yc = y(cropi(1):cropi(2));
+bDataCropped = bData(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+Xc = X(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+Yc = Y(yCrop(1):yCrop(2), xCrop(1):xCrop(2));
+xc = x(xCrop(1):xCrop(2));
+yc = y(yCrop(1):yCrop(2));
 
 if kwargs.checkPlot
     figure
@@ -353,8 +353,8 @@ for k = 1:kwargs.nRuns
     fval(k) = sqrt(sum(sum((bModel - bDataCropped).^2))/numel(bDataCropped)); %??????????????????????????
     
     %% display calculation and counter
-    perc = round(k/kwargs.nRuns) *100;
-    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,100-perc),']'];
+    perc = round(k/kwargs.nRuns *50);
+    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
     % str to replace all previous characters
     strCR = repmat('\b',1,length(strOut));
     if k ~= 1; fprintf(strCR); end
@@ -410,18 +410,21 @@ msg = sprintf('M = %1.3d; I = %1.3f; D = %1.3f', mopt, iopt, dopt);
 logMsg('result',msg,1,1);
 msg = sprintf('h = %1.3d; x = %1.3d; y = %1.3d', hopt, xopt, yopt);
 logMsg('result',msg,1,1);
-% fprintf('<>      M = %1.3d (min = %1.3d); I = %1.3f (min = %1.3f); D = %1.3f (min = %1.3f) \n', mopt, P(4, i0), iopt, P(5, i0), dopt, P(6, i0));
-% fprintf('<>      h = %1.3d (min = %1.3d); x = %1.3d (min = %1.3d); y = %1.3d (min = %1.3d)\n', hopt, P(3, i0), xopt, P(1, i0), yopt, P(2, i0));
-
 
 %% calculate residuals
 % parameters for model
 Popt2 = [Popt(1:4), 90 - Popt(5), Popt(6) + 90, Popt(7:terms(kwargs.fitOrder) + 3)];
 % calculate the model
 [resid, bModel] = SourceFitMultiP8(Popt2, Xc, Yc, bDataCropped, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
-residex = bModel - bDataCropped;
-resids = sqrt(sum(sum(residex.^2))/sum(sum(bDataCropped.^2)));
+% [residFull, bModelFull] = SourceFitMultiP8(Popt2, X, Y, bData, 0, kwargs.method, kwargs.quad, kwargs.fitOrder);
 
+residuals = bModel - bDataCropped;
+resids = sqrt(sum(sum(residuals.^2))/sum(sum(bDataCropped.^2)));
+
+dipolarity = 1-(rms(residuals-mean(mean(residuals)))/rms(bDataCropped-mean(mean(bDataCropped))));
+msg = sprintf('dipolarity parameter: %.2f', dipolarity);
+logMsg('RESULT',msg,1,1);
+    
 nameext = [name, ext];
 
 %% plotting / saving
@@ -433,7 +436,7 @@ if kwargs.checkPlot
     ax1 = subplot(1, 2, 1);
     QDM_figure(bData, 'ax', ax1);
     hold on
-    rectPos = [cropj(1), cropi(1), cropj(2)-cropj(1), cropi(2)-cropi(1)];
+    rectPos = [xCrop(1), yCrop(1), xCrop(2)-xCrop(1), yCrop(2)-yCrop(1)];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
@@ -441,7 +444,7 @@ if kwargs.checkPlot
     QDM_figure(led, 'ax', ax2, 'led',true, 'title', 'LED map');
     binning = detect_binning(expData);
     hold on
-    rectPos = [cropj(1)*binning, cropi(1)*binning, (cropj(2)-cropj(1))*binning, (cropi(2)-cropi(1))*binning];
+    rectPos = [xCrop(1)*binning, yCrop(1)*binning, (xCrop(2)-xCrop(1))*binning, (yCrop(2)-yCrop(1))*binning];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
@@ -460,7 +463,7 @@ if kwargs.checkPlot
     colorbar
     title('Model Scan');
     ax3 = subplot(2, 2, 4);
-    imagesc(xc, yc, residex);
+    imagesc(xc, yc, residuals);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
@@ -488,73 +491,80 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tResiduals\r\n');
+        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tDipolarity\r\n');
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), resids);
+    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), dipolarity);
     fclose(fid);
+end
+
+if kwargs.statsPlot
+    checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
 end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
-    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residex,...
-    'data', bDataCropped, 'model', bModel);
+    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
+    'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
+    'xCrop', xCrop, 'yCrop', yCrop);
+%     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
+%     save full model
 end
 
 function checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+%checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt, xopt, yopt)
+    figure
+    subplot(2,3,1)
+    plot(P(1, :), fval, '.')
+    title('Moment');
+    hold on
+    plot(P(1, i), fval(i), 'ko')
+    plot(P(1, i0), fval(i0), 'go')
+    plot([mopt, mopt], ylim, 'm--');
+    hold off
 
-figure
-subplot(2,3,1)
-plot(P(1, :), fval, '.')
-title('Moment');
-hold on
-plot(P(1, i), fval(i), 'ko')
-plot(P(1, i0), fval(i0), 'go')
-plot([mopt, mopt], ylim, 'm--');
-hold off
+    subplot(2,3,2)
+    plot(P(2, :), fval, '.')
+    title('Inclination');
+    hold on
+    plot(P(2, i), fval(i), 'ko')
+    plot(P(2, i0), fval(i0), 'go')
+    plot([iopt, iopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,2)
-plot(P(2, :), fval, '.')
-title('Inclination');
-hold on
-plot(P(2, i), fval(i), 'ko')
-plot(P(2, i0), fval(i0), 'go')
-plot([iopt, iopt], ylim, 'm--');
-hold off
+    subplot(2,3,3)
+    plot(P(3, :), fval, '.')
+    title('Declination');
+    hold on
+    plot(P(3, i), fval(i), 'ko')
+    plot(P(3, i0), fval(i0), 'go')
+    plot([dopt, dopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,3)
-plot(P(3, :), fval, '.')
-title('Declination');
-hold on
-plot(P(3, i), fval(i), 'ko')
-plot(P(3, i0), fval(i0), 'go')
-plot([dopt, dopt], ylim, 'm--');
-hold off
+    subplot(2,3,4)
+    plot(P(6, :), fval, '.')
+    title('Height');
+    hold on
+    plot(P(6, i), fval(i), 'ko')
+    plot(P(6, i0), fval(i0), 'go')
+    plot([hopt, hopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,4)
-plot(P(6, :), fval, '.')
-title('Height');
-hold on
-plot(P(6, i), fval(i), 'ko')
-plot(P(6, i0), fval(i0), 'go')
-plot([hopt, hopt], ylim, 'm--');
-hold off
+    subplot(2,3,5)
+    plot(P(4, :), fval, '.')
+    title('X displacement');
+    hold on
+    plot(P(4, i), fval(i), 'ko')
+    plot(P(4, i0), fval(i0), 'go')
+    plot([xopt, xopt], ylim, 'm--');
+    hold off
 
-subplot(2,3,5)
-plot(P(4, :), fval, '.')
-title('X displacement');
-hold on
-plot(P(4, i), fval(i), 'ko')
-plot(P(4, i0), fval(i0), 'go')
-plot([xopt, xopt], ylim, 'm--');
-hold off
-
-subplot(2,3,6)
-plot(P(5, :), fval, '.')
-title('Y displacement');
-hold on
-plot(P(5, i), fval(i), 'ko')
-plot(P(5, i0), fval(i0), 'go')
-plot([yopt, yopt], ylim, 'm--');
-hold off
+    subplot(2,3,6)
+    plot(P(5, :), fval, '.')
+    title('Y displacement');
+    hold on
+    plot(P(5, i), fval(i), 'ko')
+    plot(P(5, i0), fval(i0), 'go')
+    plot([yopt, yopt], ylim, 'm--');
+    hold off
 end

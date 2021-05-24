@@ -1,4 +1,25 @@
-Release Notes 
+Release Notes
+*************
+
+2021.1.1
+========
+  - adds precompiled GPUfit package with corresponding functions.
+    **NOTE:** ESR3RT was renamed to ESRN14
+  - adds GPUfit modified files for compiling
+  - adds `scalebar` function to add a scale-bar to the map (QDM_figure)
+  - adds warning pop-up if NaN values are detected in B111 data, when converting to Bz
+  - filterProps can now be passed as a structure into `estimate_coercivity` and `QDM_figure`
+  
+  minor fixes
+  -----------
+  - fixes bug where binning can not be automatically determined
+  - adds title to viscosity plots
+  - better naming of resulting maps from `subtract_source`
+  - fixes issue where LED would be cropped after subtract_blank
+  - fixes issue with wrong cropping of LED in QDMdataprocessing
+  - `coercivity_results_plot` now has option to add mean for all ROIs
+  - better first line comments
+  - replaces `exist_struct` with `isfield`
 
 2021.0.beta4
 ============
