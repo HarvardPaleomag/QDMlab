@@ -179,7 +179,7 @@ end
 
 %% GPU pre fits
 
-%% fittiing related
+%% fitting related
 tolerance = 1e-13;
 initialPreGuess = 'none';
 
@@ -228,7 +228,7 @@ logMsg('info',msg,1,0);
 
 %% FINAL GPU FIT
 if strcmp(kwargs.diamond, 'N14')
-    model_id = ModelID.ESR3RT;
+    model_id = ModelID.ESR14N;
 elseif strcmp(kwargs.diamond, 'N15')
     model_id = ModelID.ESR15N;
 end
