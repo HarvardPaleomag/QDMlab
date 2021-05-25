@@ -109,10 +109,12 @@ hold(ax, 'on');
 % pcolor(data, 'Parent', ax);
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
+imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+
 xc = 1:size(data, 2);
 yc = 1:size(data, 1);
 
-colormap(ax, parula);
+colormap(ax, turbo(512));
 shading flat;
 set(ax, 'ydir', 'reverse');
 
@@ -124,7 +126,7 @@ axis(ax, 'tight');
 axis equal, axis tight, axis xy
 
 if kwargs.led
-    colormap(ax, bone);
+    colormap(ax, bone(512));
     return
 end
 
