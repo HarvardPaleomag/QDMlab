@@ -48,7 +48,7 @@ else
         % The masked data now gets filtered to create the final mask
         iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
         m = limit_mask(nROI{iSelect});
-        msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)));
+        msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)), numel(iMaskData), 100*numel(nonzeros(iMaskData))/numel(iMaskData));
         logMsg('debug',msg,1,0);
 
         % set mask

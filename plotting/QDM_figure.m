@@ -137,7 +137,7 @@ end
 
 % Set the remaining axes properties
 if isnumeric(kwargs.std)
-    med = abs(median(data, 'all', 'omitnan'));
+    med = median(abs(data), 'all', 'omitnan');
     st = std(data, [], 'all', 'omitnan');
     mx = max(data, [], 'all', 'omitnan');
     mn = min(data, [], 'all', 'omitnan');
