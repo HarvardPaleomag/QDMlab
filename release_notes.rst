@@ -4,7 +4,10 @@ Release Notes
 ========
   features
   --------
-  -
+  - `dipole_fit_series` now can use the constrained code by setting
+    `'constrained', true` and passing `m0`, `hguess`, `minheight`,
+    `maxheight`, `boxwidth` to the desired values
+
   important changes
   -----------------
   - `QDM_lorentzian_fit` is *deprecated* now. Use `ODMR_to_B111`
