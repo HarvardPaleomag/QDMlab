@@ -1,5 +1,16 @@
 Release Notes
 *************
+2021.1.2
+========
+  features
+  --------
+  -
+
+  minor fixes
+  -----------
+  - fixes issue where QDM_figure does not show the data
+  - fixes issue where maps are displayed in only two colors
+  - slopeCorrection in `QDMR_to_B111` now is global to all types and affects the GPUdata
 
 2021.1.1
 ========
@@ -9,7 +20,7 @@ Release Notes
   - adds `scalebar` function to add a scale-bar to the map (QDM_figure)
   - adds warning pop-up if NaN values are detected in B111 data, when converting to Bz
   - filterProps can now be passed as a structure into `estimate_coercivity` and `QDM_figure`
-  
+
   minor fixes
   -----------
   - fixes bug where binning can not be automatically determined
