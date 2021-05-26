@@ -1,5 +1,6 @@
 % Custom validation function
 function foldersMustExist(folders)
+%foldersMustExist(folders)
     % Test for equal size
     folders = correct_cell_shape(folders);
     for f = folders

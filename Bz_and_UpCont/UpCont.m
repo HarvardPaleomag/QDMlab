@@ -1,4 +1,5 @@
 function [Bout] = UpCont(Bin, dh, fs)
+%[Bout] = UpCont(Bin, dh, fs)
 % Parameters
 % ----------
 %       Bin: double

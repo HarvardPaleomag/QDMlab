@@ -1,23 +1,24 @@
 function [transForm, refFrame] = get_image_tform(fixedData, movingData, kwargs)
+%[transForm, refFrame] = get_image_tform(fixedData, movingData; 'checkPlot', 'sharpen', 'title')
 % takes reference data and calculate tform, rframe that tranforms target data
 % to match the reference in the reference frame
 % 
-% parameters:
-%     fixedData: QDM/LED data
-%     movingData: QDM/LED data
-%         data to be matched to the refernce data
-% 
-% optional parameters:
-%     checkPlot: bool 
-%         default: false
+% Parameters
+% ----------
+%     fixedData: double
+%         Reference QDM/LED data
+%     movingData: double
+%         QDM/LED data to be matched to the reference data
+%     checkPlot: bool [false]
 %         Adds a plot to check alignment if true
-%     title: char
+%     title: char ['checkPlot alignment']
 %         Adds a title to the checkPlot
 
 arguments
     fixedData
     movingData
-    kwargs.checkPlot = 0;
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= false
+    kwargs.sharpen = false;
     kwargs.title {ischar} = 'checkPlot alignment';
 end
 
@@ -30,8 +31,16 @@ if isequal(fixedData, movingData)
 end
     
 fixedData = uint8(255 * mat2gray(fixedData));
+fixedData = imadjust(fixedData);
 movingData = uint8(255 * mat2gray(movingData));
+movingData = imadjust(movingData);
 
+if kwargs.sharpen
+    PSF = fspecial('gaussian',7,10);
+    fixedData = deconvblind(fixedData,PSF);
+    movingData = deconvblind(movingData,PSF);
+end
+    
 msg = sprintf('detecting features in fixed and moving data');
 logMsg('debug',msg,1,1);
 

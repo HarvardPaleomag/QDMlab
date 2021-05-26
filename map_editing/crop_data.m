@@ -1,4 +1,5 @@
 function croppedData = crop_data(data, mask)
+%[croppedData] = crop_data(data, mask)
 %{
 Helper function to crop data according to a specified mask
 

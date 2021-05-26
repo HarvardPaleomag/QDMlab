@@ -1,4 +1,5 @@
 function [] = B111ToBz_CommLine(INFILE,ferroorpara,pixel,h,quadsub,colorrange)
+%[] = B111ToBz_CommLine(INFILE, ferroorpara, pixel, h, quadsub, colorrange)
 %This script takes in a B111 map file that must include a B111ferro or
 %B111para matrix and an ledImg matrix
 %for pixel size
