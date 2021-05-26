@@ -53,7 +53,7 @@ arguments
     kwargs.std {mustBeInteger} = 10;
     kwargs.scaleBar = false
     
-    filter.filterStruct struct = struct();
+    filter.filterProps struct = struct();
     filter.preThreshold = 5
 end
 
@@ -91,8 +91,8 @@ else
     ax = kwargs.ax;
 end
 
-if ~all( structfun(@isempty, filter.filterStruct))
-    filterProps = namedargs2cell(filter.filterStruct);
+if ~all( structfun(@isempty, filter.filterProps))
+    filterProps = namedargs2cell(filter.filterProps);
     data = filter_hot_pixels(data, filterProps{:});
 end
 
