@@ -1,5 +1,5 @@
-function results = dipole_fit_series(nFolders, kwargs)
-%[results] = dipole_fit_series(nFolders; 'transFormFile', 'refIdx', 'checkPlot', 'outputTrue', 'save', 'upCont', 'nROI', 'imageFolder', 'fileName')
+function results = dipole_fit_series(nFiles, kwargs, filter)
+%[results] = dipole_fit_series(nFiles; 'refIdx', 'pixelSize', 'upCont', 'nROI', 'checkPlot', 'imageFolder', 'transFormFile', 'outputTrue', 'save', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it 
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -66,23 +66,23 @@ function results = dipole_fit_series(nFolders, kwargs)
 %           ith ROI, jth file, kth UC value:
 
 arguments
-    nFolders
-    kwargs.transFormFile = 'none';
+    nFiles
     kwargs.refIdx = 1;
-    kwargs.checkPlot = false;
-    kwargs.outputTrue =  false;
-    kwargs.save = false;
+    kwargs.pixelSize = 4.68e-6;
     kwargs.upCont = {0};
     kwargs.nROI = false;
+
+    kwargs.checkPlot = false;
+    
     kwargs.imageFolder = false;
-    kwargs.fileName = 'Bz_uc0.mat';
+    kwargs.transFormFile = false;
+    kwargs.outputTrue =  false;
+    kwargs.save = false;
 
     filter.filterProps struct = struct();
 end
 
-% define QDM parameters
-pixelSize = 4.68e-6;
-
+%% filtering
 if ~all( structfun(@isempty, filter.filterProps))
     filterProps = namedargs2cell(filter.filterProps);
     filtered = true;
@@ -90,8 +90,8 @@ else
     filtered = false;
 end
 
-% generate reference file name
-refFile = [nFolders{kwargs.refIdx}, filesep, kwargs.fileName];
+% reference file name
+refFile = nFiles{kwargs.refIdx};
 
 % get transformations and rframes
 [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
