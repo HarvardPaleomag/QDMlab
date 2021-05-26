@@ -109,6 +109,8 @@ hold(ax, 'on');
 % pcolor(data, 'Parent', ax);
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
+imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+
 xc = 1:size(data, 2);
 yc = 1:size(data, 1);
 
