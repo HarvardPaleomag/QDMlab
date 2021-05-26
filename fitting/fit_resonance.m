@@ -120,6 +120,11 @@ imgPts = sizeX * sizeY; % number of (x,y) pixels
 gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
 gpudata = transpose(gpudata); %transpose to make it 51 x pixels
 gpudata = single(gpudata);
+
+if kwargs.slopeCorrection
+    gpudata_ = slope_correction(gpudata, freq, kwargs.slopeCorrection);
+end
+
 xValues = single(freq');
 
 %% GUESS INITIAL FIT PARAMETERS
@@ -184,21 +189,14 @@ tolerance = 1e-13;
 initialPreGuess = 'none';
 
 if kwargs.type == 2
-
-    % initial parameters
-    if kwargs.slopeCorrection
-        gpudata_ = slope_correction(gpudata, freq, kwargs.slopeCorrection);
-    else
-        gpudata_ = gpudata;
-    end
-    
-    initialPreGuess = get_initial_guess(gpudata_, freq, kwargs.diamond);
+    %% initial preGuess
+    initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
     fit.initialPreGuess = initialPreGuess;
     
     if strcmp(kwargs.diamond, 'N14')
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
-        [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata_, [], ...
+        [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
             model_id, initialPreGuess, tolerance, 1000, ...
             [], EstimatorID.MLE, xValues);
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
