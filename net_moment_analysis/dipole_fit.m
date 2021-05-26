@@ -354,7 +354,7 @@ for k = 1:kwargs.nRuns
     
     %% display calculation and counter
     perc = round(k/kwargs.nRuns *50);
-    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
+    strOut = [sprintf('<>                      FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
     % str to replace all previous characters
     strCR = repmat('\b',1,length(strOut));
     if k ~= 1; fprintf(strCR); end
