@@ -51,8 +51,8 @@ arguments
     kwargs.slopeCorrection = false;
 end
 
-msg = sprintf('!DEPRECATED! please use ODMR_to_B111. QDM_lorentzian_fit will be removed in  a later update');
-logMsg('warn',msg,1,0);
+msg = sprintf('please use ODMR_to_B111. QDM_lorentzian_fit will be removed in  a later update');
+logMsg('deprecated',msg,1,0);
 
 kwargs = namedargs2cell(kwargs);
 fits = ODMR_to_B111(kwargs{:});

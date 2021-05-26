@@ -5,6 +5,11 @@ Release Notes
   features
   --------
   -
+  important changes
+  -----------------
+  - `QDM_lorentzian_fit` is *deprecated* now. Use `ODMR_to_B111`
+  - `estimate_coercivity` is *deprecated* now. Use `demag_behavior`
+  - `coercivity_results_plot` is *deprecated* now. Use `demag_behavior_plot`
 
   minor fixes
   -----------
