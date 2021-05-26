@@ -114,7 +114,7 @@ imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 xc = 1:size(data, 2);
 yc = 1:size(data, 1);
 
-colormap(ax, parula);
+colormap(ax, turbo(512));
 shading flat;
 set(ax, 'ydir', 'reverse');
 
