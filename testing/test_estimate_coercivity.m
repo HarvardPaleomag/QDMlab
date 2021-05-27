@@ -9,4 +9,6 @@ folders = {'/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/
            '/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/FOV1/1000G/2x2Binned'};  
 fname = 'B111dataToPlot.mat';
 %%
-estimate_coercivity(folders, 'fileName', fname, 'filterProps', struct('threshold', 1, 'chi', true))
+res = demag_behavior(folders, 'fileName', fname, 'bootStrapN', 1000, 'pixelError', 2);%, 'filterProps', struct('threshold', 5, 'chi', true, 'cutOff', 14))
+%%
+coercivity_result_plot(res, 'steps', [0,150,280,400,500,600,1000])

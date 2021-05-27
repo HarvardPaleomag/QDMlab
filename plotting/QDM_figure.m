@@ -53,7 +53,7 @@ arguments
     kwargs.std {mustBeInteger} = 10;
     kwargs.scaleBar = false
     
-    filter.filterStruct struct = struct();
+    filter.filterProps struct = struct();
     filter.preThreshold = 5
 end
 
@@ -91,8 +91,8 @@ else
     ax = kwargs.ax;
 end
 
-if ~all( structfun(@isempty, filter.filterStruct))
-    filterProps = namedargs2cell(filter.filterStruct);
+if ~all( structfun(@isempty, filter.filterProps))
+    filterProps = namedargs2cell(filter.filterProps);
     data = filter_hot_pixels(data, filterProps{:});
 end
 
@@ -100,39 +100,44 @@ if ~strcmp(kwargs.pixelAlerts, 'none')
     data(kwargs.pixelAlerts) = nan;
 end
 
-%%
-% Create axes
-axis(ax, kwargs.axis);
-hold(ax, 'on');
 
-% Create image
-% pcolor(data, 'Parent', ax);
+%% Create image
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
-imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+im = imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 xc = 1:size(data, 2);
 yc = 1:size(data, 1);
 
 colormap(ax, turbo(512));
-shading flat;
-set(ax, 'ydir', 'reverse');
 
 % Create title
 title(kwargs.title, 'Fontsize', 12);
 
-% box(ax, 'on');
+%% 
+% Create axes
+axis(ax, kwargs.axis);
+box(ax, 'on');
 axis(ax, 'tight');
-axis equal, axis tight, axis xy
+axis(ax, 'equal')
+axis(ax, 'xy')
+hold(ax, 'on');
 
+%% led
 if kwargs.led
-    colormap(ax, bone(512));
-    return
+    colormap(ax, gray(512));
+end
+
+if iscell(kwargs.nROI)
+    add_ROI(kwargs.nROI, 'ax', ax)
+    if kwargs.led
+        return
+    end
 end
 
 % Set the remaining axes properties
 if isnumeric(kwargs.std)
-    med = abs(median(data, 'all', 'omitnan'));
+    med = median(abs(data), 'all', 'omitnan');
     st = std(data, [], 'all', 'omitnan');
     mx = max(data, [], 'all', 'omitnan');
     mn = min(data, [], 'all', 'omitnan');
@@ -152,15 +157,9 @@ if isnumeric(kwargs.std)
     end
 end
 
-if strcmp(kwargs.axis, 'off')
-    axis off
-end
 
-if iscell(kwargs.nROI)
-    add_ROI(kwargs.nROI, 'ax', ax)
-end
 
-% Create colorbar
+%% Create colorbar
 cb = colorbar(ax);
 title(cb, kwargs.cbTitle, 'Fontsize', 12);
 
@@ -171,3 +170,4 @@ if ~isequal(kwargs.scaleBar, false)
     logMsg('info',msg,1,1);
     scalebar('ax', ax, 'scaleBar', kwargs.scaleBar)
 end
+

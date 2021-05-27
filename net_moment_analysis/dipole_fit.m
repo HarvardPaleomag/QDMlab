@@ -267,8 +267,8 @@ for k = 1:kwargs.nRuns
             [P(1:3, k), fval2(k), exitflag, output] = fmincon(@(Pp) ...
                 SourceFitMultiP8(Pp, Xc, Yc, bDataCropped, kwargs.display, ...
                 kwargs.method, kwargs.quad, kwargs.fitOrder), P0, [], [], [], [], ...
-                [x0 - kwargs.boxwidth, y0 - kwargs.boxwidth, 2e-5], ...
-                [x0 + kwargs.boxwidth, y0 + kwargs.boxwidth, 3e-5], [], options);
+                [x0 - kwargs.boxwidth, y0 - kwargs.boxwidth, kwargs.minheight], ...
+                [x0 + kwargs.boxwidth, y0 + kwargs.boxwidth, kwargs.maxheight], [], options);
         else
             %% OLD unconstrained
             [P(1:3,k),fval2(k), exitflag, output] = fminsearch(@(Pp) ...
@@ -354,7 +354,7 @@ for k = 1:kwargs.nRuns
     
     %% display calculation and counter
     perc = round(k/kwargs.nRuns *50);
-    strOut = [sprintf('<>   FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
+    strOut = [sprintf('<>                      FITTING: (%02i/%02i) [', k, kwargs.nRuns) repmat('*',1,perc) repmat(' ',1,50-perc),']'];
     % str to replace all previous characters
     strCR = repmat('\b',1,length(strOut));
     if k ~= 1; fprintf(strCR); end

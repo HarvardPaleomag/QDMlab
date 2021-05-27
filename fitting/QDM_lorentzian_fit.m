@@ -51,63 +51,8 @@ arguments
     kwargs.slopeCorrection = false;
 end
 
-defaults = struct('binSizes', [4], 'globalFraction', 0.25);
-nFolders = automatic_input_ui__(kwargs.nFolders);
-kwargs = ask_arguments(kwargs, defaults);
-binSizes = kwargs.binSizes;
+msg = sprintf('please use ODMR_to_B111. QDM_lorentzian_fit will be removed in  a later update');
+logMsg('deprecated',msg,1,0);
 
-% check if there is more than one folder
-nFolders = correct_cell_shape(nFolders);
-
-% check if there is one or more binSize
-if isnumeric(binSizes)
-    binSizes = [binSizes];
-end
-
-% select field polarity
-fp = containers.Map({0 1 2 4},{'np  ' 'n   ' 'p   ' 'nppn'});
-type = fp(kwargs.fieldPolarity);
-
-for dataFolder = nFolders
-    dataFolder = dataFolder{:};
-    for n=1:size(binSizes,2)
-        binSize=binSizes(n);
-        %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
-        fits = GPU_fit(dataFolder, binSize,...
-                        'fieldPolarity',kwargs.fieldPolarity, ...
-                        'type', kwargs.type,...
-                        'globalFraction', kwargs.globalFraction,...
-                        'diamond', kwargs.diamond,...
-                        'gaussianFit', kwargs.gaussianFit,...
-                        'gaussianFilter', kwargs.gaussianFilter,...
-                        'forceGuess', kwargs.forceGuess,...
-                        'checkPlot', kwargs.checkPlot,...
-                        'smoothDegree', kwargs.smoothDegree,...
-                        'slopeCorrection', kwargs.slopeCorrection,...
-                        'save', kwargs.save);
-                    
-        fits.kwargs = kwargs;
-        fits.nFolder = dataFolder;
-        
-        folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
-
-        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
-        
-        if kwargs.save
-            % copy laser image and csv
-            msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
-            logMsg('info',msg,1,0);
-
-            copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
-            copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
-
-            fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
-            msg = sprintf('saving %s into %s', fName, dataFolder);
-            logMsg('info',msg,1,0);
-
-            save(fullfile(dataFolder, folderName, fName), '-struct', 'fits');
-        end
-    end
-end
-
-end
+kwargs = namedargs2cell(kwargs);
+fits = ODMR_to_B111(kwargs{:});
