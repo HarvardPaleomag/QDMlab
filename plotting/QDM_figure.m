@@ -52,6 +52,8 @@ arguments
     kwargs.axis = 'on';
     kwargs.std {mustBeInteger} = 10;
     kwargs.scaleBar = false
+    kwargs.xc = false;
+    kwargs.yc = false;
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
@@ -104,10 +106,20 @@ end
 %% Create image
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
-im = imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-xc = 1:size(data, 2);
-yc = 1:size(data, 1);
+if isequal(kwargs.xc, false)
+    xc = 1:size(data, 2);
+else
+    xc= kwargs.xc;
+end
+
+if isequal(kwargs.yc, false)
+    yc = 1:size(data, 1);
+else
+    yc= kwargs.yc;
+end
+
+im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 colormap(ax, turbo(512));
 
