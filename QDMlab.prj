@@ -1,14 +1,14 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="3309077158" file="C:\Users\harva\github\QDMlab\QDMlab.prj" location="C:\Users\harva\github\QDMlab" name="QDMlab" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="3309077158" file="/Users/mike/github/QDMlab/QDMlab.prj" location="/Users/mike/github/QDMlab" name="QDMlab" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>QDMlab</param.appname>
     <param.authnamewatermark>M. Volk, R. Fu, R. Trubko, P. Kehayias ...</param.authnamewatermark>
     <param.email>michaelvolk1979@gmail.com</param.email>
     <param.company>Harvard University</param.company>
     <param.summary>QDMlab a matlab toolbox for analyzing Quantum Diamond Microscope images</param.summary>
     <param.description />
-    <param.screenshot>Y:\QDMlab_logo.png</param.screenshot>
-    <param.version>2021.1.1</param.version>
-    <param.output>${PROJECT_ROOT}\QDMlab.mltbx</param.output>
+    <param.screenshot>/Users/mike/Dropbox/science/_projects/QDMlab_paper/figs/QDMlab_logo.png</param.screenshot>
+    <param.version>2021.1.2</param.version>
+    <param.output>${PROJECT_ROOT}/QDMlab.mltbx</param.output>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -100,46 +100,46 @@
       <file>${PROJECT_ROOT}</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}\alignment_tools</file>
-      <file>${PROJECT_ROOT}\analysis</file>
-      <file>${PROJECT_ROOT}\Bz_and_UpCont</file>
-      <file>${PROJECT_ROOT}\data_models</file>
-      <file>${PROJECT_ROOT}\fitting</file>
-      <file>${PROJECT_ROOT}\GPUfit_MATLAB</file>
-      <file>${PROJECT_ROOT}\map_editing</file>
-      <file>${PROJECT_ROOT}\net_moment_analysis</file>
-      <file>${PROJECT_ROOT}\picking_tools</file>
-      <file>${PROJECT_ROOT}\plotting</file>
-      <file>${PROJECT_ROOT}\README.md</file>
-      <file>${PROJECT_ROOT}\release_notes.rst</file>
-      <file>${PROJECT_ROOT}\testing</file>
-      <file>${PROJECT_ROOT}\utilities</file>
-      <file>${PROJECT_ROOT}\validators</file>
+      <file>${PROJECT_ROOT}/Bz_and_UpCont</file>
+      <file>${PROJECT_ROOT}/GPUfit_MATLAB</file>
+      <file>${PROJECT_ROOT}/README.md</file>
+      <file>${PROJECT_ROOT}/alignment_tools</file>
+      <file>${PROJECT_ROOT}/analysis</file>
+      <file>${PROJECT_ROOT}/data_models</file>
+      <file>${PROJECT_ROOT}/fitting</file>
+      <file>${PROJECT_ROOT}/map_editing</file>
+      <file>${PROJECT_ROOT}/net_moment_analysis</file>
+      <file>${PROJECT_ROOT}/picking_tools</file>
+      <file>${PROJECT_ROOT}/plotting</file>
+      <file>${PROJECT_ROOT}/release_notes.rst</file>
+      <file>${PROJECT_ROOT}/testing</file>
+      <file>${PROJECT_ROOT}/utilities</file>
+      <file>${PROJECT_ROOT}/validators</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="QDMlab.mltbx" optional="false">C:\Users\harva\github\QDMlab\QDMlab.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="QDMlab.mltbx" optional="false">/Users/mike/github/QDMlab/QDMlab.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2020b</root>
+      <root>/Applications/MATLAB_R2020b.app</root>
       <toolboxes />
     </matlab>
     <platform>
-      <unix>false</unix>
-      <mac>false</mac>
-      <windows>true</windows>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.0</osver>
+      <osver>10.16</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>win64</arch>
+      <arch>maci64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>
