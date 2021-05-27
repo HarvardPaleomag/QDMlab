@@ -31,8 +31,8 @@ function show_references()
     if ~isfield(messages, callerName)
         return
     end
-
-    if isempty(messageDisplayed)
+    
+    if ~isfield(messageDisplayed, callerName)
         messageDisplayed.(callerName) = false;
     end
 
