@@ -413,7 +413,7 @@ for i = 1:size(nFolders, 2)
     fileTransForm.refData = refData;
     fileTransForm.refLed = refLed;
 
-    fileTransForm.kwargs.fileName = iFile;
+    fileTransForm.fileName = iFile;
     fileTransForm.targetLed = targetLed;
     fileTransForm.targetData = targetData;
 
@@ -479,4 +479,4 @@ function check_plot(fileTransForm)
     linkaxes([ax1 ax2 ax3]);
     linkaxes([ax4 ax5 ax6]);
 end
->>>>>>> 2021.1.1
+
