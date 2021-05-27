@@ -142,18 +142,22 @@ if isnumeric(kwargs.std)
     mx = max(data, [], 'all', 'omitnan');
     mn = min(data, [], 'all', 'omitnan');
     
-    if (med + kwargs.std * st) > max(abs([mx,mn]))
-        msg = sprintf('Clim values exceeds min/max');
-        logMsg('debug',msg,1,0);
-    elseif ~all(data > 0, 'all')
-        msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('debug',msg,1,0);
-        set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
-    else
-        msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
-                     med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('info',msg,1,0);
-        set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+    try
+        if (med + kwargs.std * st) > max(abs([mx,mn]))
+            msg = sprintf('Clim values exceeds min/max');
+            logMsg('debug',msg,1,0);       
+        elseif ~all(data > 0, 'all')
+            msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('debug',msg,1,0);
+            set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
+        else
+            msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
+                         med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('info',msg,1,0);
+            set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+        end
+    catch
+        return
     end
 end
 
