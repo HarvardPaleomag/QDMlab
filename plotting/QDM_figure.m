@@ -45,15 +45,22 @@ arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.led = false;
-    kwargs.nROI = 'none';
     kwargs.pixelAlerts = 'none';
+
     kwargs.title = 'QDM DATA';
-    kwargs.cbTitle = 'B_z (T)';
+    kwargs.cbTitle = 'B_z';
+    kwargs.unit = 'G'; % assuming the input data is in G
+    
+    kwargs.nROI = 'none';
+
     kwargs.axis = 'on';
-    kwargs.std {mustBeInteger} = 10;
-    kwargs.scaleBar = false
     kwargs.xc = false;
     kwargs.yc = false;
+
+    kwargs.std {mustBeInteger} = 10;
+    
+    kwargs.scaleBar = false
+    kwargs.pixelSize = 4.7e-6
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
@@ -83,7 +90,7 @@ else
     fig = kwargs.fig;
 end
 
-if filter.preThreshold && ~kwargs.led
+if filter.preThreshold & ~kwargs.led
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 
@@ -119,6 +126,7 @@ else
     yc= kwargs.yc;
 end
 
+data = convert_to(data, kwargs.unit);
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 colormap(ax, turbo(512));
@@ -177,13 +185,33 @@ end
 
 %% Create colorbar
 cb = colorbar(ax);
-title(cb, kwargs.cbTitle, 'Fontsize', 12);
+if isequal(kwargs.led, false)
+    title(cb, sprintf('%s (%s)', kwargs.cbTitle, strrep(kwargs.unit, 'micro', '\mu')), 'Fontsize', 12);
+end
 
+%% scalebar
 if ~isequal(kwargs.scaleBar, false)
     msg = sprintf('adding scalebar to the figure. NOTE this is set to a default pixelSize of 4.7e-6 and should be called separately if the size is wrong.');
     logMsg('info',msg,1,0);
     msg = sprintf('e.g. >> [f,a,i] = QDM_figure(Bz); scalebar(''ax'', a, ''scaleBar'', 250, ''location'', ''bottom left'')');
     logMsg('info',msg,1,1);
-    scalebar('ax', ax, 'scaleBar', kwargs.scaleBar)
+    scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
 
+end
+
+function data = convert_to(data, unit)
+    switch unit
+        case 'T'
+            conv = 0.0001;
+        case 'microT'
+            conv = 0.1;
+        case 'nT'
+            conv = 100;
+        case 'G'
+            conv = 1;
+    end
+    msg = sprintf('converting 1 G -> %i%s: ', conv, unit);
+    logMsg('debug',msg,1,0);
+    data = data * conv;
+end
