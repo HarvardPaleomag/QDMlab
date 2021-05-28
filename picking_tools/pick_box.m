@@ -48,8 +48,6 @@ while n
 
         loc = iROI.Position;
 
-        loc = iRect.Position;
-
         x0 = int16(loc(1));
         dx = int16(loc(3));
         x1 = x0 + dx;
