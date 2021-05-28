@@ -64,6 +64,7 @@ arguments
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
+    filter.mustBe = false;
 end
 
 %% check for data
@@ -109,6 +110,14 @@ if ~strcmp(kwargs.pixelAlerts, 'none')
     data(kwargs.pixelAlerts) = nan;
 end
 
+if ~isequal(filter.mustBe, false)
+    switch filter.mustBe
+        case 'neg'
+            data(data>0) = nan;
+        case 'pos'
+            data(data<0) = nan;
+    end
+end
 
 %% Create image
 imAlpha=ones(size(data));
@@ -165,8 +174,10 @@ if isnumeric(kwargs.std)
     try
         if (med + kwargs.std * st) > max(abs([mx,mn]))
             msg = sprintf('Clim values exceeds min/max');
-            logMsg('debug',msg,1,0);       
-        elseif ~all(data > 0, 'all')
+            logMsg('debug',msg,1,0);
+        elseif all(data(~isnan(data)) > 0, 'all') | all(data(~isnan(data)) < 0, 'all')
+            set(ax, 'CLim', [mn, mx]);
+        elseif ~all(data(~isnan(data)) > 0, 'all')
             msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
             logMsg('debug',msg,1,0);
             set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
@@ -187,6 +198,8 @@ end
 cb = colorbar(ax);
 if isequal(kwargs.led, false)
     title(cb, sprintf('%s (%s)', kwargs.cbTitle, strrep(kwargs.unit, 'micro', '\mu')), 'Fontsize', 12);
+else
+    title(cb, '', 'Fontsize', 12);
 end
 
 %% scalebar
