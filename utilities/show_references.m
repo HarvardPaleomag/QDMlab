@@ -9,6 +9,10 @@ function show_references()
         callerName = 'QDMdataprocessing';
     end
     
+    if isempty(messageDisplayed)
+        messageDisplayed.(callerName) = false;
+    end
+
     messages.QDMdataprocessing = ['QDMdataprocessing.m -- MATLAB script for performing cropping, background compensation,\n',...
                                   'interpolation, calibration, and upward continuation of QDM data.\n',...
                                   'Processed data are saved to a .mat file and images are saved to .png files.\n\n',...
@@ -20,18 +24,18 @@ function show_references()
                                   '  Copyright (C) 2017-2020 MIT Paleomagnetism Lab, Harvard Paleomagnetics Lab\n',...
                                   '===============================================================================================\n'];
                                   
-    messages.fit_resonance = ['===============================================================================================\n',...
-                              'GPUfit: Copyright (c) 2017 Mark Bates, Adrian Przybylski, Björn Thiel, and Jan Keller-Findeisen\n',...
-                              '===============================================================================================\n'];
+    messages.fit_resonance = ['=================================================================================================\n',...
+                              '  GPUfit: Copyright (c) 2017 Mark Bates, Adrian Przybylski, Björn Thiel, and Jan Keller-Findeisen\n',...
+                              '=================================================================================================\n'];
     
     if ~isfield(messages, callerName)
         return
     end
     
-    if isempty(messageDisplayed)
+    if ~isfield(messageDisplayed, callerName)
         messageDisplayed.(callerName) = false;
     end
-    
+
     if ~messageDisplayed.(callerName)
         fprintf(messages.(callerName))
         messageDisplayed.(callerName) = true;

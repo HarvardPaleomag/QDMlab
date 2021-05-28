@@ -52,6 +52,8 @@ arguments
     kwargs.axis = 'on';
     kwargs.std {mustBeInteger} = 10;
     kwargs.scaleBar = false
+    kwargs.xc = false;
+    kwargs.yc = false;
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
@@ -104,10 +106,20 @@ end
 %% Create image
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
-im = imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-xc = 1:size(data, 2);
-yc = 1:size(data, 1);
+if isequal(kwargs.xc, false)
+    xc = 1:size(data, 2);
+else
+    xc= kwargs.xc;
+end
+
+if isequal(kwargs.yc, false)
+    yc = 1:size(data, 1);
+else
+    yc= kwargs.yc;
+end
+
+im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 colormap(ax, turbo(512));
 
@@ -142,18 +154,22 @@ if isnumeric(kwargs.std)
     mx = max(data, [], 'all', 'omitnan');
     mn = min(data, [], 'all', 'omitnan');
     
-    if (med + kwargs.std * st) > max(abs([mx,mn]))
-        msg = sprintf('Clim values exceeds min/max');
-        logMsg('debug',msg,1,0);
-    elseif ~all(data > 0, 'all')
-        msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('debug',msg,1,0);
-        set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
-    else
-        msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
-                     med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('info',msg,1,0);
-        set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+    try
+        if (med + kwargs.std * st) > max(abs([mx,mn]))
+            msg = sprintf('Clim values exceeds min/max');
+            logMsg('debug',msg,1,0);       
+        elseif ~all(data > 0, 'all')
+            msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('debug',msg,1,0);
+            set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
+        else
+            msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
+                         med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('info',msg,1,0);
+            set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+        end
+    catch
+        return
     end
 end
 

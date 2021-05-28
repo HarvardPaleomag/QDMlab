@@ -48,12 +48,12 @@ while n
 
         loc = iROI.Position;
 
-        x0 = round(loc(1));
-        dx = round(loc(3));
+        x0 = int16(loc(1));
+        dx = int16(loc(3));
         x1 = x0 + dx;
 
-        y0 = round(loc(2));
-        dy = round(loc(4));
+        y0 = int16(loc(2));
+        dy = int16(loc(4));
         y1 = y0 + dy;
 
         % create box for plotting

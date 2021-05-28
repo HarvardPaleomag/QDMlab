@@ -96,6 +96,9 @@ for iFolder = nMovingFolders
     movingFile = [iFolder, filesep, refFileName];
     movingFile = check_suffix(movingFile);
     
+    msg = sprintf('aligning: %s', movingFile(end-40:end));
+    logMsg('debug',msg,1,0);
+    
     if laser
         moving = imread([iFolder filesep refExtension]);
 %         moving = adapthisteq(moving);
@@ -110,9 +113,6 @@ for iFolder = nMovingFolders
     elseif laser
         movingLed = moving;
         movingLed = movingLed - min(movingLed, [], 'all');
-    end
-    if movingLed == fixedLed
-        
     end
     
     if reverse
@@ -134,7 +134,7 @@ end
 
 if transFormFile == 0
     msg = sprintf('returning: Map(tForms), Map(refFrames)');
-    logMsg('info',msg,1,0);
+    logMsg('debug',msg,1,0);
     return
 else
     msg = sprintf('saving... to ', transFormFile');

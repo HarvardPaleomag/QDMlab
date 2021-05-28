@@ -1,4 +1,4 @@
-d = subtract_blank('D:\data\N15data\Jul21_2020_FOV1\4x4Binned', 'D:\data\N15data\Jul21_2020_FOV1\4x4Binned')
+d = subtract_blank('/Users/mike/Downloads', '/Users/mike/Downloads')
 dkeys = d.keys();
 k = dkeys{1};
 d(k)
@@ -14,7 +14,7 @@ imb = imread(fullfile(b, 'LED.jpg'));
 %% bin image B by 4
 imb_ = imresize(imb, 1/4, 'method', 'box');
 %%
-tformdata = tform_data(imb_, transForm, refFrame);
+tformdata = tform_data(imb_, transForm, refFrame, 4);
 %%
 figure
 subplot(2,2,1)
