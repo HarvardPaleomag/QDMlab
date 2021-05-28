@@ -1,5 +1,12 @@
 Release Notes
 *************
+2021.1.2a hotfix
+================
+- fixes bug where an error would occur in `QDM_figure` if all values are 0 or nan
+- fixes typo in `get_transformed_maps` when using `'checkPlot'` keyword
+- fixes typo in `pick_box`
+- fixes bug in `show_references`
+
 2021.1.2
 ========
   features
