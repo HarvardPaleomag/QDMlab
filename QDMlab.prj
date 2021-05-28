@@ -7,7 +7,7 @@
     <param.summary>QDMlab a matlab toolbox for analyzing Quantum Diamond Microscope images</param.summary>
     <param.description />
     <param.screenshot>/Users/mike/Dropbox/science/_projects/QDMlab_paper/figs/QDMlab_logo.png</param.screenshot>
-    <param.version>2021.1.2</param.version>
+    <param.version>2021.1.2.1</param.version>
     <param.output>${PROJECT_ROOT}/QDMlab.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -46,7 +46,9 @@
     <param.registered.apps />
     <param.docs />
     <param.getting.started.guide />
-    <param.matlabpath.excludes />
+    <param.matlabpath.excludes>
+      <item>/testing</item>
+    </param.matlabpath.excludes>
     <param.javaclasspath.excludes />
     <param.exported.on.package>false</param.exported.on.package>
     <param.required.addons />
@@ -79,7 +81,6 @@
       <param.registered.apps />
       <param.docs />
       <param.getting.started.guide />
-      <param.matlabpath.excludes />
       <param.javaclasspath.excludes />
       <param.exported.on.package />
       <param.required.addons />
