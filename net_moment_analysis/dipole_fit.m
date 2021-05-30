@@ -202,8 +202,8 @@ else
     yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
 end
 
-x0 = j * step;
-y0 = i * step;
+x0 = double(j) * step;
+y0 = double(i) * step;
 
 %adjust if the crop area falls outside the image
 scansize = size(bData);
