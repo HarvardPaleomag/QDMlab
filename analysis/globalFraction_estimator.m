@@ -1,9 +1,6 @@
 function globalFraction = globalFraction_estimator(kwargs)
-<<<<<<< HEAD
 % globalFraction_estimator lets you test different globalFraction values.
-=======
 %[globalFraction] = globalFraction_estimator()
->>>>>>> 2021.1.1
 %
 % Parameters
 % ----------
@@ -72,35 +69,39 @@ function globalFraction = globalFraction_estimator(kwargs)
     ax3 = axes('Parent',f,'position',[0.7 0.3  0.25 0.54]);
     
     %% plot pixels
+    %% left most pixel
     [x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
-    plot(ax1, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
+    plot(ax1, freq, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
     hold(ax1, 'on');
-    plot(ax1, globalMean, 'b:','lineWidth',1)
-    p1 = plot(ax1, squeeze(binDataNorm(y1,x1,:)),'lineWidth',1);
+    plot(ax1, freq, globalMean, 'b:','lineWidth',1)
+    p1 = plot(ax1, freq, squeeze(binDataNorm(y1,x1,:)),'lineWidth',1);
     title(ax1, 'min(min) pixel')
-    xlim(ax1, [0 numel(freq)]);
-
-    % center pixel random
     
+    %% center pixel random
     randInt = randi(size(idxMin,2));
     [x2,y2] = index2xy(randInt, nCol, 'type', 'binDataNorm');
-    p2_data = plot(ax2, squeeze(binDataNorm(y2,x2,:)), 'k','lineWidth',1);
+    p2_data = plot(ax2, freq, squeeze(binDataNorm(y2,x2,:)), 'k','lineWidth',1);
     hold(ax2, 'on');
-    globalPlot = plot(ax2, globalMean, 'b:','lineWidth',1);
-    p2 = plot(ax2, squeeze(binDataNorm(y2,x2,:)),'lineWidth',1);
+    globalPlot = plot(ax2,freq, globalMean, 'b:','lineWidth',1);
+    p2 = plot(ax2, freq, squeeze(binDataNorm(y2,x2,:)),'lineWidth',1);
     title(ax2, sprintf('random pixel [%i] (%i,%i)',randInt,x2,y2));
-    xlim(ax2, [0 numel(freq)]);
+    xlim(ax2, [min(freq), max(freq)]);
     legend([p2_data, globalPlot, p2], 'data', 'global', 'corrected','Location','southeast')
     legend('boxoff')
     
+    %% right most pixel
     [x3,y3] = index2xy(iMax, nCol, 'type', 'binDataNorm');
-    plot(ax3, squeeze(binDataNorm(y3,x3,:)), 'k','lineWidth',1);
+    plot(ax3, freq, squeeze(binDataNorm(y3,x3,:)), 'k','lineWidth',1);
     hold(ax3, 'on');
-    plot(ax3, globalMean, 'b:','lineWidth',1);
-    p3 = plot(ax3, squeeze(binDataNorm(y3,x3,:)),'lineWidth',1);
+    plot(ax3, freq, globalMean, 'b:','lineWidth',1);
+    p3 = plot(ax3, freq, squeeze(binDataNorm(y3,x3,:)),'lineWidth',1);
     title(ax3, 'max(min) pixel');
-    xlim(ax3, [0 numel(freq)]);
     
+    %% plot setup
+    for ax = [ax1 ax2 ax3]
+        xlim(ax, [min(freq), max(freq)]);
+        xlabel(ax, 'f (GHz)')
+    end
     
     %% sliders
     % select pixel option
