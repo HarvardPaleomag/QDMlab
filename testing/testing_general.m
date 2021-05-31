@@ -39,19 +39,39 @@ end
 
 %%
 gpuFitNew = GPU_fit(dataFolder, 8);
-
-%% crop_map
-cropped_map = crop_map('filePath', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false);
 %% Load data
 milnrm = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/B111dataToPlot.mat';
 milnrm_ = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned';
 milnrmBz = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/Bz_uc0.mat';
 blank = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/Mar6_2020_2/4x4Binned/B111dataToPlot.mat';
+raw_data = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/run_00000.mat';
 % load data
 MILNRM = load(milnrm);
 MILNRMBZ = load(milnrmBz);
 BLANK = load(blank);
+expData = load(raw_data);
+%%
+globalFraction_estimator('expData', expData)
 
+%% return_bin_data
+close all
+clc
+cIdx = 359; rIdx = 129;
+[binDataNorm, freq] = prepare_raw_data(expData, 4, 1);
+binned = squeeze(binDataNorm(rIdx,cIdx,:));
+idx = return_bin_data(cIdx, rIdx);
+[x,y] = index2xy(idx, 300);
+unbinned = expData.imgStack1(:, idx);
+unbinned = unbinned ./ max(unbinned);
+plot(unbinned)
+hold on
+plot(binned, 'k-', 'lineWidth', 2)
+hold off
+QDM_figure(MILNRM.B111ferro)
+hold on
+plot(x,y,'Xr')
+%% crop_map
+cropped_map = crop_map('filePath', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false);
 %% subtract blank
 close all
 d = subtract_blank('nFiles', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/B111dataToPlot.mat', ...

@@ -5,7 +5,7 @@ function [x,y] = index2xy(index, nRows, kwargs)
 % index: int
 %   index in reshaped array
 % nRows: int
-%   number of Rows in array
+%   number of Rows in unbinned array
 % Returns
 % -------
 %     x: int
@@ -29,6 +29,7 @@ if y == 0
     y = nRows;
     x = x-1;
 end
+
 if strcmp(kwargs.type, 'binDataNorm')
     x_ = y;
     y = x ;
