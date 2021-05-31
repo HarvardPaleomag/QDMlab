@@ -41,9 +41,10 @@ end
 gpuFitNew = GPU_fit(dataFolder, 8);
 
 %% crop_map
-crop_map('filePath', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false)
+cropped_map = crop_map('filePath', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false);
 
 milnrm = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/B111dataToPlot.mat';
+milnrm_ = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned';
 milnrmBz = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/Bz_uc0.mat';
 blank = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/Mar6_2020_2/4x4Binned/B111dataToPlot.mat';
 % load data
@@ -80,7 +81,7 @@ QDM_figure(d.B111ferro, 'ax', ax2);
 linkaxes([ax1, ax2]);
 
 %% subtract_source
-
+clc
 close all
 dipSub = subtract_source('filePath', milnrmBz);
 f = figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', 'This is the figure title');
@@ -115,17 +116,15 @@ QDM_figure(dfitc.model, 'ax', ax3, 'title', 'constrained');
 ax4 = subplot(2,2,4);
 QDM_figure(dfitcMinMax.model, 'ax', ax4, 'title', 'constrained h = [3e-6,10e-6]');
 linkaxes([ax1 ax2 ax3 ax4]);
-
-%%
+%% dipole_fit_series
 clc
-% dipfitSer = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''));
-dipfitSerConst = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''), 'constrained', true, 'minheight', 5e-6, 'maxheight', 5e-6);
-%%
+close all
+dipfitSer = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''));
+dipfitSerConst = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''), 'constrained', true, 'minheight', 5e-6, 'maxheight', 5e-6, 'checkPlot', true);
 f = figure('units','normalized','outerposition',[0.2 0.4 0.3 0.5],'NumberTitle', 'off', 'Name', 'dipole_fit_series constrains');
 ax1 = subplot(2,2,1);
 QDM_figure(dipfitSer.data{1}, 'ax', ax1);
 axis xy; axis equal; axis tight;
-
 ax2 = subplot(2,2,2);
 QDM_figure(dipfitSer.model{1}, 'ax', ax2);
 ax3 = subplot(2,2,3);
@@ -136,3 +135,18 @@ QDM_figure(dipfitSerConst.model{1}, 'ax', ax4);
 
 linkaxes([ax1 ax2])
 linkaxes([ax3 ax4]);
+
+%% demag_behavior
+% only argument
+res = demag_behavior({milnrm_, milnrm_});
+demag_behavior_plot(res);
+%% filter
+res = demag_behavior({milnrm_, milnrm_}, 'filterProps', struct('threshold', 1, 'cutOff', 5));
+demag_behavior_plot(res);
+%% nROI
+nROI = pick_box(MILNRM.B111ferro);
+res = demag_behavior({milnrm_, milnrm_}, 'filterProps', struct('threshold', 1, 'cutOff', 5), 'nROI', nROI);
+demag_behavior_plot(res);
+%% error
+res = demag_behavior({milnrm_, milnrm_}, 'filterProps', struct('threshold', 1, 'cutOff', 5), 'nROI', nROI, 'bootStrapN', 500, 'pixelShift', 1);
+demag_behavior_plot(res);
