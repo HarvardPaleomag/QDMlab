@@ -42,7 +42,7 @@ gpuFitNew = GPU_fit(dataFolder, 8);
 
 %% crop_map
 cropped_map = crop_map('filePath', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/Bz_uc0.mat','save',false);
-
+%% Load data
 milnrm = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/B111dataToPlot.mat';
 milnrm_ = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned';
 milnrmBz = '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/Bz_uc0.mat';
@@ -147,8 +147,22 @@ folders = { ...
     '/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/FOV1/600G/4x4Binned', ...
     '/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/FOV1/1000G/4x4Binned', ...
     };
-fname = 'B111dataToPlot.mat';
-dipole_fit_series(folders, 'filename', fname)
+dseries = dipole_fit_series(folders);
+%%
+clc
+close all
+for n = 1:size(dseries.nFiles,1)
+    f = figure('units','normalized','outerposition',[0.05 0.4 0.9 0.4],'NumberTitle', 'off', 'Name', 'Dipole fit Series');
+    axes = [];
+    for i = 1:size(dseries.nFiles,2)
+        ax = subplot(2,7,i);
+        QDM_figure(dseries.data{n,i}, 'ax', ax);
+        ax = subplot(2,7,7+i);
+        QDM_figure(dseries.model{n,i}, 'ax', ax);
+        axes = [axes ax];
+    end
+    linkaxes(axes);
+end
 
 %% demag_behavior
 % only argument
