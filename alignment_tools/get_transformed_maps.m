@@ -80,13 +80,9 @@ else
         'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
 end
 
-if contains(kwargs.fileName, 'B111')
-    refData = refFileData.B111ferro;
-    refLed = refFileData.ledImg;
-else
-    refData = refFileData.Bz;
-    refLed = refFileData.newLED;
-end
+[bool, dataName,ledName] = is_B111(refFile);
+refData = refFileData.(dataName);
+refLed = refFileData.)ledName;
 
 % cycle through all folders
 for i = 1:size(nFolders, 2)
