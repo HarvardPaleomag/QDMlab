@@ -1,4 +1,5 @@
-d = subtract_blank('/Users/mike/Downloads', '/Users/mike/Downloads')
+d = subtract_blank('nFiles', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/4x4Binned/B111dataToPlot.mat', ...
+                   'blankFile', '/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/Mar6_2020_2/4x4Binned/B111dataToPlot.mat')
 dkeys = d.keys();
 k = dkeys{1};
 d(k)
