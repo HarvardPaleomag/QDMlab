@@ -80,9 +80,9 @@ else
         'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
 end
 
-[bool, dataName,ledName] = is_B111(refFile);
+[bool, dataName,ledName] = is_B111(refFileData);
 refData = refFileData.(dataName);
-refLed = refFileData.)ledName;
+refLed = refFileData.(ledName);
 
 % cycle through all folders
 for i = 1:size(nFolders, 2)
