@@ -1,4 +1,4 @@
-function [x,y] = index2xy(index, nRows, kwargs)
+function [row, col] = index2xy(index, shape, kwargs)
 %[x, y] = index2xy(index, nRows; 'type')
 % returns the x,y coordinates of a pixel given the index of the gpu array
 %
@@ -18,22 +18,22 @@ function [x,y] = index2xy(index, nRows, kwargs)
 
 arguments
     index
-    nRows
+    shape
     kwargs.type = 'gpu';
 end
 
-x = fix(index / nRows)+1;
-y = mod(index, nRows);
+row = fix(index / shape(2))+1;
+col = mod(index, shape(2));
 
-if y == 0 
-    y = nRows;
-    x = x-1;
+if col == 0 
+    col = shape(2);
+    row = row-1;
 end
 
 if strcmp(kwargs.type, 'binDataNorm')
-    x_ = y;
-    y = x ;
-    x = x_;
+    x_ = col;
+    col = row ;
+    row = x_;
 end
 end
 

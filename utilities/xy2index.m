@@ -1,4 +1,4 @@
-function index = xy2index(x,y, nCols, kwargs)
+function index = xy2index(row, col, shape, kwargs)
 %[index] = xy2index(x, y, nRows; 'type')
 % returns the index of a pixel in the gpudata array from given x,y of the
 % pixel
@@ -7,24 +7,25 @@ function index = xy2index(x,y, nCols, kwargs)
 %   x(column) coordinate of pixel
 % y: int
 %   y(row) coordinate of pixel
-% nCols: int
-%    number of Cols in array
+% nRows: int
+%    number of Rows in array
 % type: str (gpu)
 %    can be 'gpu' or 'binDataNorm'
+
 arguments
-    x
-    y
-    nCols
+    row
+    col
+    shape
     kwargs.type = 'gpu';
 end
 
 if strcmp(kwargs.type, 'binDataNorm')
-    x_ = y;
-    y = x ;
-    x = x_;
+    col_ = row;
+    row = col ;
+    col = col_;
 end
 
-index = (y-1)*(nCols)+ x;
+index = (row-1)*shape(2)+ col;
 
 end
 
