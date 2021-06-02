@@ -180,7 +180,7 @@ n_pixels = sum(sum(filteredPixels));
 
 if strcmp(cutOff, 'none')
     if n_pixels
-        msg = sprintf('B > +- %.1fG: removed %i / %i pixel = %.2f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
+        msg = sprintf('B > +- %.3fG: removed %i / %i pixel = %.0f precent', kwargs.threshold, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100');
         logMsg('info',msg,1,0);
     end
 else

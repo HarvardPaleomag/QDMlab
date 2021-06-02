@@ -56,7 +56,8 @@ arguments
     kwargs.axis = 'on';
     kwargs.xc = false;
     kwargs.yc = false;
-
+    kwargs.alpha = false;
+    
     kwargs.std {mustBeInteger} = 10;
     
     kwargs.scaleBar = false
@@ -110,6 +111,7 @@ if ~strcmp(kwargs.pixelAlerts, 'none')
     data(kwargs.pixelAlerts) = nan;
 end
 
+%% remove +/- alues if they should not be there
 if ~isequal(filter.mustBe, false)
     switch filter.mustBe
         case 'neg'
@@ -192,14 +194,21 @@ if isnumeric(kwargs.std)
     end
 end
 
-
+%% set alpha
+if ~isequal(kwargs.alpha, false)
+    im.AlphaData = abs(data) ./ max(abs(data),[],'all');
+    alpha 'none'
+%     alpha(im, kwargs.alpha * abs(data) ./ max(abs(data),[],'all'));
+end
 
 %% Create colorbar
-cb = colorbar(ax);
-if isequal(kwargs.led, false)
-    title(cb, sprintf('%s (%s)', kwargs.cbTitle, strrep(kwargs.unit, 'micro', '\mu')), 'Fontsize', 12);
-else
-    title(cb, '', 'Fontsize', 12);
+if ~ isequal(kwargs.cbTitle, false)
+    cb = colorbar(ax);
+    if isequal(kwargs.led, false)
+        title(cb, sprintf('%s (%s)', kwargs.cbTitle, strrep(kwargs.unit, 'micro', '\mu')), 'Fontsize', 12);
+    else
+        title(cb, '', 'Fontsize', 12);
+    end
 end
 
 %% scalebar
