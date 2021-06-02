@@ -138,7 +138,7 @@ end
 data = convert_to(data, kwargs.unit);
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-colormap(ax, turbo(512));
+colormap(ax, parula(512));
 
 % Create title
 title(kwargs.title, 'Fontsize', 12);
@@ -175,8 +175,8 @@ if isnumeric(kwargs.std)
         if (med + kwargs.std * st) > max(abs([mx,mn]))
             msg = sprintf('Clim values exceeds min/max');
             logMsg('debug',msg,1,0);
-        elseif all(data(~isnan(data)) > 0, 'all') | all(data(~isnan(data)) < 0, 'all')
-            set(ax, 'CLim', [mn, mx]);
+%         elseif all(data(~isnan(data)) > 0, 'all') | all(data(~isnan(data)) < 0, 'all')
+%             set(ax, 'CLim', [mn, mx]);
         elseif ~all(data(~isnan(data)) > 0, 'all')
             msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
             logMsg('debug',msg,1,0);
