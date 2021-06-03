@@ -1,7 +1,8 @@
 function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
 %[fig] = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
-
+    
+    %% RESONANCE
     ax1 = subplot(1,3,1);
     
     freq = fit.freq;
@@ -14,15 +15,19 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     set(res,'AlphaData',~isnan(fitData))
     title(ax1, 'Resonance')
     axis equal, axis tight, axis xy
-
+    xlabel('pixel');
+    ylabel('pixel');
     colorbar()
-
+    
+    %% CHI
     ax2 = subplot(1,3,2);
     imagesc(fit.chiSquares,'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
     axis equal, axis tight, axis xy
-    title('X^2')
-    set(ax2,'ColorScale','log')
-    colorbar()
+    title('X^2');
+    xlabel('pixel');
+    ylabel('pixel');
+    set(ax2,'ColorScale','log');
+    colorbar();
 
     n = 0;
     points = [0 0 0 0 0];
