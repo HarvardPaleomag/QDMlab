@@ -22,8 +22,8 @@ arguments
     kwargs.type = 'gpu';
 end
 
-row = fix(index / shape(2))+1;
-col = mod(index, shape(2));
+row = fix(index / shape(1))+1;
+col = mod(index, shape(1));
 
 if col == 0 
     col = shape(2);
