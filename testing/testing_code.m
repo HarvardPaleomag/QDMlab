@@ -1,4 +1,6 @@
-expData = load('/Volumes/backups/antares/mike/MIL/MIL3/FOV1/1000G/final_fits_(2x2).mat');
+%expData = load('/Volumes/backups/antares/mike/MIL/MIL3/FOV1/1000G/final_fits_(2x2).mat');
+expData = load('Z:\antares\mike\MIL\MIL3\FOV1\NRM\14G\4x4Binned\final_fits_(4x4).mat');
+expData = load('Z:\antares\mike\MIL\MIL3\FOV1\NRM\4x4Binned\final_fits_(4x4).mat');
 % expData = load('/Volumes/backups/antares/tiled_blanks/mariner/FOV_2_2/final_fits_(4x4).mat');
 % expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/2021_05_11/final_fits_(4x4).mat');
 % expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/speleothems/10-20-10/final_fits_(4x4).mat');
