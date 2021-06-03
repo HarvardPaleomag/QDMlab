@@ -71,9 +71,13 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
             points(i) = point;
         end
         title(ax3, titleTxt)
-        fprintf('<>            %s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
-            fit.resonance(y,x), fit.chiSquares(y,x))
-        fprintf('<>                                width: %.5f; contrast %.5f; state: %i\n',...
-            fit.width(y,x), fit.contrastA(y,x), fit.states(y,x))
+        
+        msg = sprintf('%s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
+                        fit.resonance(y,x), fit.chiSquares(y,x)');
+        logMsg('info',msg,1,0);
+
+        msg = sprintf('width: %.5f; contrast %.5f; state: %i\n',...
+            fit.width(y,x), fit.contrastA(y,x), fit.states(y,x)');
+        logMsg('info',msg,1,0);
     end
 end
