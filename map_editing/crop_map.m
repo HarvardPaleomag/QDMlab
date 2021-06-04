@@ -1,5 +1,5 @@
 function [expData, row, col] = crop_map(kwargs)
-%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col')
+%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col', 'title')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 

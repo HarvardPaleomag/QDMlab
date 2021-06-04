@@ -1,5 +1,5 @@
 function fits = QDM_lorentzian_fit(kwargs)
-%[fits] = QDM_lorentzian_fit('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'nucSpinPol', 'save', 'diamond', 'slopeCorrection')
+%[fits] = QDM_lorentzian_fit('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', 'diamond', 'slopeCorrection')
 % and then determines B111 field values from the different polarities.
 %
 % Parameters
