@@ -205,10 +205,13 @@ end
 if ~ isequal(kwargs.cbTitle, false)
     cb = colorbar(ax);
     if isequal(kwargs.led, false)
-        title(cb, sprintf('%s (%s)', kwargs.cbTitle, strrep(kwargs.unit, 'micro', '\mu')), 'Fontsize', 12);
+        unit = strrep(kwargs.unit, 'micro', '\mu');
+        unit = strrep(unit, 'mu', '\mu');
+        title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
     else
         title(cb, '', 'Fontsize', 12);
     end
+
 end
 
 %% scalebar
@@ -220,21 +223,4 @@ if ~isequal(kwargs.scaleBar, false)
     scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
 
-end
-
-function data = convert_to(data, unit)
-%[data] = convert_to(data, unit)
-    switch unit
-        case 'T'
-            conv = 0.0001;
-        case 'microT'
-            conv = 0.1;
-        case 'nT'
-            conv = 100;
-        case 'G'
-            conv = 1;
-    end
-    msg = sprintf('converting 1 G -> %i%s: ', conv, unit);
-    logMsg('debug',msg,1,0);
-    data = data * conv;
 end
