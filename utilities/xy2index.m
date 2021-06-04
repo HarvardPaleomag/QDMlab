@@ -19,14 +19,15 @@ arguments
     kwargs.type = 'gpu';
 end
 
-if strcmp(kwargs.type, 'binDataNorm')
-    col_ = row;
-    row = col ;
-    col = col_;
-end
+% if strcmp(kwargs.type, 'binDataNorm')
+%     col_ = row;
+%     row = col ;
+%     col = col_;
+% end
 
+msg = sprintf('row: %i, col: %i -> idx: %i for shape(%i, %i)', row, col, index, shape(1), shape(2));
+logMsg('debug',msg,1,0);
 index = (row-1)*shape(1)+ col;
-
 end
 
 %% test
