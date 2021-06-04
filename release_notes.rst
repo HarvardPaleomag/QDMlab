@@ -1,5 +1,19 @@
 Release Notes
 *************
+2021.1.3
+  features
+  --------
+  - adds unit option to QDM_figure
+
+  small things
+  ------------
+  - adds documentation to some functions that didn't have any
+  - fixes documentation for some functions
+
+  minor fixes
+  -----------
+  - several small bugs do to github weirdness
+
 2021.1.2a hotfix
 ================
 - fixes bug where an error would occur in `QDM_figure` if all values are 0 or nan
