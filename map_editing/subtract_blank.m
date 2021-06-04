@@ -103,13 +103,13 @@ for i = 1 : size(nFiles, 2)
                  'Position',[0.1 0.1 0.8 0.8], 'Name', 'Blank Subtraction');
         
         sp1 = subplot(2,2,1);
-        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original') 
+        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original','unit', 'nT') 
         sp2 = subplot(2,2,2);
-        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank')        
+        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank','unit', 'nT')        
         sp3 = subplot(2,2,3);
-        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction')      
+        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction','unit', 'nT')      
         sp4 = subplot(2,2,4);
-        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction') 
+        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction','unit', 'nT') 
 
         ax = [sp1, sp2, sp3, sp4];
         linkaxes(ax)
