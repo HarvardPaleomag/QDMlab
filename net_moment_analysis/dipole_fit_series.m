@@ -1,5 +1,5 @@
 function results = dipole_fit_series(nFolders, kwargs, constrains, filter)
-%[results] = dipole_fit_series(nFolders; 'transFormFile', 'refIdx', 'checkPlot', 'outputTrue', 'save', 'upCont', 'nROI', 'imageFolder', 'fileName')
+%[results] = dipole_fit_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'outputTrue', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)

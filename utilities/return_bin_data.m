@@ -1,5 +1,5 @@
 function [idx, rIdx, cIdx] = return_bin_data(row, col, kwargs)
-%[window] = return_bin_data(data, row, col, binSize)
+%[idx, rIdx, cIdx] = return_bin_data(row, col; 'binSize', 'shape', 'type')
 % returns the data used for the bin binnedData(row,col,:)
 arguments
     row

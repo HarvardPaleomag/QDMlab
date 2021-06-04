@@ -1,5 +1,5 @@
 function [fig, ax, im] = QDM_figure(data, kwargs, filter) 
-%[fig, ax, im] = QDM_figure(data; 'fig', 'ax', 'led', 'nROI', 'pixelAlerts', 'title', 'cbTitle', 'axis', 'std', 'scaleBar', 'filterStruct', 'preThreshold')
+%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'std', 'scaleBar', 'pixelSize', 'filterProps', 'preThreshold', 'mustBe')
 % Creates a QDM figure
 %
 % Parameter
@@ -214,6 +214,7 @@ end
 end
 
 function data = convert_to(data, unit)
+%[data] = convert_to(data, unit)
     switch unit
         case 'T'
             conv = 0.0001;
