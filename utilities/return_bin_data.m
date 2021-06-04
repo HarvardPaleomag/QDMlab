@@ -5,7 +5,7 @@ arguments
     row
     col
     kwargs.binSize = 4;
-    kwargs.shape = [1200, 1920];
+    kwargs.sizeUnbinned = [1200, 1920];
     kwargs.type = 'binDataNorm';
 end
 
@@ -14,9 +14,9 @@ idx = [];
 rIdx = row * kwargs.binSize - 1:row * kwargs.binSize - 1 + kwargs.binSize - 1;
 cIdx = col * kwargs.binSize - 1:col * kwargs.binSize - 1 + kwargs.binSize - 1;
 
-for c = cIdx
-    for r = rIdx
-        i = xy2index(c, r, kwargs.shape, 'type', kwargs.type);
+for r = rIdx
+    for c = cIdx
+        i = xy2index(r, c, kwargs.sizeUnbinned, 'type', kwargs.type);
         idx = [idx, i];
     end
 end
