@@ -5,3 +5,7 @@
 .idea
 .ides/*
 matlab.mat
+
+admin_tools/__pycache__/
+
+admin_tools/~$dependencies.xlsx
