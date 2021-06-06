@@ -25,7 +25,7 @@ if strcmp(kwargs.type, 'binDataNorm')
     col = col_;
 end
 
-index = (row-1)*shape(2)+ col;
+index = (row-1)*shape(1)+ col;
 
 end
 
