@@ -63,6 +63,8 @@ chi2Pos2 = reshape(chi2Pos2, size(B111ferro));
 chi2Neg1 = reshape(chi2Neg1, size(B111ferro));
 chi2Neg2 = reshape(chi2Neg2, size(B111ferro));
 
+chi = chi2Pos1+chi2Pos2+chi2Neg1+chi2Neg2;
+
 %% determine overall fit Success
 pixelAlerts = posB111Output.pixelAlerts | negB111Output.pixelAlerts;
 
@@ -81,6 +83,7 @@ fits.negDiff = negDiff; fits.posDiff = posDiff;
 fits.B111ferro = B111ferro; fits.B111para = B111para;
 fits.ledImg = ledImg; fits.laserImg = laserImg; 
 fits.pixelAlerts = pixelAlerts;
+fits.chi = chi;
 
 ODMR_to_B111_plot(fits, fullfile(myDir, folderName));
 % %% PLOTS
