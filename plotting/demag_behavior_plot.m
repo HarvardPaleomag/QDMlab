@@ -18,6 +18,8 @@ arguments
     results struct
     kwargs.steps  (1,:) double = false
     kwargs.stepUnit  (1,:) = 'mT'
+    kwargs.dataUnit  (1,:) = 'G'
+
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
     kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
 end
@@ -72,11 +74,11 @@ for j = 1:nFiles
     title = fNameSplit{end-2};
     
     if ~ all(steps == 1:nFiles,'all')
-        title = [title sprintf(' (%.1f %s)', steps(j), kwargs.stepUnit)];
+        title = [sprintf('%.1f %s', steps(j), kwargs.stepUnit)];
     end
 
     ax = subplot(rows, 3, j);
-    QDM_figure(iFileData, 'ax', ax, 'title', title);
+    QDM_figure(iFileData, 'ax', ax, 'title', title, 'unit', kwargs.dataUnit);
     axes = [axes ax];
     
     for i = 1:nMasks
@@ -94,6 +96,7 @@ linkaxes(axes)
 
 for ax = axes
     lim = mean(means)+5*mean(stds);
+    lim = convert_to(lim, kwargs.dataUnit);
     set(ax,'CLim',[-1 1] * lim);
 end
 
@@ -107,9 +110,12 @@ for i = 1:nMasks
     ylabel('norm. n(+)pixel')
     legend
 end
+
+plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F');
+
 if kwargs.mean
-    mn = mean(results.pPixelRats); 
-    st = std(results.pPixelRats); 
+    mn = mean(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
+    st = std(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
     errorbar(steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
 end
 
