@@ -46,7 +46,7 @@ function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selec
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%     pixelError: int [0]
+%     pixelShift: int [0]
 %         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
 %         an error.
@@ -102,7 +102,7 @@ fileName = check_suffix(fileName);
 
 nROI = kwargs.nROI;
 
-if ~kwargs.upCont
+if isequal(kwargs.upCont, false)
     kwargs.upCont = num2cell(zeros(1, size(nFolders,2)));
 end
 
