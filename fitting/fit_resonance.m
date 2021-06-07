@@ -122,7 +122,7 @@ gpudata = transpose(gpudata); %transpose to make it 51 x pixels
 gpudata = single(gpudata);
 
 if kwargs.slopeCorrection
-    gpudata_ = slope_correction(gpudata, freq, kwargs.slopeCorrection);
+    gpudata = slope_correction(gpudata, freq, kwargs.slopeCorrection);
 end
 
 xValues = single(freq');
