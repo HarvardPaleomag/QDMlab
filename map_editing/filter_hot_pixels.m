@@ -47,14 +47,20 @@ winSize = kwargs.winSize;
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) >= kwargs.threshold;
+if ~isequal(kwargs.threshold, false)
+    toFilter = abs(data) >= kwargs.threshold;
+else
+    toFilter = zeros(size(data));
+end
 
-if kwargs.threshold && numel(nonzeros(aboveStd))
-    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(aboveStd)), kwargs.threshold);
+if kwargs.threshold && numel(nonzeros(toFilter))
+    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(toFilter)), kwargs.threshold);
     logMsg('debug',msg,1,0);
 end
 
-data(aboveStd) = nan;
+if any(toFilter, 'all')
+    data(toFilter) = nan;
+end
 
 %% Check if cutOff value is  given
 if strcmp(cutOff, 'none') && ~isequal(chi, false)
@@ -87,8 +93,8 @@ if ~strcmp(cutOff, 'none')
         logMsg('debug',msg,1,0);
 
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
-        aboveStd = aboveStd | chiFilter;
+        toFilter = toFilter | (chi > dMed + cutOff * dStd);
+        toFilter = toFilter | chiFilter;
     else
         % calculate the mean over all pixels
         dMed = nanmedian(data, 'all');
@@ -96,7 +102,7 @@ if ~strcmp(cutOff, 'none')
         %calculate the standard deviation of all pixels
         dStd = nanstd(data, 0, 'all');
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | abs(data) > dMed + cutOff * dStd;
+        toFilter = toFilter | abs(data) > dMed + cutOff * dStd;
         
         msg = sprintf('using data values: median = %.2e; std = %.2e',dMed, dStd);
         logMsg('debug',msg,1,0);
@@ -115,20 +121,20 @@ dataMedian = median(abs(data), 'all', 'omitnan');
 % replace pixels with nan if specified
 if isnan(winSize)
     % set pixel value to nan
-    filteredData(aboveStd) = nan;
-    filteredPixels(aboveStd) = 1;
+    filteredData(toFilter) = nan;
+    filteredPixels(toFilter) = 1;
 % replace pixels with 0 if specified
 elseif winSize == 0
     % set pixel value to nan
-    filteredData(aboveStd) = 0;
-    filteredPixels(aboveStd) = 1;
+    filteredData(toFilter) = 0;
+    filteredPixels(toFilter) = 1;
 % otherwise calculate the mean over winSize
 else
     for row = 1:dshape(1)
         for col = 1:dshape(2)
             % pixels that exceed the mean + cutOff std deviations are replaced by
             % the mean of a square of winSize pixels
-            if aboveStd(row, col)
+            if toFilter(row, col)
                 % set pixel to 1 to check which pixel were removed
                 filteredPixels(row, col) = 1;
 
