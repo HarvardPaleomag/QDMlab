@@ -1,14 +1,47 @@
 %expData = load('/Volumes/backups/antares/mike/MIL/MIL3/FOV1/1000G/final_fits_(2x2).mat');
-expData = load('Z:\antares\mike\MIL\MIL3\FOV1\NRM\14G\4x4Binned\final_fits_(4x4).mat');
-expData = load('Z:\antares\mike\MIL\MIL3\FOV1\NRM\4x4Binned\final_fits_(4x4).mat');
+% expData = load('/Volumes/backups/antares/mike/MIL/MIL3/FOV1/NRM/14G/4x4Binned_GF2/final_fits_(4x4).mat');
+% expData = load('Z:\antares\mike\MIL\MIL3\FOV1\NRM\4x4Binned\final_fits_(4x4).mat');
 % expData = load('/Volumes/backups/antares/tiled_blanks/mariner/FOV_2_2/final_fits_(4x4).mat');
-% expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/2021_05_11/final_fits_(4x4).mat');
+expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/blanks/2021_05_11/final_fits_(4x4).mat');
 % expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/speleothems/10-20-10/final_fits_(4x4).mat');
 b = expData.B111ferro;
 %%  
-close all 
+% close all 
 clc
-[d1 d2 d3 d4] = B111(expData, 'fieldsPlot', 1);
+[d1 d2 d3 d4] = B111(expData, 'fieldsPlot', 1, 'centerShiftPlot', 1, 'resonanceFieldPlot', 1);
+% [d1 d2 d3 d4] = B111(expData, 'centerShiftPlot', 1);
+% [d1 d2 d3 d4] = B111(expData, 'resonanceFieldPlot', 1);
+%%
+close all
+yline(0)
+hold on
+plot(reshape(d3,[],1), reshape(d1,[],1), '.')
+ylim([-0.01,0.01])
+xlim([-0.1,0.2])
+ylabel('B111ferro')
+xlabel('centerShift')
+%%
+close all
+ax1 = subplot(1,2,1)
+ax2 = subplot(1,2,2)
+for i = linspace(0,0.01,500)
+    imagesc(ax1,filter_hot_pixels( d1-i*d3, 'threshold', false, 'cutoff', 10))
+    title(ax1,i)
+    
+    
+    hold(ax2, 'on')
+    plot(ax2, i, rms(d1-i*d3, 'all'), '.k')
+    drawnow
+    pause(0.01)
+end
+%%
+close all
+imagesc(filter_hot_pixels( d1-0*d3, 'threshold', false, 'cutoff', 5))
+figure
+imagesc(filter_hot_pixels( d1-0.01*d3, 'threshold', false, 'cutoff', 5))
+
+%%
+imagesc(filter_hot_pixels( d1/d3, 'threshold', false, 'cutoff', 5))
 %%
 close all
 clc
