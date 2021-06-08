@@ -56,7 +56,9 @@ arguments
     kwargs.axis = 'on';
     kwargs.xc = false;
     kwargs.yc = false;
-
+    kwargs.alpha = false;
+    kwargs.colormap = 'parula';
+    
     kwargs.std {mustBeInteger} = 10;
     
     kwargs.scaleBar = false
@@ -138,7 +140,14 @@ end
 data = convert_to(data, kwargs.unit);
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-colormap(ax, parula(512));
+switch kwargs.colormap
+    case 'parula'
+        colormap(ax, parula(512));
+    case 'turbo'
+        colormap(ax, turbo(512));
+    case 'jet'
+        colormap(ax, jet(512));
+end
 
 % Create title
 title(kwargs.title, 'Fontsize', 12);
