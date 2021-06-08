@@ -1,68 +1,18 @@
-expData = load('D:\data\mike\NRM\run_00000.mat');
-%% create data like fit_resonance
-freq = expData.freqList(1:expData.numFreqs) / 1E9;   %everything is in GHz
-n = 1; binSize = 4;
-dataStack = expData.(sprintf('imgStack%i',n));
-% data preparation
-% X/Y of unbinned data
-% Note: X = COL; Y = ROW -> (y,x) for (row, col) matlab convention
-spanXTrans = 1:expData.imgNumCols;
-spanYTrans = 1:expData.imgNumRows;
+expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/run_00000.mat');
+%% settings
+binSize = 4;
+nRes = 1;
+globalFraction = 0.1;
+%
+fit_resonance2(expData, 16, 1);
+%%
+% meanData = squeeze(mean(binDataNorm, [1, 2]));
+% sweepLength = size(freq, 2);
+% imgPts = sizeX * sizeY; % number of (x,y) pixels
+% gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
+% gpudata = transpose(gpudata); %transpose to make it 51 x pixels
+% gpudata = single(gpudata);
 
-% check for 101 frequencies. File includes imgStack3
-if isfield(expData, 'imgStack3')      
-    % combine 1&2 or 3&4
-    dataStacka = expData.(sprintf('imgStack%i',n)); 
-    dataStackb = expData.(sprintf('imgStack%i',n+1));
-    dataStack = [dataStacka; dataStackb];
-end
-
-data = zeros(expData.imgNumRows, expData.imgNumCols, expData.numFreqs);
-
-% crop
-data = data(spanYTrans,spanXTrans,:);
-
-% reshape and transpose each image
-for y = 1:expData.numFreqs
-    data(:,:,y) = transpose(reshape(dataStack(y, :), [expData.imgNumCols, expData.imgNumRows]));
-end
-
-% binning
-fprintf('<>   %i: binning data >> binSize = %i\n', n, binSize);
-
-sizeXY = size(BinImage(data(:,:,1),binSize));
-binData = zeros(sizeXY(1),sizeXY(2),length(freq));
-
-for y = 1:length(freq)
-    binData(:,:,y) = BinImage(data(:,:,y),binSize);
-end
-
-sizeX = size(binData,2); % binned image x-dimensions
-sizeY = size(binData,1); % binned image y-dimensions
-
-% Correct for severely non-unity baseline by dividing pixelwise by
-% average of all frequency points
-
-binDataNorm = zeros(size(binData));
-NormalizationFactor = mean(binData,3);    % compute average
-
-for y = 1:length(freq)
-    binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
-end
-
-% global spectra subtraction
-binDataNorm = correct_global(binDataNorm, 0.5);
-
-% first determine global guess
-meanData = squeeze(mean(mean(binDataNorm,1),2));
-
-% prepare GPUfit data
-sweeplength = size(dataStack,1);
-imgpts = sizeX*sizeY; % number of (x,y) pixels
-gpudata = reshape(binDataNorm,[imgpts,sweeplength]); % make it into 2d matrix (row after row)
-gpudata = transpose(gpudata); %transpose to make it 51 x pixels
-gpudata = single(gpudata);
-xValues = single(freq');
 %%
 disp('GLOBAL')
 [fitOld, guessOld, badPixelsOld] = fit_resonance(expData, binSize, freq, n, 'type',0);
