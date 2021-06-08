@@ -56,6 +56,7 @@ end
 
 data(aboveStd) = nan;
 
+
 %% Check if cutOff value is  given
 if strcmp(cutOff, 'none') && ~isequal(chi, false)
     msg = sprintf('filtering according to Chi alues, but no ''cutOff'' value set. Please check add: e.g. << ''cutOff'', 5 >> !');
