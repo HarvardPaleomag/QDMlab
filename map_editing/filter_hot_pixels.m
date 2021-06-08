@@ -48,14 +48,19 @@ winSize = kwargs.winSize;
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) >= kwargs.threshold;
+if ~isequal(kwargs.threshold, false)
+    aboveStd = abs(data) >= kwargs.threshold;
+    data(aboveStd) = nan;
+else
+    aboveStd = zeros(size(data));
+end
 
 if kwargs.threshold && numel(nonzeros(aboveStd))
     msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(aboveStd)), kwargs.threshold);
     logMsg('debug',msg,1,0);
 end
 
-data(aboveStd) = nan;
+
 
 
 %% Check if cutOff value is  given

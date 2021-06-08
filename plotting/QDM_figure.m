@@ -57,6 +57,7 @@ arguments
     kwargs.xc = false;
     kwargs.yc = false;
     kwargs.alpha = false;
+    kwargs.clim = false;
     
     kwargs.std {mustBeInteger} = 10;
     
@@ -137,13 +138,16 @@ else
     yc= kwargs.yc;
 end
 
-data = convert_to(data, kwargs.unit);
+if ~isequal(kwargs.unit, 'G')
+    data = convert_to(data, kwargs.unit);
+end
+
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
 colormap(ax, parula(512));
 
 % Create title
-title(kwargs.title, 'Fontsize', 12);
+title(ax, kwargs.title, 'Fontsize', 12);
 
 %% 
 % Create axes
@@ -167,7 +171,7 @@ if iscell(kwargs.nROI)
 end
 
 % Set the remaining axes properties
-if isnumeric(kwargs.std)
+if isequal(kwargs.clim, false) & isnumeric(kwargs.std)
     med = median(abs(data), 'all', 'omitnan');
     st = std(data, [], 'all', 'omitnan');
     mx = max(data, [], 'all', 'omitnan');
@@ -192,6 +196,8 @@ if isnumeric(kwargs.std)
     catch
         return
     end
+elseif ~isequal(kwargs.clim, false)
+    set(ax, 'CLim', kwargs.clim);
 end
 
 %% set alpha
@@ -222,5 +228,6 @@ if ~isequal(kwargs.scaleBar, false)
     logMsg('info',msg,1,1);
     scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
+hold(ax, 'off');
 
 end
