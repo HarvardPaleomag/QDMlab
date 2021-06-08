@@ -102,8 +102,8 @@ function d = B111(expData, plots)
         ferroData = rmmissing(ferroData);
         
         hist3(a1, ferroData, 'Nbins',[100,100], 'CdataMode','auto','EdgeColor', 'none')
-        xlabel(a1,'ferro')
-        ylabel(a1,'centerShift')
+        xlabel(a1,'ferro (2\sigma filtered)')
+        ylabel(a1,'centerShift (2\sigma filtered)')
         view(a1, 2)
         colormap(a1, 'turbo')
         
@@ -112,8 +112,8 @@ function d = B111(expData, plots)
         paraData = rmmissing(paraData);
         
         hist3(a2, paraData, 'Nbins',[100,100], 'CdataMode','auto','EdgeColor', 'none')
-        xlabel(a2,'para')
-        ylabel(a2,'centerShift')
+        xlabel(a2,'para (2\sigma filtered)')
+        ylabel(a2,'centerShift (2\sigma filtered)')
         colormap(a2, 'turbo')
         view(a2, 2)
     end
