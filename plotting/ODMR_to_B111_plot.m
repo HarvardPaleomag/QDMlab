@@ -1,4 +1,5 @@
 function ODMR_to_B111_plot(fits, savePath)
+%ODMR_to_B111_plot(fits, savePath)
 
 %% PLOTS
 rng = .03;

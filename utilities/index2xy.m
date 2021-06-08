@@ -1,5 +1,5 @@
 function [row, col] = index2xy(index, shape, kwargs)
-%[x, y] = index2xy(index, nRows; 'type')
+%[row, col] = index2xy(index, shape; 'type')
 % returns the x,y coordinates of a pixel given the index of the gpu array
 %
 % index: int
@@ -22,8 +22,8 @@ arguments
     kwargs.type = 'gpu';
 end
 
-row = fix(index / shape(2))+1;
-col = mod(index, shape(2));
+row = fix(index / shape(1))+1;
+col = mod(index, shape(1));
 
 if col == 0 
     col = shape(2);
