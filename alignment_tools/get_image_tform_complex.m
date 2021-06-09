@@ -1,4 +1,4 @@
-function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin)
+function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, kwargs)
 %[transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin; 'checkPlot', 'binning')
 % Function lets you pick several points on a reference image and the target
 % image. It calculates a transformation
@@ -39,7 +39,7 @@ refFrame = imref2d(size(fixedData));
 if isequal(kwargs.checkPlot, true)
     checkFigure = figure('Name', 'Align images');
     
-    transformedData = tform_data(movingData, transForm, refFrame, binning);
+    transformedData = imwarp(movingData, transForm, 'OutputView', refFrame);
 
     subplot(2, 1, 1)
     imshowpair(fixedData, movingData, 'Scaling', 'joint')
