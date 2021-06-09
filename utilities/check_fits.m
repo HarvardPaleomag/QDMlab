@@ -68,10 +68,8 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
         ylabel('Intensity')
         xlabel('f (Hz)')
     end
+end
 
-    %%
-    function out = reshapeImg(img, nFreq, nCol, nRow)
-    %[out] = reshapeImg(img, nFreq, nCol, nRow)
-        out = reshape(img, [nFreq, nCol, nRow]);
-    end
+function out = reshapeImg(img, nFreq, nCol, nRow)
+    out = reshape(img, [nFreq, nCol, nRow]);
 end

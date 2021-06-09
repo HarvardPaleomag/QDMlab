@@ -105,10 +105,8 @@ def detect_indent(l):
             break
     return out
 
-
-
-def first_line_comments(save = False):
-    func_files = get_in_out_params()
+def first_line_comments(reload = False, save = False):
+    func_files = get_in_out_params(reload = reload)
 
     for func in sorted(func_files):
         if 'GPUfit_MATLAB' in func_files[func]['funcPath']:
@@ -140,22 +138,22 @@ def first_line_comments(save = False):
                     print('-'*100)
                     write = True
                     if func not in lines[i+1]:
-                        print('ADDING:')
-                        print(line)
-                        print('BETWEEN:')
-                        print(lines[i])
-                        print('AND')
-                        print(lines[i+1])
+                        l0 = line.replace('\n', '')
+                        print(f'ADDING:  {l0}')
+                        l1 = lines[i].replace('\n', '\\n')
+                        print(f'BETWEEN: {l1}')
+                        l2 = lines[i+1].replace('\n', '\\n')
+                        print(f'AND:     {l2}')
                         lines.insert(i+1,line)  # inserts line
                     else:
                         if lines[i+1].rstrip() == line.rstrip():
                             print('NO CHANGE')
                             write = False
                         else:
-                            print('REPLACING:')
-                            print(lines[i+1])
-                            print('WITH:')
-                            print(line)
+                            lold = lines[i+1].replace('\n', '\\n')
+                            print(f'REPLACING: {lold}')
+                            lnew = line.replace('\n', '\\n')
+                            print(f'WITH:      {lnew}')
                             lines[i+1] = line
                     print('-'*100)
                     print()
