@@ -24,15 +24,20 @@ def get_in_out_params(reload = False, save = False):
             lines = code[root][f]
 
             for i,l in enumerate(lines):
+
+                if l.lstrip().startswith('function'):
+                    indent = detect_indent(l)
+
                 l = l.lstrip()
+
                 if l.startswith('function'):
+                    fName = split_funcname(l)
+
                     if '=' in l:
                         out = l[9:].split('=')[0].replace(' ','').replace('[', '').replace(']', '').split(',')
                         out = [elem.split('%')[0] for elem in out] # remove comments
                     else:
                         out = ''
-
-                    fName = split_funcname(l)
 
                     if fName in ['gpufit_cuda_available', 'gpufit_version','gpufit']:
                         continue
@@ -45,9 +50,9 @@ def get_in_out_params(reload = False, save = False):
                     func_files[fName]['returns'] = out
                     func_files[fName]['funcPath'] = os.path.join(root, f)
                     func_files[fName]['line'] = l
+                    func_files[fName]['indent'] = indent
                     if i > 1:
                         func_files[fName]['internal'] = split_funcname(lines[0])
-
                 if l.startswith('arguments'):
                     save = True
                     continue
@@ -91,6 +96,17 @@ def split_funcname(l):
         fName = l[9:].split('(')[0].strip(' ')
     return fName
 
+def detect_indent(l):
+    out = ''
+    for i,c in enumerate(l):
+        if c in [' ', '\t']:
+            out += c
+        else:
+            break
+    return out
+
+
+
 def first_line_comments(save = False):
     func_files = get_in_out_params()
 
@@ -104,7 +120,7 @@ def first_line_comments(save = False):
         else:
             args_list = []
 
-        line = '%'
+        line = func_files[func]['indent']+'%'
         if func_files[func]['returns']:
             line += '[' + ', '.join(func_files[func]['returns']) + '] = '
         line += f'{func}('
@@ -146,6 +162,7 @@ def first_line_comments(save = False):
                     break
             if save:
                 if write:
+                    print(func)
                     f.truncate(0)         # truncates the file
                     f.seek(0)             # moves the pointer to the start of the file
                     f.writelines(lines)   # write the new data to the file
