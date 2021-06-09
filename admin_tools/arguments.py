@@ -21,7 +21,6 @@ def get_in_out_params(reload = False, save = False):
             if 'test' in f:
                 continue
 
-            print(root, f)
             lines = code[root][f]
 
             for i,l in enumerate(lines):
@@ -145,7 +144,7 @@ def first_line_comments(save = False):
                     print('-'*100)
                     print()
                     break
-            # if write:
-            #     f.truncate(0)         # truncates the file
-            #     f.seek(0)             # moves the pointer to the start of the file
-            #     f.writelines(lines)   # write the new data to the file
+            if save:
+                f.truncate(0)         # truncates the file
+                f.seek(0)             # moves the pointer to the start of the file
+                f.writelines(lines)   # write the new data to the file
