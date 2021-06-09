@@ -88,8 +88,7 @@ end
 % is how to get the
 [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
 
-sizeX = size(binDataNorm, 2); % binned image x-dimensions
-sizeY = size(binDataNorm, 1); % binned image y-dimensions
+sizeY, sizeX, sweepLength = size(binDataNorm); % binned image x-dimensions
 
 %% 1. GAUSSIAN BLUR
 % default = 0
@@ -115,7 +114,6 @@ if kwargs.type ~= 2
 end
 
 %% prepare GPUfit data
-sweepLength = size(freq, 2);
 imgPts = sizeX * sizeY; % number of (x,y) pixels
 gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
 gpudata = transpose(gpudata); %transpose to make it 51 x pixels
