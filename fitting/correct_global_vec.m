@@ -19,12 +19,10 @@ end
 leftBL = mean(specData(1:5,1));
 rightBL = mean(specData(end-5:end,1));
 
-globalmeanBL = mean([leftBL rightBL]);
-baselinerange = globalmeanBL-min(specData);%difference between baseline and the minimum value in global spectrum
+globalMeanBL = mean([leftBL rightBL]);
+rangeBL = globalMeanBL-min(specData);%difference between baseline and the minimum value in global spectrum
 
-specZBL = specData-globalmeanBL; %ZBL=zero baseline
-
-corrected = zeros(size(data));
+specZBL = specData-globalMeanBL; %ZBL=zero baseline
 
 debug = zeros([size(data,2),1]);
 
@@ -34,5 +32,5 @@ meanBL = mean([leftBL; rightBL]);
 
 pixelrange = meanBL-min(data); %difference between baseline and the minimum value in pixel spectrum
 
-baselineRatio = (baselinerange ./ pixelrange);
-corrected = baselineRatio .* (data - meanBL) - globalFraction*specZBL + globalmeanBL;
+baselineRatio = (rangeBL ./ pixelrange);
+corrected = baselineRatio .* (data - meanBL) - globalFraction*specZBL + globalMeanBL;
