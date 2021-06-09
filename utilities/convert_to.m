@@ -1,5 +1,5 @@
 function data = convert_to(dataInG, unit)
-%[data] = convert_to(data, unit)
+%[data] = convert_to(dataInG, unit)
     switch unit
         case 'T'
             conv = 0.0001;

@@ -217,6 +217,7 @@ logMsg('FINAL',msg,1,0);
 end
 
 function fileData = load_data(dataFolder, startN, endN)
+%[fileData] = load_data(dataFolder, startN, endN)
     fileData = {endN};
     dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
     loadStart = tic; % for timing 

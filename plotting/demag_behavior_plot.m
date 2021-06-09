@@ -1,5 +1,5 @@
 function demag_behavior_plot(results, kwargs)
-%demag_behavior_plot(results; 'steps', 'stepUnit', 'led', 'mean')
+%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'led', 'mean')
 %coercivity_result_plot(results; 'steps', 'stepUnit', 'led', 'mean')
 % plots results from estimate_coercivity
 % 

@@ -34,11 +34,13 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     linkaxes([ax1 ax2]);
 
     for ax = [ax1 ax2]
-       set(ax,'ButtonDownFcn',@clickFitFcn)
+       set(ax,'ButtonDownFcn',@clickSelectPixel)
     end
     ax3 = subplot(1,3,3);
     drawnow;
-    function clickFitFcn(hObj, event)
+    
+    function clickSelectPixel(hObj, event)
+    %clickSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
         x = round(click(1));
