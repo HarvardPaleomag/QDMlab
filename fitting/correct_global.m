@@ -39,9 +39,9 @@ for i=1:size(data,1)
         
         debug(i,j) = pixelrange;
         
-%         for k=1:size(data,3)
-        ratioBL = (baselinerange / pixelrange);
-        corrected(i,j,:) =  ratioBL * (data(i,j,:) - meanbaseline) - globalFraction*specZBL' + globalmeanBL;
-%         end
+        for k=1:size(data,3)
+            corrected(i,j,k) = (baselinerange / pixelrange) * (data(i,j,k) - meanbaseline) - globalFraction*specZBL(k,1) + globalmeanBL;
+        end
+        
     end
 end
