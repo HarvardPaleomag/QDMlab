@@ -145,6 +145,7 @@ def first_line_comments(save = False):
                     print()
                     break
             if save:
-                f.truncate(0)         # truncates the file
-                f.seek(0)             # moves the pointer to the start of the file
-                f.writelines(lines)   # write the new data to the file
+                if write:
+                    f.truncate(0)         # truncates the file
+                    f.seek(0)             # moves the pointer to the start of the file
+                    f.writelines(lines)   # write the new data to the file
