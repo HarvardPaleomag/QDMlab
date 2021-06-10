@@ -1,4 +1,4 @@
-function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs, kwargs)
+function [peakValue, peakLocation, fitFlg] = guess_peaks(data, freqs, kwargs)
 %[peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs; 'forceGuess', 'checkPlot', 'gaussianFit', 'smoothDegree', 'pixel')
 %{
 helper function to determine an initial guess of a QDM spectra (i.e.
@@ -47,12 +47,10 @@ Returns
 %}
 arguments
     data double
-    globalData double
     freqs double
-
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false; 
     kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
-    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2;
     kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan];
 end
@@ -73,30 +71,23 @@ minpeakdistance = abs(round(ahyp / mean(diff(freqs))));
 
 dataSmoothed = smooth(1-data,'sgolay', smoothDegree);
 
-% try
-    % try getting peak positions from smoothed data
-    [peakValue, peakLocation] = findpeaks(dataSmoothed,...
-                                'minpeakdistance', minpeakdistance/2, ...
-                                'minpeakheight',0.5*(min(dataSmoothed)+max(dataSmoothed)),... %old version pre mike
-                                'MinPeakProminence',0.0003, ...
-                                'NPeaks',3,...
-                                'sortstr','ascend');
-    % index -> GHz values
-	peakLocation = freqs(peakLocation).';
-    
-    if kwargs.checkPlot
-        figure;
-        hold on
-        plot(freqs, data,'b.-','DisplayName','pixel data')
-        plot(freqs, 1-dataSmoothed,'b--','DisplayName','pixel data smooth')
-        plot(peakLocation, 1-peakValue, 'ob','DisplayName',sprintf('pixel peaks (%i)', size(peakLocation,1)))
-        plot(freqs, globalData/max(globalData)*(1-max(dataSmoothed)), 'r.:','DisplayName','global data')
-        legend()
-    end
-% catch
-%     fprintf('<>     ERROR: findpeaks function failed for pixel (y,x): (%3i, %3i) Res. #%1i -> trying gaussian Fit on data',pixel);
-%     peaksNotFound = true;
-% end
+[peakValue, peakLocation] = findpeaks(dataSmoothed,...
+                            'minpeakdistance', minpeakdistance/2, ...
+                            'minpeakheight',0.5*(min(dataSmoothed)+max(dataSmoothed)),... %old version pre mike
+                            'MinPeakProminence',0.0003, ...
+                            'NPeaks',3,...
+                            'sortstr','ascend');
+% index -> GHz values
+peakLocation = freqs(peakLocation).';
+
+if kwargs.checkPlot
+    figure;
+    hold on
+    plot(freqs, data,'b.-','DisplayName','pixel data')
+    plot(freqs, 1-dataSmoothed,'b--','DisplayName','pixel data smooth')
+    plot(peakLocation, 1-peakValue, 'ob','DisplayName',sprintf('pixel peaks (%i)', size(peakLocation,1)))
+    legend()
+end
 
 %% First check
 % if there are less than 3 peaks repeat findpeaks routine on unsmoothed
