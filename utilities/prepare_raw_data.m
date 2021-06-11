@@ -53,8 +53,7 @@ end
 % reshape and transpose each image
 % NOTE: I guess the data is written pixel by pixel, starting left top
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
-data = reshape(dataStack, [], expData.imgNumCols, expData.imgNumRows); % reshape into freq x col x rows
-data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
+data = QDMreshape(dataStack, expData.imgNumRows, expData.imgNumCols);
 
 % binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
@@ -65,9 +64,9 @@ binData = imresize(data, 1/binSize, 'method', 'box');
 % Correct for severely non-unity baseline by dividing pixelwise by
 % average of all frequency points
 
-binDataNorm = zeros(size(binData));
+binDataNorm = rand(size(binData));
 NormalizationFactor = mean(binData,3);    % compute average
-
+% binDataNorm = binData;
 for y = 1:length(freq)
     binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
 end

@@ -19,22 +19,29 @@ function [row, col] = index2xy(index, shape, kwargs)
 arguments
     index
     shape
-    kwargs.type = 'gpu';
+    kwargs.type = 'binDataNorm';
 end
 
-row = fix(index / shape(1))+1;
-col = mod(index, shape(1));
+if strcmp(kwargs.type, 'gpu')
+    col = floor(index / shape(1))+1;
+    row = mod(index, shape(1));
 
-if col == 0 
-    col = shape(2);
-    row = row-1;
+    if row == 0 
+        row = shape(1);
+        col = col-1;
+    end
+else
+    row = floor(index / shape(2))+1;
+    col = mod(index, shape(2));
+
+    if col == 0 
+        col = shape(2);
+        row = row-1;
+    end
 end
 
-if strcmp(kwargs.type, 'binDataNorm')
-    x_ = col;
-    col = row ;
-    row = x_;
-end
+msg = sprintf('idx: %i -> row: %i, col: %i for shape(%i, %i)', index, row, col, shape(1), shape(2));
+logMsg('debug',msg,1,0);
 end
 
 
