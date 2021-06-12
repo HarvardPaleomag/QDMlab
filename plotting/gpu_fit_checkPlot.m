@@ -1,63 +1,73 @@
-function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
+function fig = gpu_fit_checkPlot(fit, data, freq, binSize, diamond, GFs)
 %[fig] = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
+    c = uicontrol(fig, ...
+        'Units', 'normalized', 'Position',[0.15 0.85 0.1 0.1],...
+        'Style','popupmenu');
+    c.String = {'Celsius','Kelvin','Fahrenheit'};
+    c.Callback = @changeSelection;
     
-    %% RESONANCE
-    ax1 = subplot(1,3,1);
-    
-    freq = fit.freq;
-    binSize = fit.binSize;
-    
-    fitData = fit.resonance;
-    fitData(fit.states~=0) = nan;
+    idxGF = 1;
+    function changeSelection()
+        data = reshape(data, [], size(fit.resonance,1), size(fit.resonance,2), size(fit.resonance,3));
+        data = data(:,:,:,idxGF);
+        %% RESONANCE
+        ax1 = subplot(1,3,1);
+        freq = fit.freq(:,:,idxGF);
+        binSize = fit.binSize;
 
-    res = imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
-    set(res,'AlphaData',~isnan(fitData))
-    title(ax1, 'Resonance')
-    axis equal, axis tight, axis xy
-    xlabel('pixel');
-    ylabel('pixel');
-    colorbar()
-    
-    %% CHI
-    ax2 = subplot(1,3,2);
-    imagesc(fit.chiSquares,'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
-    axis equal, axis tight, axis xy
-    title('X^2');
-    xlabel('pixel');
-    ylabel('pixel');
-    set(ax2,'ColorScale','log');
-    colorbar();
+        fitData = fit.resonance(:,:,idxGF);
+        fitData(fit.states(:,:,idxGF)~=0) = nan;
 
-    n = 0;
-    points = [0 0 0 0 0];
-    linkaxes([ax1 ax2]);
+        res = imagesc(fitData,'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
+        set(res,'AlphaData',~isnan(fitData))
+        title(ax1, 'Resonance')
+        axis equal, axis tight, axis xy
+        xlabel('pixel');
+        ylabel('pixel');
+        colorbar()
 
-    for ax = [ax1 ax2]
-       set(ax,'ButtonDownFcn',@clickSelectPixel)
+        %% CHI
+        ax2 = subplot(1,3,2);
+        imagesc(fit.chiSquares(:,:,idxGF),'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
+        axis equal, axis tight, axis xy
+        title('X^2');
+        xlabel('pixel');
+        ylabel('pixel');
+        set(ax2,'ColorScale','log');
+        colorbar();
+
+        n = 0;
+        points = [0 0 0 0 0];
+        linkaxes([ax1 ax2]);
+
+        for ax = [ax1 ax2]
+           set(ax,'ButtonDownFcn',@clickSelectPixel)
+        end
+        ax3 = subplot(1,3,3);
+        drawnow;
     end
-    ax3 = subplot(1,3,3);
-    drawnow;
-    
+
     function clickSelectPixel(hObj, event)
     %clickSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
         x = round(click(1));
         y = round(click(2));
+        idx = xy2index(y,x, size(data), 'type', 'gpu');
 
-        titleTxt = sprintf('X: %4i (%4i) Y: %4i (%4i)', ...
-            round(x),round(x)*binSize,round(y), round(y)*binSize);
+        titleTxt = sprintf('%4i (%4i,%4i)', ...
+            idx, round(x),round(y));
         
         ax3 = subplot(1,3,3);
         cla()
-        rows = size(binDataNorm,1);
-        plot(freq, squeeze(binDataNorm(y,x,:)), 'k.','DisplayName','data')
+        plot(freq, squeeze(data(:,y,x)), 'k.','DisplayName','data')
         hold on
-        idx = xy2index(x, y,rows);
-        plot(freq, 1+model_GPU(fit.p(:,idx), freq, 'diamond', diamond), 'b','DisplayName','Fit')
-        plot(freq, 1+model_GPU(fit.initialGuess.p(:,idx), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
-        plot(freq, 1+model_GPU(fit.pg(:,idx), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
+        plot(freq, 1+model_GPU(fit.p(:,idx, idxGF), freq, 'diamond', diamond), 'b','DisplayName','Fit')
+        plot(freq, 1+model_GPU(fit.initialGuess.p(:,idx, idxGF), freq, 'diamond', diamond), 'g--','DisplayName','initial guess')
+        if ~isequal(fit.pg, 'none')
+            plot(freq, 1+model_GPU(fit.pg(:,idx, idxGF), freq, 'diamond', diamond), 'r:','DisplayName','pre guess')
+        end
         ylabel('Intensity')
         xlabel('f (Hz)')
         legend('Location','southwest', 'NumColumns',3)
@@ -74,11 +84,11 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         end
         title(ax3, titleTxt)
         
-        msg = sprintf('%s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
+        msg = sprintf('%s resonance: %.5f; X^2: %.2e', titleTxt, ...
                         fit.resonance(y,x), fit.chiSquares(y,x)');
         logMsg('info',msg,1,0);
 
-        msg = sprintf('width: %.5f; contrast %.5f; state: %i\n',...
+        msg = sprintf('width: %.5f; contrast %.5f; state: %i',...
             fit.width(y,x), fit.contrastA(y,x), fit.states(y,x)');
         logMsg('info',msg,1,0);
     end

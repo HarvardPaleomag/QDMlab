@@ -20,12 +20,11 @@ arguments
 end
 
 if strcmp(kwargs.type, 'gpu')
-    index = (col-1)*shape(1)+ row;
+    index = (col-1)*shape(2)+ row;
 else
     index = (row-1)*shape(2)+ col;
 end
 
-index = (row-1) * shape(2) + col;
 msg = sprintf('row: %i, col: %i -> idx: %i for shape(%i, %i)', row, col, index, shape(1), shape(2));
 logMsg('debug',msg,1,0);
 end
