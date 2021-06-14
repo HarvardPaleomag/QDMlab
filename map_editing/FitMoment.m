@@ -1,4 +1,5 @@
-function residex=FitMoment(MORDER,INFILE, XY1, XY2, NRUNS, QUAD)
+function residex=FitMoment(MORDER, INFILE, XY1, XY2, NRUNS, QUAD)
+%[residex] = FitMoment(MORDER, INFILE, XY1, XY2, NRUNS, QUAD)
 %MORDER is highest order in the multipole expansion: 2 is quadrupole; 3 is
 %octupole
 %INFILE is the name to the .mat data file with Bz map
@@ -46,8 +47,6 @@ while counter
     Bz=Bz(XY1(1,2):XY2(1,2),XY1(1,1):XY2(1,1));
     Bt=Bt(XY1(1,2):XY2(1,2),XY1(1,1):XY2(1,1));
     
-    XY1
-    XY2
     
     %note that "scanc" already holds a cropped map
     scanc=Bz;

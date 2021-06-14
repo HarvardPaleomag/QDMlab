@@ -1,5 +1,5 @@
 function viscData = viscosity(kwargs)
-% viscosity calculates the viscous component of a map.
+%[viscData] = viscosity('visc', 'nonVisc', 'checkPlot')
 % It takes two maps, where one is measured without viscous compensation and
 % the second one with viscous compensation. The diffeerence between the two
 % is the viscous component of the map.
@@ -25,10 +25,10 @@ arguments
 
 end
 
-viscousFile = automatic_input_ui__(kwargs.visc, 'type', 'file', 'single', true);
+viscousFile = automatic_input_ui__(kwargs.visc, 'type', 'file', 'single', true, 'title', 'select viscous measurement file');
 viscousFile = check_suffix(viscousFile);
 
-nonViscousFile = automatic_input_ui__(kwargs.nonVisc, 'type', 'file', 'single', true);
+nonViscousFile = automatic_input_ui__(kwargs.nonVisc, 'type', 'file', 'single', true, 'title', 'select NON-viscous measurement file');
 nonViscousFile = check_suffix(nonViscousFile);
 
 %% align images
@@ -68,7 +68,7 @@ viscData.viscosityMap = delta;
 
 viscData.LED = refData.(ledName);
 
-if exists_struct(refData, 'laser')
+if isfield(refData, 'laser')
     viscData.laser = refData.laser;
 else
     viscData.laser = zeros(size(refData.(ledName),2));

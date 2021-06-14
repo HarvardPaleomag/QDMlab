@@ -1,4 +1,5 @@
-function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
+function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs, selection, error, filter)%demag_behavior
+%[results, files, nROI, nMasks] = estimate_coercivity(nFolders; 'bootStrapN', 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'freeHand', 'freeHandSelection', 'nROI', 'pixelError', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -34,7 +35,7 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         Note: 'includeHotPixel' is false by default
 %     freeHand: bool [0]
 %         Instead of using a rectangular selection use freehand drawn
-%     freeHandFilter: bool [0]
+%     freeHandSelection: bool [0]
 %         | If true: the selectionThreshold is used to create the mask from the maskSelection.
 %         | If false: the mask = maskSelection
 %     fixedIdx: int [1]
@@ -52,15 +53,13 @@ function [results, files, nROI, nMasks] = estimate_coercivity(nFolders, kwargs)
 %         default: false
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
-%     bootStrapError: int, bool [1]
+%     bootStrapN: int, bool [1]
 %         This uses a boot strapping approach to estimate errors. It will
-%         shift the mask by 'pixelError' 'bootStrapError' times. The
+%         shift the mask by 'pixelError' 'bootStrapN' times. The
 %         result value is calculated from the mean of all calculations and an
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%         Note: if bootStrapError == 1, 'pixelError' should be 0
-%         otherwise the mask is shifted and the result will be wrong.
 %     pixelError: int [0]
 %         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
@@ -91,222 +90,29 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
-    kwargs.upCont = num2cell(zeros(size(nFolders,1)))
-    kwargs.removeHotPixels = 0
-    kwargs.includeHotPixel = 0
-    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = 0
-    kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = 0
-    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = 0
-    kwargs.selectionThreshold (1,1) {mustBeNumeric} = 0.25
-    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.nROI = 0
-    kwargs.chi = 0
-    kwargs.winSize (1,1) = 4
-    kwargs.bootStrapN = 1
-    kwargs.pixelError = 4
-end
-
-% define optional function parameters
-fileName = kwargs.fileName;
-fileName = check_suffix(fileName);
-
-nROI = kwargs.nROI;
-
-%%
-% fix shape for nFolders
-nFolders = correct_cell_shape(nFolders);
-%%
-
-% generate reference file name
-fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
-
-%%
-%% tranformation / filtering
-[transformedData, nFiles] = get_transformed_maps(nFolders, ...
-                  'fileName', kwargs.fileName, 'transFormFile', kwargs.transFormFile,...
-                  'fixedIdx', kwargs.fixedIdx, 'removeHotPixels', kwargs.removeHotPixels,...
-                  'includeHotPixel', kwargs.includeHotPixel,  'chi', kwargs.chi, ...
-                  'winSize', kwargs.winSize, 'reverse', kwargs.reverse, ...
-                  'upCont', kwargs.upCont,...
-                  'checkPlot', kwargs.checkPlot);
-
-% load the reference data
-refFile = load(fixedFile);
-
-% check for variable names
-if contains(fileName, 'B111')
-    fixedData = refFile.B111ferro;
-    fixedLed = refFile.ledImg;
-else
-    fixedData = refFile.Bz;
-    fixedLed = refFile.newLED;
-end
-
-if kwargs.removeHotPixels
-    if kwargs.chi
-        chi = refFile.chi2Pos1 + refFile.chi2Pos2 + refFile.chi2Neg1 + refFile.chi2Neg2;
-    else
-        chi = kwargs.chi;
-    end
-
-    fixedData = filter_hot_pixels(fixedData, 'cutOff', kwargs.removeHotPixels, ...
-                'chi', chi, 'includeHotPixel',false, 'checkPlot', kwargs.checkPlot);
-end
-
-% detect binning
-binning = detect_binning(refFile);
-
-[nMasks, nROI] = create_masks(fixedData, kwargs.selectionThreshold,...
-                      'nROI', nROI, 'freeHand', kwargs.freeHand,...
-                      'freeHandFilter', kwargs.freeHandFilter);
-
-
-% calculation of the mask for each file.
-% Note: this is where the mask is transformed in case of 'reverse' == true
-files = cell(numel(nFolders));
-
-% preallocate the cells:
-iFiles = {};
-pPixels = [];
-nPixels = [];
-pPixelRats = [];
-iPixelThreshs = [];
-sumDiffs = [];
-errs = [];
-maskSums = [];
-iMasks = {};
-transDatas = {};
-transLeds = {};
-
-%% save checkPlot axes to link them later
-axes = [];
-
-% if checkPlot
-%     checkfig = figure;
-% end
-
-for j = 1:size(nFiles, 2)
-    iFile = nFiles{j};
-
-    % load the data of this file
-    iFileData = transformedData(iFile);
-    files{j} = iFileData;
-
-%     disp('<> ------------------------------------------------------------')
-    % iterate over each mask
-    for i = 1:size(nMasks, 2)
-        iMask = nMasks{:, i};
-
-        if kwargs.reverse
-            msg = ['transforming mask to match << ...', iFile(end-40:end), ' >>'];
-            logMsg('info','dipole_fit',msg,1,0);
-            iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
-        end
-
-        % create masked_data: mask is array with 0 where is should be
-        % masked and 1 where it should not
-        mData = iMask .* iFileData.transData;
-        mData = mData - nanmedian(mData, 'all');
-
-        % masked reference
-        d0Select = crop_data(fixedData, nROI{i});
-        d0 = iMask .* fixedData;
-        d0Cut = limit_mask(d0);
-
-        % cut around the mask
-        mDataCut = crop_data(mData, iMask);
-        d0Cut = crop_data(d0, iMask);
-
-%         disp(['<> masking << ...', iFile(end-40:end), ' >>'])
-
-        % predefine the variables
-        mData = [];
-        pPixel = [];
-        pPixelRat = [];
-        sumDiff = [];
-        err = [];
-        maskSum = [];
-        iPixelThresh = [];
-
-
-        if size(mDataCut) ~= size(d0Cut)
-            msg = sprintf('mask too close to edge, skipping ... ');
-            logMsg('warn',msg,1,0);
-            continue
-        end
-
-        dx = 0; dy = 0;
-        % calculate parameters
-
-        for n = 1:kwargs.bootStrapN
-            % create masked_data: mask is array with 0 where is should be
-            % masked and 1 where it should not
-            if kwargs.bootStrapN
-                dx = randi([-kwargs.pixelError, kwargs.pixelError]);
-                dy = randi([-kwargs.pixelError, kwargs.pixelError]);
-            end
-
-            mask = shift_matrix(iMask, dx, dy);
-            mData = iFileData.transData .* mask;
-            mDataCut = limit_mask(mData);
-
-            nPixel = numel(nonzeros(d0Cut));
-            pPixel = [pPixel, numel(nonzeros(sign(nonzeros(mDataCut))+1))];
-            pPixelRat = [pPixelRat, pPixel / nPixel];
-            sumDiff = [sumDiff, sum(sum(mDataCut-d0Cut))];
-            err = [err, immse(mDataCut, d0Cut)];
-            maskSum = [maskSum, sum(mDataCut, 'all')];
-
-            % Pixel above threshold
-            thresh = mDataCut >= kwargs.selectionThreshold * max(mDataCut, [], 'all');
-            iPixelThresh = [iPixelThresh, numel(nonzeros(thresh))];
-        end
-
-        % Pixel above threshold
-        thresh = mDataCut >= mean(d0Select,'all') + kwargs.selectionThreshold * std(d0Select, 0, 'all');
-        iPixelThresh = numel(nonzeros(thresh));
-
-        % store everything
-        iFiles{i, j} = iFile;
-        % number of non 0 pixels in mask
-        nPixels(i, j, 1) = mean(nPixel);
-        nPixels(i, j, 2) = std(nPixel);
-        % number of positive pixels in mask
-        pPixels(i, j, 1) = mean(pPixel);
-        pPixels(i, j, 2) = std(pPixel);
-        % ratio of positive / total pixels in mask
-        pPixelRats(i, j, 1) = mean(pPixelRat);
-        pPixelRats(i, j, 2) = std(pPixelRat);
-        % number of pixels above threshold
-        iPixelThreshs(i, j, 1) = mean(iPixelThresh);
-        iPixelThreshs(i, j, 2) = std(iPixelThresh);
-        % sum of difference between mask and same mask in fixedData
-        sumDiffs(i, j, 1) = mean(sumDiff);
-        sumDiffs(i, j, 2) = std(sumDiff);
-        errs(i, j, 1) = mean(err);
-        errs(i, j, 2) = std(err);
-        % Sum of the Mask
-        maskSums(i, j, 1) = mean(maskSum);
-        maskSums(i, j, 2) = std(maskSum);
-        % mask itself
-        iMasks{i} = iMask;
-        % transformed data
-        transDatas{j} = iFileData.transData;
-        % transformed data
-        transLeds{j} = iFileData.transLed;
-    end
+    kwargs.upCont = false;
+    
+    kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
+    kwargs.nROI = false
+    
+    selection.freeHand  (1,1) {mustBeBoolean(selection.freeHand)} = false
+    selection.freeHandSelection (1,1) {mustBeBoolean(selection.freeHandSelection)} = false
+    selection.selectionThreshold (1,1) {mustBeNumeric} = 0.25
+    
+    error.bootStrapN = 1
+    error.pixelError = 4
+    
+    filter.filterProps struct = struct();
 
 end
 
-results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRats, ...
-    'nPixelThreshs', iPixelThreshs, 'sumDiffs', sumDiffs, ...
-    'errs', errs, 'maskSums', maskSums, 'nPixels', nPixels, ...
-    'nMasks', {iMasks}, 'nROI', {nROI},...
-    'transDatas', {transDatas}, 'fixedData', fixedData, 'transLeds', {transLeds});
+msg = sprintf('please use demag_behavior. estimate_coercivity will be removed in a later update');
+logMsg('deprecated',msg,1,0);
 
-msg = sprintf('coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)', size(nROI,2), size(iFiles,2));
-logMsg('done',msg,1,0);
+kwargs = namedargs2cell(kwargs);
+selection = namedargs2cell(selection);
+error = namedargs2cell(error);
+filter = namedargs2cell(filter);
 
-if kwargs.checkPlot
-    coercivity_result_plot(results)
-end
+[results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs{:}, selection{:}, error{:}, filter{:});

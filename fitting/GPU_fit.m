@@ -1,4 +1,5 @@
 function fits = GPU_fit(dataFolder, binSize, kwargs)
+%[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', 'diamond', 'slopeCorrection')
 
 % Parameters
 % ----------
@@ -58,13 +59,14 @@ arguments
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction (1,1) {mustBeNumeric} = 0.5
     kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = 1
-    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
-    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
-    kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
+    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = false;
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
+    kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = false;
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.slopeCorrection = false;
 end
 
 tStart = tic;
@@ -108,7 +110,7 @@ for fileNum=startN:1:endN
     
     loadStart = tic; % for timing 
     msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
-    logMsg('info',msg,1,0);
+    logMsg('debug',msg,1,0);
     
     expData = load(fullfile(dataFolder, dataFile));
 
@@ -125,6 +127,7 @@ for fileNum=startN:1:endN
         Resfit = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
+            'slopeCorrection', kwargs.slopeCorrection,...
             'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
         Resfit.fileName = fullfile(dataFolder, dataFile);

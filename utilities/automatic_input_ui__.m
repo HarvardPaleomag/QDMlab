@@ -1,6 +1,19 @@
 function [nFolders] = automatic_input_ui__(nFolders, kwargs)
+%[nFolders] = automatic_input_ui__(nFolders; 'type', 'title', 'MultiSelect', 'single')
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
+%
+% Parameters
+% ----------
+%     nFolders: cell
+%     type: str ['dir']
+%     MultiSelect: str ['off']
+%     single: bool [false]
+%
+% Returns
+% -------
+%   nFolders: cell
+
 arguments
     nFolders
     kwargs.type = 'dir';
@@ -11,6 +24,7 @@ end
 
 if strcmp(nFolders, 'none')
 	nFolders = {};
+    logMsg('input', kwargs.title, 1,0);
 
     if strcmp(kwargs.type, 'dir')
         

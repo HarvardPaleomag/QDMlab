@@ -1,29 +1,28 @@
 function filteredData = filter_hot_pixels(data, kwargs)
+%[filteredData] = filter_hot_pixels(data; 'cutOff', 'includeHotPixel', 'checkPlot', 'chi', 'winSize', 'threshold')
 % This function takes a B111ferro file and filters it by replacing the hot 
 % pixel the with the mean of the surrounding pixels (7x7). 
 % %todo add size to arguments
 % 
 % Parameters
 % ----------
-%     data:
+%     data: double
 %         data matrix to be filtered
-%     cutOff: 
+%     cutOff: double ['none']
 %         how many standard deviations have to be exceeded for the pixel to
 %         be filtered.
-%         optional, default = 'none'
-%     includeHotPixel:
+%     includeHotPixel: bool [false]
 %         if true: the mean will be calculated including the hot pixel
 %         if false: the mean is calculated after setting the pixel to nan
-%     chi: array
+%     chi: array [0]
 %         if chi is provided the data will be filtered according to the chi
 %         values.
-%     winSize: int
+%     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
 %         if nan: values are replaced by nan
 %         if 0: values are replaced by 0
-%         if nan: values are replaced by nan
-%     checkPlot:
+%     checkPlot: bool [false]
 %         creates a new figure to check if the filtering worked
 
 
@@ -31,7 +30,7 @@ arguments
    data
    kwargs.cutOff = 'none';
    kwargs.includeHotPixel {mustBeBoolean(kwargs.includeHotPixel)} = 0
-   kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)}= 0
+   kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
    kwargs.chi = 0
    kwargs.winSize = 3
    kwargs.threshold = 5
@@ -49,11 +48,28 @@ dshape = size(data);
 
 % pefilter data values to catch extreme outlier
 aboveStd = abs(data) >= kwargs.threshold;
+
+if kwargs.threshold && numel(nonzeros(aboveStd))
+    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(aboveStd)), kwargs.threshold);
+    logMsg('debug',msg,1,0);
+end
+
 data(aboveStd) = nan;
+
+%% Check if cutOff value is  given
+if strcmp(cutOff, 'none') && ~isequal(chi, false)
+    msg = sprintf('filtering according to Chi alues, but no ''cutOff'' value set. Please check add: e.g. << ''cutOff'', 5 >> !');
+    logMsg('error',msg,1,0);
+end
 
 %% chose mode for hot pixel calculation
 if ~strcmp(cutOff, 'none')
-    msg = sprintf('filtered data where data/chi is %i standard deviations above the median', cutOff);
+    if all(size(chi) == dshape) 
+        dtype = 'chi';
+    else
+        dtype = 'data';
+    end
+    msg = sprintf('filtering where %s is %i standard deviations above the median', dtype, cutOff);
     logMsg('info',msg,1,0);
 
     if all(size(chi) == dshape)
@@ -169,7 +185,7 @@ if strcmp(cutOff, 'none')
     end
 else
     if n_pixels
-        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e\n', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
+        msg = sprintf('filtered by %i stdev: removed %i / %i pixel = %.2f%% | median = %.2e, std = %.2e', cutOff, n_pixels, numel(filteredPixels), n_pixels/numel(filteredPixels)*100, dMed, dStd');
         logMsg('info',msg,1,0);
     end
 end

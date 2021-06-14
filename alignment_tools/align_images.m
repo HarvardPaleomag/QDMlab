@@ -1,4 +1,5 @@
 function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
+%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'laser')
 % Function to aling a set of images. Function will automatically align the
 % images first and you can check if it is ok. If not the complex alignment
 % will be called.
@@ -19,7 +20,7 @@ arguments
     nFolders cell {foldersMustExist(nFolders)}
     kwargs.transFormFile char = 'none';
     kwargs.fixedIdx int16 = 1
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 1
+    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = true;
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
