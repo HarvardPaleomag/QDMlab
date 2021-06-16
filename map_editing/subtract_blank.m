@@ -27,7 +27,6 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
-close all
 
 subtractedData = containers.Map();
 
