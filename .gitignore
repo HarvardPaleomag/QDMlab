@@ -5,3 +5,7 @@
 .idea
 .ides/*
 matlab.mat
+
+*.pyc
+
+admin_tools/~$dependencies.xlsx

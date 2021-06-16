@@ -1,5 +1,5 @@
 function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
-%[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+%[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes; 'gpuData')
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
 % 2. Bins data: (imresize)

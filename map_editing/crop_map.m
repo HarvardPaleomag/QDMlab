@@ -1,5 +1,5 @@
 function [expData, row, col] = crop_map(kwargs)
-%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col')
+%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col', 'title')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 
@@ -9,6 +9,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.row = 'none';
     kwargs.col = 'none';
+    kwargs.title = 'Select area to crop';
 end
 
 if isstruct(kwargs.filePath)
@@ -21,7 +22,7 @@ end
 
 [~, dataName, ledName] = is_B111(expData);
 
-[row, col] = pick_box2('expData', expData, 'title', 'Select area to crop', 'even', true);
+[row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
 
 bData = expData.(dataName);
 led = expData.(ledName);

@@ -202,8 +202,8 @@ else
     yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
 end
 
-x0 = j * step;
-y0 = i * step;
+x0 = double(j) * step;
+y0 = double(i) * step;
 
 %adjust if the crop area falls outside the image
 scansize = size(bData);
@@ -230,7 +230,7 @@ xc = x(xCrop(1):xCrop(2));
 yc = y(yCrop(1):yCrop(2));
 
 if kwargs.checkPlot
-    figure
+    f = figure('units','normalized','outerposition',[0 1 0.3 0.5],'NumberTitle', 'off', 'Name', 'Total Moment');
     imagesc(xc, yc, abs(bDataCropped));
     axis xy, axis equal, axis tight
     caxis([0, 1]*max(abs(caxis)));
@@ -372,11 +372,11 @@ fsort = sort(fval);
 
 i = find(fval <= fsort(kwargs.minTol));
 if numel(i) > 1
-    msg = sprintf('averaging %d points\n', numel(i));
+    msg = sprintf('averaging %d points', numel(i));
     logMsg('info',msg,1,0);
 end
 if numel(i) > 0.1 * numel(fval)
-    msg = sprintf('Too many points are being averaged. Consider adjusting MINTOL parameter.');
+    msg = sprintf('too many points are being averaged. Consider adjusting MINTOL parameter.');
     logMsg('warn',msg,1,0);
 end
 
@@ -431,7 +431,7 @@ nameext = [name, ext];
 if kwargs.checkPlot
     % whole map figure
     f = figure('Units', 'normalized', ...
-               'Position',[0.1 0.2 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
+               'Position',[0.1 0.1 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
            
     ax1 = subplot(1, 2, 1);
     QDM_figure(bData, 'ax', ax1);
@@ -449,20 +449,20 @@ if kwargs.checkPlot
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
     % data figure
-    dataFig = figure();
-    ax1 = subplot(2, 2, 1);
+    dataFig = figure('units','normalized','outerposition',[0.2 0.6 0.6 0.3],'NumberTitle', 'off', 'Name', 'dipole_fit');
+    ax1 = subplot(1, 3, 1);
     imagesc(xc, yc, bDataCropped);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
     title('Original Scan');
-    ax2 = subplot(2, 2, 2);
+    ax2 = subplot(1, 3, 2);
     imagesc(xc, yc, bModel);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
     title('Model Scan');
-    ax3 = subplot(2, 2, 4);
+    ax3 = subplot(1, 3, 3);
     imagesc(xc, yc, residuals);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));

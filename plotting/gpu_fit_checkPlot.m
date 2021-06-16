@@ -1,7 +1,8 @@
 function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
 %[fig] = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
-
+    
+    %% RESONANCE
     ax1 = subplot(1,3,1);
     
     freq = fit.freq;
@@ -14,26 +15,32 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     set(res,'AlphaData',~isnan(fitData))
     title(ax1, 'Resonance')
     axis equal, axis tight, axis xy
-
+    xlabel('pixel');
+    ylabel('pixel');
     colorbar()
-
+    
+    %% CHI
     ax2 = subplot(1,3,2);
     imagesc(fit.chiSquares,'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
     axis equal, axis tight, axis xy
-    title('X^2')
-    set(ax2,'ColorScale','log')
-    colorbar()
+    title('X^2');
+    xlabel('pixel');
+    ylabel('pixel');
+    set(ax2,'ColorScale','log');
+    colorbar();
 
     n = 0;
     points = [0 0 0 0 0];
     linkaxes([ax1 ax2]);
 
     for ax = [ax1 ax2]
-       set(ax,'ButtonDownFcn',@clickFitFcn)
+       set(ax,'ButtonDownFcn',@clickSelectPixel)
     end
     ax3 = subplot(1,3,3);
     drawnow;
-    function clickFitFcn(hObj, event)
+    
+    function clickSelectPixel(hObj, event)
+    %clickSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
         x = round(click(1));
@@ -66,9 +73,13 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
             points(i) = point;
         end
         title(ax3, titleTxt)
-        fprintf('<>            %s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
-            fit.resonance(y,x), fit.chiSquares(y,x))
-        fprintf('<>                                width: %.5f; contrast %.5f; state: %i\n',...
-            fit.width(y,x), fit.contrastA(y,x), fit.states(y,x))
+        
+        msg = sprintf('%s resonance: %.5f; X^2: %.2e\n', titleTxt, ...
+                        fit.resonance(y,x), fit.chiSquares(y,x)');
+        logMsg('info',msg,1,0);
+
+        msg = sprintf('width: %.5f; contrast %.5f; state: %i\n',...
+            fit.width(y,x), fit.contrastA(y,x), fit.states(y,x)');
+        logMsg('info',msg,1,0);
     end
 end

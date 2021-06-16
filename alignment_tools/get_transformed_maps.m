@@ -1,5 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'reverse', 'transFormFile', 'upCont')
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'reverse', 'checkPlot', 'filterProps')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -80,13 +80,9 @@ else
         'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
 end
 
-if contains(kwargs.fileName, 'B111')
-    refData = refFileData.B111ferro;
-    refLed = refFileData.ledImg;
-else
-    refData = refFileData.Bz;
-    refLed = refFileData.newLED;
-end
+[bool, dataName,ledName] = is_B111(refFileData);
+refData = refFileData.(dataName);
+refLed = refFileData.(ledName);
 
 % cycle through all folders
 for i = 1:size(nFolders, 2)
