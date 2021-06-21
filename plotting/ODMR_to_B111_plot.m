@@ -1,11 +1,15 @@
 function ODMR_to_B111_plot(fits, savePath)
 %ODMR_to_B111_plot(fits, savePath)
+arguments
+    fits
+    savePath = false
+end
 
 %% PLOTS
 rng = .03;
 
-r1 = nanmean(fits.B111para(~fits.pixelAlerts)) - rng;
-r2 = nanmean(fits.B111para(~fits.pixelAlerts)) + rng;
+r1 = mean(fits.B111para(~fits.pixelAlerts),'omitnan') - rng;
+r2 = mean(fits.B111para(~fits.pixelAlerts),'omitnan') + rng;
 
 [yc, xc] = size(fits.negDiff);
 xc = 1:xc; yc = 1:yc;
@@ -36,7 +40,7 @@ s3 = subplot(2, 2, 3); %imagesc( B111ferro ,'hittest', 'off'); axis equal tight;
 QDM_figure(fits.B111ferro, 'ax', s3, 'preThreshold', 14, 'title', 'Positive + negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)', 'xc', xc,'yc', yc);
 s4 = subplot(2, 2, 4); %imagesc( (ledImg) ,'hittest', 'off'); axis equal tight; colorbar; colormap(s4,gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
 QDM_figure(fits.ledImg, 'ax', s4, 'preThreshold', 14, 'led', true, 'title', 'LED image', 'xc', xc,'yc', yc);
-sgtitle(', B111 points up and out of page');
+sgtitle('B_{111} points up and out of page');
 ax = [s1, s2, s3, s4];
 linkaxes(ax);
 
@@ -48,7 +52,7 @@ colormap(gca, map);
 title('pixel alerts');
 set(gca, 'YDir', 'normal');
 
-if ~ isequal(savePath, false)
+if ~isequal(savePath, false)
     saveas(f1, fullfile(savePath, 'negCurrent.png'), 'png');
     saveas(f2, fullfile(savePath, 'posCurrent.png'), 'png');
     saveas(f3, fullfile(savePath, 'ferromagImg.png'), 'png');

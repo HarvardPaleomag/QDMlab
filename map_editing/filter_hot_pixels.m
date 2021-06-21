@@ -80,7 +80,7 @@ if ~strcmp(cutOff, 'none')
 
     if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
-        chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
+        chiFilter = abs(chi) > mean(chi, 'all','omitnan') + 15 * std(chi, 0, 'all','omitnan');
         chi(chiFilter) = nan;
 
         % calculate the mean over all pixels
