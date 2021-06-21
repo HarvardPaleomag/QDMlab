@@ -173,7 +173,7 @@ else
             
                 % calculate the mean 
                 % if include_hot_pixel without using the pixel itself
-                new_val = nanmean(window, 'all');
+                new_val = mean(window, 'all','omitnan');
 
                 filteredData(row,col) = new_val;
 

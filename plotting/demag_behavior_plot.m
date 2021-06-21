@@ -54,8 +54,8 @@ stds = rand(1, nFiles);
 for j = 1:nFiles
     % load the data of this file
     iFileData = results.transDatas{j};
-    data(abs(iFileData) > nanmean(iFileData, 'all') + 100 * nanstd(iFileData, 0, 'all') ) = nan;
-    iFileData = iFileData - nanmedian(iFileData, 'all');
+    data(abs(iFileData) > mean(iFileData, 'all','omitnan') + 100 * std(iFileData, 0, 'all','omitnan') ) = nan;
+    iFileData = iFileData - median(iFileData, 'all','omitnan');
 
     %% get max and min data values -> global max min
     if max(iFileData, [], 'all') > mx
