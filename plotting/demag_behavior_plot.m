@@ -79,6 +79,7 @@ for j = 1:nFiles
 
     ax = subplot(rows, 3, j);
     QDM_figure(iFileData, 'ax', ax, 'title', title, 'unit', kwargs.dataUnit);
+    hold(ax, 'on');
     axes = [axes ax];
     
     for i = 1:nMasks
@@ -101,24 +102,25 @@ for ax = axes
 end
 
 % figure
-for i = 1:nMasks
-    ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
-    hold on
-    errorbar(steps, results.pPixels(i, :, 1) / results.pPixels(i, 1, 1), ...
-        results.pPixels(i, :, 2) /results.pPixels(i, 1, 1), ...
-        'o-', 'DisplayName', num2str(i))
-    ylabel('norm. n(+)pixel')
-    legend
-end
+ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
+hold(ax, 'on');
 
-plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F');
+for i = 1:nMasks
+    errorbar(ax, steps, results.pPixels(i, :, 1) / results.pPixels(i, 1, 1), ...
+             results.pPixels(i, :, 2) /results.pPixels(i, 1, 1), ...
+             'o-', 'DisplayName', num2str(i))
+end
 
 if kwargs.mean
     mn = mean(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
     st = std(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
-    errorbar(steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
+    errorbar(ax, steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
 end
-
+ylabel(ax, 'norm. n(+)pixel')
+legend(ax)
+h = plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
+% the following line skip the name of the previous plot from the legend
+h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 %% additional LED plot
 if kwargs.led
     axes = [];
@@ -126,18 +128,6 @@ if kwargs.led
     for j = 1:nFiles
     % load the data of this file
         iFileLed = results.transLeds{j};
-    % 
-    %     %% get max and min data values -> global max min
-    %     if max(iFileData, [], 'all') > mx
-    %         mx = nanmax(iFileData, [], 'all');
-    %     end
-    %     if min(iFileData, [], 'all') < mn
-    %         mn = nanmin(iFileData, [], 'all');
-    %     end
-    % 
-    %     fileName = results.nFiles{1, j};
-    %     fNameSplit = split(fileName,filesep);
-    %     step = fNameSplit(end-2);
 
         ax = subplot(rows-1, 3, j);
         imagesc(ax, iFileLed)
