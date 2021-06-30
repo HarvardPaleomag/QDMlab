@@ -1,12 +1,12 @@
-function results = subtract_source_series(nFolders, varargin)
-% pick_sources_and_fit is used to bulk analyze datasets it 
+function results = subtract_source_series(nFolders, kwargs)
+% subtract_source_series is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
 % (3) calculates the upwards continuation (UC) for each source (passed through
-%     'upCont' parameter
+%     'kwargs.upCont' parameter
 % (4) fits a dipole to each source in each map at every UC distance
 %     -> output structure is {source, map, UC}
-% 
+%
 % Parameters
 % ----------
 %     positional
@@ -14,7 +14,7 @@ function results = subtract_source_series(nFolders, varargin)
 %     folders:list
 %         list of absolute path to each data folder. First entry in the list
 %         is used as reference image.
-% 
+%
 %     optional keywords
 %     -----------------
 %     fileName: str
@@ -25,10 +25,10 @@ function results = subtract_source_series(nFolders, varargin)
 %         absolute path of a file where previously calculated transformations
 %         are in. If file does not exist the file will be created so that
 %         you dont have to do this every time.
-%     upCont: cell
+%     kwargs.upCont: cell
 %         default: false
 %         A cell of numbers for upward continuation
-%     refIdx: int
+%     kwargs.refIdx: int
 %         default: 1
 %         index of the reference LED image. This will be used as reference
 %         for the transformation calculations
@@ -36,7 +36,7 @@ function results = subtract_source_series(nFolders, varargin)
 %         default: false
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
-%     outputTrue: bool
+%     kwargs.outputTrue: bool
 %         default: false
 %         if true `dipoleinversions.txt` will be written to disk
 %         if false `dipoleinversions.txt` will not be written to disk
@@ -64,89 +64,85 @@ function results = subtract_source_series(nFolders, varargin)
 %     Each is a cell with result{i,j,k} with:
 %           ith ROI, jth file, kth UC value:
 
+arguments
+    nFolders {foldersMustExist};
+    kwargs.fileName char = 'Bz_uc0.mat';
+    kwargs.transFormFile = false;
+    kwargs.refIdx {mustBeInteger} = 1;
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.outputTrue {mustBeBoolean(kwargs.outputTrue)} = false;
+    kwargs.save {mustBeBoolean(kwargs.save)} = false;
+    kwargs.upCont = false;
+    kwargs.nROI = false;
+    kwargs.imageFolder = false;
+    kwargs.unTransform {mustBeBoolean(kwargs.unTransform)} = true;
+    kwargs.saveAllSub {mustBeBoolean(kwargs.saveAllSub)} = false;
+    kwargs.pixelsize = 4.68e-6
+end
 
-nParams = inputParser;
-str_or_char = @(x) isstring(x) | ischar(x);
-
-addRequired(nParams, 'nFolders', @iscell);
-addParameter(nParams, 'fileName', 'Bz_uc0.mat', str_or_char);
-addParameter(nParams, 'transFormFile', 'none', str_or_char);
-addParameter(nParams, 'refIdx', 1, @isnumeric);
-addParameter(nParams, 'checkPlot', false, @islogical);
-addParameter(nParams, 'outputTrue', false, @islogical);
-addParameter(nParams, 'save', false, @islogical);
-addParameter(nParams, 'upCont', {0}, @iscell);
-addParameter(nParams, 'nROI', false, @iscell);
-addParameter(nParams, 'imageFolder', false, @ischar);
-parse(nParams, nFolders, varargin{:});
-
-% define optional parameters
-fileName = nParams.Results.fileName;
-tformFile = nParams.Results.transFormFile;
-refIdx = nParams.Results.refIdx;
-checkPlot = nParams.Results.checkPlot;
-outputTrue = nParams.Results.outputTrue;
-upCont = nParams.Results.upCont;
-imageFolder=nParams.Results.imageFolder;
-
-% define QDM parameters
-pixelsize = 4.68e-6;
+nFolders = correct_cell_shape(nFolders);
 
 % generate reference file name
-refFile = [nFolders{refIdx}, filesep, fileName];
+refFile = [nFolders{kwargs.refIdx}, filesep, kwargs.fileName];
 
 % get transformations and rframes
 [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
-    'transFormFile', tformFile, 'check', checkPlot);
+    'transFormFile', kwargs.transFormFile, ...
+    'check', kwargs.checkPlot);
 
 % pick source on data
 fixed = load(refFile);
 
-if contains(fileName, 'B111')
+[~, dataName,ledName] = is_B111(fixed);
+
+if contains(kwargs.fileName, 'B111')
     msg = sprintf('B111 data NOT SUPPORTED, YET');
-    logMsg('error',msg,1,0);
-    fixedData = fixed.B111ferro;
-    fixedLed = fixed.ledImg;
-else
-    fixedData = fixed.Bz;
-    fixedLed = fixed.newLED;
+    logMsg('error', msg, 1, 0);
 end
 
-fixedData = filter_hot_pixels(fixedData, 'cutOff', 12);
+fixedData = fixed.(dataName);
+fixedLed  = fixed.(ledName);
 
-if ~islogical(nParams.Results.nROI)
-    nROI = nParams.Results.nROI;
+if ~isequal(kwargs.nROI, false)
+    nROI = kwargs.nROI;
 else
-    nROI = pick_box(fixedData, 'led', false, ...
-        'returnCoordinates', true, 'closeFig', true);
+    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true);
 end
 
 allResults = containers.Map;
 
-numberoffolders=size(nFolders,1);
+numberoffolders = size(nFolders, 2);
 
 % preallocate the cells:
 iFiles = {};
-moments = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-inclinations = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-declinations = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-heights = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-residuals = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-xMin = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-xMax = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-yMin = zeros(size(nROI,2),numberoffolders,size({0,10},2));
-yMax = zeros(size(nROI,2),numberoffolders,size({0,10},2));
+moments = zeros(size(nROI, 2), numberoffolders);
+inclinations = zeros(size(nROI, 2), numberoffolders);
+declinations = zeros(size(nROI, 2), numberoffolders);
+heights = zeros(size(nROI, 2), numberoffolders);
+residuals = zeros(size(nROI, 2), numberoffolders);
+xMin = zeros(size(nROI, 2), numberoffolders);
+xMax = zeros(size(nROI, 2), numberoffolders);
+yMin = zeros(size(nROI, 2), numberoffolders);
+yMax = zeros(size(nROI, 2), numberoffolders);
+
+if kwargs.saveAllSub
+    BzSub = cell(size(nROI, 2), numberoffolders);
+else
+    BzSub = cell(1, numberoffolders);
+end
+
+% list to record failed fits
+errList = [];
 
 %%
 % cycle through all folders
-for j = 1 : numberoffolders
-    if contains(fileName,'.mat')
-        iFile = fullfile(nFolders{j}, filesep, fileName);
-    else
-        iFile = fullfile(nFolders{j}, filesep, [fileName '.mat']);
-    end
-    iData = load(iFile);
+for j = 1:numberoffolders
+    iFile = fullfile(nFolders{j}, filesep, kwargs.fileName);
+    iFile = check_suffix(iFile);
     
+    iData = load(iFile);
+    binning = round(detect_binning(iData));
+
     % get transformation for that file
     tForm = nTransForms(iFile);
     % get refFrame for that file
@@ -154,18 +150,15 @@ for j = 1 : numberoffolders
 
     % claculate transformed data
     msg = sprintf('transforming LED');
-    logMsg('info',msg,1,0);
+    logMsg('info', msg, 1, 0);
     movedLed = tform_data(iData.newLED, tForm, rframe);
     msg = sprintf('transforming Bz');
-    logMsg('info',msg,1,0);
+    logMsg('info', msg, 1, 0);
     movedData = tform_data(iData.Bz, tForm, rframe);
-    
-    % todo add filter_hot_pixel
-    % movedData = filter_hot_pixels(movedData, 'cutOff', 12);
-    
+
     % replace data/LED with transformed data/LED
-    iData.newLED = movedLed;
-    iData.Bz = movedData;
+    iData.(ledName) = movedLed;
+    iData.(dataName) = movedData;
 
     % copy the data so that Bz is not overwritten when doing the
     % UC calculations later
@@ -175,59 +168,102 @@ for j = 1 : numberoffolders
 
     % cycle through all rectangles (i.e. sources)
     for i = 1:size(nROI, 2)
+        iRect = nROI{i};
 
-        for k = 1:size(upCont, 2)
-            h = upCont{k};
+        xLim = round([iRect(1), iRect(1) + iRect(3)]);
+        yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
-            if h > 0
-                % calculate the UC
-                msg = sprintf('calculating upward continuation (%i) micron', h);
-                logMsg('info',msg,1,0);
-                
-                % replace the last Bz data with UC data of non UC iData
-                transDataUC.Bz = UpCont(iData.Bz, h*1e-6, 1/pixelsize);
+        %% actual fitting
+        SOURCENAME = ['Source', num2str(i), '_Step', num2str(j)];
+%         try
+            % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
+
+            iResult = dipole_fit('filePath', iFile, 'fitOrder', 1, ...
+                'cropFactor', 20, 'save', kwargs.save, ...
+                'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
+                'expData', transDataUC, 'method', 0, ...
+                'imageFolder', kwargs.imageFolder, 'sourceName', SOURCENAME);
+
+            % reassign subtracted region
+            ic = 1;
+            for is = xLim(1):xLim(2)
+                jc = 1;
+                for js = yLim(1):yLim(2)
+                    transDataUC.Bz(js, is) = -iResult.residuals(jc, ic); %-residualMap(jc, ic);
+                    jc = jc + 1;
+                end
+                ic = ic + 1;
             end
 
-            iRect = nROI{i};
-
-            xLim = round([iRect(1), iRect(1) + iRect(3)]);
-            yLim = round([iRect(2), iRect(2) + iRect(4)]);
-            
-            %% actual fitting
-            SOURCENAME=['Source' num2str(i) '_Step' num2str(j) ];
-            
-            % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
-            iResult = dipole_fit('filePath', iFile, 'mOrder', 1, ...
-                'cropFactor', 20, 'save', nParams.Results.save, ...
-                'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
-                'expData', transDataUC, ...
-                'imageFolder',imageFolder,'sourceName',SOURCENAME);
-            
             %% results
             iResult.xLims = xLim;
             iResult.yLims = yLim;
             iResult.iSource = i;
-            fileResults{end+1} = iResult;
-
-            iFiles{end+1} = iFile;
-            moments(i,j,k) = iResult.m;
-            inclinations(i,j,k) = iResult.inc;
-            declinations(i,j,k) = iResult.dec;
-            heights(i,j,k) = iResult.h;
-            residuals(i,j,k) = iResult.res;
-            xMin(i,j,k) = xLim(1);
-            xMax(i,j,k) = xLim(2);
-            yMin(i,j,k) = yLim(1);
-            yMax(i,j,k) = yLim(2);
             
-%             close all
-        end
+            
+            fileResults{i,j} = iResult;
+            iFiles{i, j} = iFile;            
+            moments(i, j) = iResult.m;
+            inclinations(i, j) = iResult.inc;
+            declinations(i, j) = iResult.dec;
+            heights(i, j) = iResult.h;
+            residuals(i, j) = iResult.res;
+            xMin(i, j) = xLim(1);
+            xMax(i, j) = xLim(2);
+            yMin(i, j) = yLim(1);
+            yMax(i, j) = yLim(2);
+
+            if kwargs.unTransform && kwargs.saveAllSub
+                BzSub{i, j} = tform_data(transDataUC.Bz, invert(tForm), rframe);
+            elseif kwargs.saveAllSub
+                BzSub{i, j} = transDataUC.Bz;
+            end
+
+            figure();
+            QDM_figure(transDataUC.Bz);
+%         catch
+%             errList(end+1, :) = [i, j];
+%             % just don't want it to stop every time it can't fit something!
+%         end
+
+        close all
+
+
     end
+
+
+    if kwargs.unTransform && ~kwargs.saveAllSub
+        BzSub{1, j} = tform_data(transDataUC.Bz, invert(tForm), rframe);
+    elseif ~kwargs.saveAllSub
+        BzSub{1, j} = transDataUC.Bz;
+    end
+
     allResults(iFile) = fileResults;
 end
 
-
 results = struct('nFiles', {iFiles}, 'moments', moments, 'incs', inclinations, ...
-                 'decs', declinations, 'heights', heights, 'res', residuals, ...
-                 'xMin', xMin, 'xMax', xMax, 'yMin', yMin, 'yMax', yMax);
+    'decs', declinations, 'heights', heights, 'res', residuals, ...
+    'xMin', xMin, 'xMax', xMax, 'yMin', yMin, 'yMax', yMax, ...
+    'BzSub', {BzSub}, 'errList', errList);
 
+if isequal(kwargs.checkPlot, true)
+    checkPlot(results)
+end
+
+end
+
+function checkPlot(results)
+    [nROI, nFiles] = size(results.nFiles);
+    
+    rows = fix(nFiles/3)+ double(mod(nFiles,3)>0);
+
+    figure('units','normalized', 'outerposition',[0,0,3*(0.8/rows),0.8]);
+
+    axes = [];
+    for j = 1:nFiles
+        ax = subplot(rows, 3, j);
+        QDM_figure(results.BzSub{j}, 'ax', ax);
+        axes = [axes ax];
+    end
+    linkaxes(axes)
+end

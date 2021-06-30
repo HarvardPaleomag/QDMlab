@@ -15,7 +15,7 @@ example:
 binTransForm = [[1, 1, 1]; [1, 1, 1]; [bin, bin, 1]];
 transForm.T = transForm.T .* binTransForm;
 
-refFrame.ImageSize = refFrame.ImageSize * bin;
+refFrame.ImageSize = ceil(refFrame.ImageSize * bin);
 
 refFrame.YWorldLimits(2) = refFrame.ImageSize(1) + 0.5;% refFrame.YWorldLimits * bin;
 refFrame.XWorldLimits(2) = refFrame.ImageSize(2) + 0.5;%refFrame.XWorldLimits * bin;
