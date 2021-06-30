@@ -1,12 +1,11 @@
 function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
-%[nMasks, nROI] = create_masks(data, selectionThreshold; 'nROI', 'freeHand', 'freeHandSelection')
 %%
 arguments
     data
     selectionThreshold
     kwargs.nROI = false;
     kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = false
-    kwargs.freeHandSelection (1,1) {mustBeBoolean(kwargs.freeHandSelection)} = false
+    kwargs.freeHandFilter (1,1) {mustBeBoolean(kwargs.freeHandFilter)} = false
 end
 nROI = kwargs.nROI;
 
@@ -32,9 +31,9 @@ data(abs(data) >= 5) = nan;
 %%
 % CREATE MASK FROM SELECTIONS
 %
-% if freeHand and freeHandSelection is true then you can draw the mask
+% if freeHand and freeHandFilter is true then you can draw the mask
 % directly in the image
-if all([kwargs.freeHandSelection, kwargs.freeHand])
+if all([kwargs.freeHandFilter, kwargs.freeHand])
     nMasks = nROI;
 % otherwise the mask will be calculated from the selection
 else
@@ -43,12 +42,13 @@ else
         % limit the data to only the selected region all other values set
         % to 0
         selData = data .* nROI{iSelect};
-%         selData = selData - median(selData, 'all', 'omitnan');
+%         pcolor(selData);
+%         axis xy; axis equal; axis tight; shading flat;
 
         % The masked data now gets filtered to create the final mask
         iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
         m = limit_mask(nROI{iSelect});
-        msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)), numel(iMaskData), 100*numel(nonzeros(iMaskData))/numel(iMaskData));
+        msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)));
         logMsg('debug',msg,1,0);
 
         % set mask

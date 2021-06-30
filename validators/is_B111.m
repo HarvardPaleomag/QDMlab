@@ -1,5 +1,5 @@
 function [bool, dataName,ledName] = is_B111(expData)
-%[bool, dataName, ledName] = is_B111(expData)
+% out = is_B111(expData) checks the expData struct for the fieldnames
 % 'B111ferro' or 'Bz'. Returns true if 'B111ferro' is found otherwise
 % returns false.
 arguments

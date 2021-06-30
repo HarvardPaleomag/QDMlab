@@ -1,6 +1,5 @@
 % Custom validation function
 function folderMustExist(folder)
-%folderMustExist(folder)
     % Test for equal size
     if strcmp(folder, 'none')
         return

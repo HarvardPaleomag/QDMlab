@@ -1,5 +1,4 @@
 function expData = subtract_constant(kwargs)
-%[expData] = subtract_constant('filePath', 'save', 'editFigure')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 
@@ -33,12 +32,12 @@ if kwargs.save
     expData.([dataName '_original']) = expData.(dataName);
     expData.(dataName) = bData;
 
-    [fPath,fileName,~]=fileparts(filePath{1,1});
+    [filePath,fileName,~]=fileparts(filePath{1,1});
 
     iFileNew = strrep(filePath{1,1}, '.mat', sprintf('_%sSub.mat', dataName));
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     
-    saveas(fig,fullfile(fPath, sprintf('%s_%sSub.png', fileName, dataName)))
+    saveas(fig,fullfile(filePath, sprintf('%s_%sSub.png', fileName, dataName)))
     save(iFileNew,'-struct','expData');
 end
 

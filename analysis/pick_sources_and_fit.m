@@ -1,4 +1,4 @@
-function results = subtract_source_series(nFolders, varargin)
+function results = pick_sources_and_fit(nFolders, varargin)
 % pick_sources_and_fit is used to bulk analyze datasets it 
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)

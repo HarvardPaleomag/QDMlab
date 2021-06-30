@@ -1,5 +1,4 @@
 function model = model_GPU(p, freq, kwargs)
-%[model] = model_GPU(p, freq; 'diamond', 'data', 'checkPlot')
 % calculates a model from the fitting parameters from GPU_fit
 % depending on the diamond type
 % 
@@ -25,7 +24,7 @@ arguments
     freq double
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
     kwargs.data {mustBeNumericOrLogical} = false;
-    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.checkPlot (1,1) {mustBeMember(kwargs.checkPlot, [1, 0])} = 0;
 end
 
 x = freq;

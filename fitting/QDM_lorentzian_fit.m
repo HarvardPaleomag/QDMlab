@@ -1,5 +1,5 @@
 function fits = QDM_lorentzian_fit(kwargs)
-%[fits] = QDM_lorentzian_fit('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'nucSpinPol', 'save', 'diamond', 'slopeCorrection')
+% :code:`QDM_lorentzian_fit` uses GPU_fit to calculate the field values for each pixel
 % and then determines B111 field values from the different polarities.
 %
 % Parameters
@@ -28,10 +28,7 @@ function fits = QDM_lorentzian_fit(kwargs)
 %   show diagnostics plots
 %   plotGuessSpectra: bool (1)
 %   forceGuess: bool (0)
-%   slope_correction: bool [false]
-%       uses a linear slope correction on the raw data to determine the
-%       initial guess. 
-%       Note: only works for type = 2
+%
 
 arguments
     kwargs.nFolders {foldersMustExist(kwargs.nFolders)} = 'none';
@@ -40,19 +37,71 @@ arguments
     kwargs.fieldPolarity (1,1) {mustBeMember(kwargs.fieldPolarity,[0,1,2,4])} = 0
     kwargs.type (1,1) {mustBeMember(kwargs.type,[0,1,2])} = 2
     kwargs.globalFraction = 'none';
-    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = false;
-    kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
-    kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = false;
-    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
+    kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = 0
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.plotGuessSpectra (1,1) {mustBeBoolean(kwargs.plotGuessSpectra)} = 0
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
+    kwargs.nucSpinPol (1,1) {mustBeBoolean(kwargs.nucSpinPol)} = 0
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
-    kwargs.slopeCorrection = false;
 end
 
-msg = sprintf('please use ODMR_to_B111. QDM_lorentzian_fit will be removed in  a later update');
-logMsg('deprecated',msg,1,0);
+defaults = struct('binSizes', [4], 'globalFraction', 0.25);
+nFolders = automatic_input_ui__(kwargs.nFolders);
+kwargs = ask_arguments(kwargs, defaults);
+binSizes = kwargs.binSizes;
 
-kwargs = namedargs2cell(kwargs);
-fits = ODMR_to_B111(kwargs{:});
+% check if there is more than one folder
+nFolders = correct_cell_shape(nFolders);
+
+% check if there is one or more binSize
+if isnumeric(binSizes)
+    binSizes = [binSizes];
+end
+
+% select field polarity
+fp = containers.Map({0 1 2 4},{'np  ' 'n   ' 'p   ' 'nppn'});
+type = fp(kwargs.fieldPolarity);
+
+for dataFolder = nFolders
+    dataFolder = dataFolder{:};
+    for n=1:size(binSizes,2)
+        binSize=binSizes(n);
+        %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
+        fits = GPU_fit(dataFolder, binSize,...
+                        'fieldPolarity',kwargs.fieldPolarity, ...
+                        'type', kwargs.type,...
+                        'globalFraction', kwargs.globalFraction,...
+                        'diamond', kwargs.diamond,...
+                        'gaussianFit', kwargs.gaussianFit,...
+                        'gaussianFilter', kwargs.gaussianFilter,...
+                        'forceGuess', kwargs.forceGuess,...
+                        'checkPlot', kwargs.checkPlot,...
+                        'smoothDegree', kwargs.smoothDegree,...
+                        'save', kwargs.save);
+                    
+        fits.kwargs = kwargs;
+        fits.nFolder = dataFolder;
+        
+        folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
+
+        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        
+        % copy laser image and csv
+        msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
+        logMsg('info',msg,1,0);
+        
+        copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
+        copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+        
+        fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
+        msg = sprintf('saving %s into %s', fName, dataFolder);
+        logMsg('info',msg,1,0);
+        
+        save(fullfile(dataFolder, fName), '-struct', 'fits');
+    end
+end
+
+end

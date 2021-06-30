@@ -1,6 +1,5 @@
 % Custom validation function
 function mustBeBoolean(item)
-%mustBeBoolean(item)
     % Test for equal size
     isbool = (item == 1) | (item == 0) | (item == true) | (item == false) | (item == 'none');
     if ~isbool

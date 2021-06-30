@@ -1,5 +1,4 @@
-function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'reverse', 'transFormFile', 'upCont')
+function [transformedData, nFiles] = get_transformed_maps(nFolders, varargin)
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -9,9 +8,9 @@ function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filt
 %         list of absolute path to each data folder. First entry in the list
 %         is used as reference image.
 %         Note: calculations in the order the folders are given
-%     kwargs.fileName: str ['Bz_uc0']
+%     fileName: str ['Bz_uc0']
 %         name of the .mat file to be used.
-%     kwargs.transFormFile: str ['none']
+%     transFormFile: str ['none']
 %         absolute path of a file where previously calculated transformations
 %         are in. If file does not exist the file will be created so that
 %         you dont have to do this every time.
@@ -32,7 +31,7 @@ function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filt
 %     chi: bool [0]
 %         if true: chi^2 values are used to filter (sum of target chi^2)
 %         if false: data is filtered by data values
-%     kwargs.fixedIdx: int [1]
+%     fixedIdx: int [1]
 %         index of the reference LED image. This will fixed while the other
 %         image is transformed.
 %     reverse: bool [0]
@@ -41,19 +40,27 @@ function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filt
 %         if false: target   - tform -> reference
 %
 % See also, filter_hot_pixels
+inParse = inputParser;
+str_or_char = @(x) isstring(x) | ischar(x);
 
-arguments
-    nFolders;
-    kwargs.fileName = 'Bz_uc0';
-    kwargs.transFormFile = 'none';
-    kwargs.fixedIdx = 1;
-    kwargs.upCont = false;
-    % other
-    kwargs.reverse = false;
-    kwargs.checkPlot = false;
-    % filter related
-    filter.filterProps struct = struct();
-end
+addRequired(inParse, 'nFolders', @iscell);
+addParameter(inParse, 'fileName', 'Bz_uc0', str_or_char);
+addParameter(inParse, 'transFormFile', 'none', str_or_char);
+addParameter(inParse, 'fixedIdx', 1, @isnumeric);
+addParameter(inParse, 'upCont', 'none', @iscell);
+% filter related
+addParameter(inParse, 'removeHotPixels', false, @isnumeric);
+addParameter(inParse, 'includeHotPixel', false);
+addParameter(inParse, 'chi', 0);
+addParameter(inParse, 'winSize', 4, @isnumeric);
+% other
+addParameter(inParse, 'reverse', 0);
+addParameter(inParse, 'checkPlot', 0);
+
+parse(inParse, nFolders, varargin{:});
+fileName = inParse.Results.fileName;
+transFormFile = inParse.Results.transFormFile;
+fixedIdx = inParse.Results.fixedIdx;
 
 nFolders = correct_cell_shape(nFolders);
 
@@ -65,22 +72,22 @@ nFiles = {};
 pixelsize = 4.68e-6;
 
 % check if filename has '.mat'
-kwargs.fileName = check_suffix(kwargs.fileName);
+fileName = check_suffix(fileName);
 
 % generate reference file name
-refFile = [nFolders{kwargs.fixedIdx}, filesep, kwargs.fileName];
+refFile = [nFolders{fixedIdx}, filesep, fileName];
 refFileData = load(refFile);
 
 % get transformations and rframes
-if kwargs.checkPlot
+if inParse.Results.checkPlot
     [nTransForms, nRefFrames] = align_images(nFolders, 'transformFile', 0, ...
-        'fileName', kwargs.fileName, 'fixedIdx', kwargs.fixedIdx);
+        'fileName', fileName, 'fixedIdx', fixedIdx);
 else
     [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
-    'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
+    'transFormFile', transFormFile, 'reverse', inParse.Results.reverse);
 end
 
-if contains(kwargs.fileName, 'B111')
+if contains(fileName, 'B111')
     refData = refFileData.B111ferro;
     refLed = refFileData.ledImg;
 else
@@ -92,17 +99,17 @@ end
 for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};
-    iFile = fullfile(iFolder, filesep, kwargs.fileName);
+    iFile = fullfile(iFolder, filesep, fileName);
     
-    msg = sprintf('loading << %s >> target file for transformation', iFile(end-30:end)');
-    logMsg('debug',msg,1,0);
+    msg = sprintf('loading << %s >> target file for transformation', iFile(end-40:end)');
+    logMsg('info',msg,1,0);
 %     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
     nFiles{end+1} = iFile;
 
     target = load(iFile);
 
-    if contains(kwargs.fileName, 'B111')
+    if contains(fileName, 'B111')
         targetData = target.B111ferro;
         targetLed = target.ledImg;
     else
@@ -114,8 +121,8 @@ for i = 1:size(nFolders, 2)
     targetData = filter_hot_pixels(targetData);
 
     %% upward cont.
-    if iscell(kwargs.upCont)
-        h = kwargs.upCont{i};
+    if iscell(inParse.Results.upCont)
+        h = inParse.Results.upCont{i};
         if h ~= 0
             msg = sprintf('calculating upward continuation (%i) micron', h);
             logMsg('info',msg,1,0);
@@ -125,14 +132,20 @@ for i = 1:size(nFolders, 2)
     end
 
     %% filtering
-    if ~all( structfun(@isempty, filter.filterProps))
-        if isfield(filter.filterProps, 'chi') && isequal(filter.filterProps.chi, true)
-            filter.filterProps.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
+    if inParse.Results.removeHotPixels
+        if inParse.Results.chi
+            chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
+        else
+            chi = inParse.Results.chi;
         end
-        filterProps = namedargs2cell(filter.filterProps);
         msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
         logMsg('info',msg,1,0);
-        targetData = filter_hot_pixels(targetData, filterProps{:});
+
+        targetData = filter_hot_pixels(targetData, ...
+            'cutOff',inParse.Results.removeHotPixels, ...
+            'includeHotPixel',inParse.Results.includeHotPixel, ...
+            'winSize', inParse.Results.winSize, ...
+            'checkPlot', inParse.Results.checkPlot,'chi', chi);
     end
 
     iTransForm = nTransForms(iFile);
@@ -144,13 +157,13 @@ for i = 1:size(nFolders, 2)
     % be transformed. However, the mask itself needs to be transformed form
     % the reference coordinates to the target coordinates later.
 
-    if kwargs.reverse
+    if inParse.Results.reverse
         msg = sprintf('reverse doesnt work, yet!');
         logMsg('warn',msg,1,0);
         transData = targetData;
         transLed = targetLed;
     else
-        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-30:end));
+        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-40:end));
         logMsg('info',msg,1,0);
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
@@ -163,7 +176,7 @@ for i = 1:size(nFolders, 2)
     fileTransForm.refData = refData;
     fileTransForm.refLed = refLed;
 
-    fileTransForm.kwargs.fileName = iFile;
+    fileTransForm.fileName = iFile;
     fileTransForm.targetLed = targetLed;
     fileTransForm.targetData = targetData;
 
@@ -171,15 +184,15 @@ for i = 1:size(nFolders, 2)
     fileTransForm.transLed = transLed;
     fileTransForm.transForm = iTransForm;
     fileTransForm.refFrame = iRefFrame;
-    fileTransForm.reverse = kwargs.reverse;
+    fileTransForm.reverse = inParse.Results.reverse;
     fileTransForm.binning = detect_binning(target);
 
     % save the result in the trans_data container for later use
     transformedData(iFile) = fileTransForm;
 
     %%% create checkplots
-    if kwargs.checkPlot
-        if i ~= kwargs.fixedIdx
+    if inParse.Results.checkPlot
+        if i ~= fixedIdx
             check_plot(fileTransForm);
         end
     end
@@ -187,22 +200,24 @@ end
 end
 
 function check_plot(fileTransForm)
-%check_plot(fileTransForm)
-    figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
+    f = figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
     ax1 = subplot(2,3,1);
     ref = fileTransForm.refData;
+    ref = filter_hot_pixels(ref);
     pcolor(ref);
     axis xy; axis equal; axis tight; shading flat;
     title('reference Data')
 
     ax2 = subplot(2,3,2);
     target = fileTransForm.targetData;
+    target = filter_hot_pixels(target);
     pcolor(target);
     axis xy; axis equal; axis tight;shading flat;
     title('target Data')
 
     ax3 = subplot(2,3,3);
     trans = fileTransForm.transData;
+    trans = filter_hot_pixels(trans);
     pcolor(trans);
     axis xy; axis equal; axis tight;shading flat;
     title('transformed Data')

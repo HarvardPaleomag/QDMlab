@@ -1,5 +1,4 @@
 function nMasks = pick_area(data)
-%[nMasks] = pick_area(data)
 % Function lets you pick several areas of an image and returns N masks, one
 % for each area. The Mask is an array with the same dimensiona as the
 % original image.

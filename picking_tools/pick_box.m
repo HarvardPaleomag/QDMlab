@@ -1,5 +1,5 @@
-function [nROI, coordinates] = pick_box(data, kwargs)
-%[nROI, coordinates] = pick_box(data; 'led', 'closeFig', 'returnCoordinates')
+function nROI = pick_box(data, varargin)
+% pick_box lets you pick the ceter of an image and a box around it
 % 
 % positional parameters
 %     data: QDM/LED data
@@ -17,18 +17,23 @@ function [nROI, coordinates] = pick_box(data, kwargs)
 % Returns: cell
 %     a cell with n entries. Each consisting of [x1,x2,y1,y2], where (x1,x2)
 
-arguments
-    data
-    kwargs.led (1,1) {mustBeBoolean(kwargs.led)} = false
-    kwargs.closeFig (1,1) {mustBeBoolean(kwargs.closeFig)} = false
-    kwargs.returnCoordinates (1,1) {mustBeBoolean(kwargs.returnCoordinates)} = false
-end
+p = inputParser;
+str_or_char = @(x) isstring(x) | ischar(x);
+
+addRequired(p, 'data');
+addParameter(p, 'led', 'false', @islogical);
+addParameter(p, 'closeFig', 0);
+addParameter(p, 'returnCoordinates', false, @islogical);
+parse(p, data, varargin{:});
 
 data = filter_hot_pixels(data);
 
+led = p.Results.led;
+closeFig = p.Results.closeFig;
+retCoord = p.Results.returnCoordinates;
 
-if kwargs.led == 1
-    fig = QDM_figure(data, 'kwargs.led', true);
+if led == 1
+    fig = QDM_figure(data, 'led', true);
 else
     fig = QDM_figure(data);
 end
@@ -37,7 +42,6 @@ figTitle = 'Pick Sources (ESC to exit)';
 
 title(figTitle)
 nROI = {};
-coordinates = {};
 n = 1;
 
 while n
@@ -62,22 +66,22 @@ while n
         plot(box(1, :), box(2, :), '-', 'linewidth', 2);
         drawnow
 
-
-        %% coordinates
         % save all points you continue getting
         % rounded and negative values -> 0
-        x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
-        msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
-        logMsg('info',msg,1,0);
-        coordinates{end+1} = max(round([x0, y0, dx, dy]), 0);
-        
-        % ROI
-        iMask = zeros(size(data));
-        iMask(y0:y1,x0:x1)=1;
-        m = limit_mask(iMask);
-        msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
-        logMsg('info',msg,1,0);
-        nROI{end+1} = iMask;
+        if retCoord
+            x0 = round(x0); y0 = round(y0); dx = round(dx); dy = round(dy);
+            msg = sprintf('creating coordinates of box #%i lower left = (%i,%i) dx:%i, dy:%i', n, x0, y0, dx, dy);
+            logMsg('info',msg,1,0);
+            nROI{end+1} = max(round([x0, y0, dx, dy]), 0);
+        else
+            iMask = zeros(size(data));
+            iMask(y0:y1,x0:x1)=1;
+            m = limit_mask(iMask);
+            msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
+            logMsg('info',msg,1,0);
+            
+            nROI{end+1} = iMask;
+        end
 
         n = n + 1;
     else
@@ -86,6 +90,6 @@ while n
     end
 end
 
-if kwargs.closeFig
+if closeFig
     close(fig)
 end

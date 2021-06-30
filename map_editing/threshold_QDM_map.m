@@ -1,5 +1,5 @@
-function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
-%[filteredMaps] = threshold_QDM_map('nFiles', 'checkPlot', 'save', 'removePixelAlerts', 'cutOff', 'includeHotPixel', 'chi', 'winSize', 'threshold')
+function filteredMaps = threshold_QDM_map(kwargs)
+% threshold_QDM_map(nFiles, kwargs) loads a file, removes all pixels above
 % a threshold and saves it with '_thresh' tag.
 %
 % Parameters
@@ -22,27 +22,26 @@ function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
 %         creates a new figure to check if the filtering worked
 %     threshold; double [5]
 %
-%     removePixelAlerts: bool [true]
+%     remove_failed_pixels: bool [true]
 %         removes all pixels that were tagges as 'failed' (after version
 %         2021.1.beta3)
 
 
 arguments
    kwargs.nFiles = 'none';
-   kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
+   kwargs.cutOff = 'none';
+   kwargs.includeHotPixel  = 0
+   kwargs.checkPlot = 0
+   kwargs.chi = 0
+   kwargs.winSize = 3
+   kwargs.remove_failed_pixels = true;
+   kwargs.threshold = 'none'; %in Gauss
    kwargs.save {mustBeBoolean(kwargs.save)} = true;
-   kwargs.removePixelAlerts = false;
-
-   filterArgs.cutOff = 'none';
-   filterArgs.includeHotPixel  = 0
-   filterArgs.chi = 0
-   filterArgs.winSize = 3
-   filterArgs.threshold = 'none'; %in Gauss
 end
 
 % define default values for function
 defaults = struct('threshold', 5);
-filterArgs = ask_arguments(filterArgs, defaults);
+kwargs = ask_arguments(kwargs, defaults);
 
 % checks and detects if a path was given otherwise you can select one
 nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off');
@@ -51,40 +50,35 @@ filteredMaps = {};
 for i = 1:size(nFiles,2)
     iFile = nFiles{i};
     expData = load(iFile);
-    msg = sprintf('Thresholding data for file << %s >>', iFile);
-    logMsg('info',msg,1,0);
-    
+    fprintf('<>   Thresholding data for file << %s >>\n', iFile);
+
     if is_B111(expData)
         filterData = expData.B111ferro;
     else
         filterData = expData.Bz;
     end
     
-    if kwargs.removePixelAlerts && sum(strcmp(fieldnames(expData), 'pixelAlerts'))
+    if kwargs.remove_failed_pixels && sum(strcmp(fieldnames(expData), 'pixelAlerts'))
         sprintf('<>     removing << %i >> pixels that failed Lorentzian fits (see documentation)\n', numel(nonzeros(expData.pixelAlertss)));
         filterData = filterData .* ~expData.pixelAlerts;
     end
     
-    if filterArgs.chi
+    if kwargs.chi
         % check if cutOff is defined
-        if strcmp(filterArgs.cutOff, 'none')
-            msg = sprintf('''cutOff'' is set to ''none''. Threshold will not be defined according to the chi values.\n                       please set: e.g. ''cutOff'', 5');
-            logMsg('warn',msg,1,0);
+        if strcmp(kwargs.cutOff, 'none')
+            fprintf('<>   WARNING: ''cutOff'' is set to ''none''. Threshold will not be defined according to the chi values.\n')
+            fprintf('              please set: e.g. ''cutOff'', 5\n')
         end
-        
-        try
-            chi = expData.chi2Neg1 + expData.chi2Neg2 + expData.chi2Pos1 + expData.chi2Pos2;
-        catch
-            msg = sprintf('expData does not contain chi2 values. Not using Chi2 filtering!');
-            logMsg('error',msg,1,0);
-        end
+        chi = expData.chi2Neg1 + expData.chi2Neg2 + expData.chi2Pos1 + expData.chi2Pos2;
     else
-        chi = 0;
+        chi =0;
     end
     
     % apply filter
-    passFilterArgs = namedargs2cell(filterArgs);
-    filterData = filter_hot_pixels(filterData, passFilterArgs{:});
+    filterData = filter_hot_pixels(filterData, 'cutOff',kwargs.cutOff, ...
+                                     'includeHotPixel', kwargs.includeHotPixel,...
+                                     'chi',chi,'winSize', kwargs.winSize,...
+                                     'threshold', kwargs.threshold);
     
 	if is_B111(expData)
         expData.B111ferro_unfiltered = expData.B111ferro;
@@ -98,10 +92,9 @@ for i = 1:size(nFiles,2)
     
     if kwargs.save
         % save data with new fileName
-        suffix = sprintf('_thresh(%s).mat', num2str(filterArgs.threshold));
+        suffix = sprintf('_thresh(%s).mat', num2str(kwargs.cutOff));
         iFileNew = strrep(iFile,'.mat', string(suffix));
-        msg = sprintf('filtered data for file << %s >>', iFileNew);
-        logMsg('saving',msg,1,0);
+        fprintf('<>     SAVING: filtered data for file << %s >>\n', iFileNew);
         save(iFileNew, '-struct', 'expData')
     end
 end

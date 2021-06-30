@@ -1,5 +1,4 @@
 function binnedImage = BinImage(Image,binSize)
-%[binnedImage] = BinImage(Image, binSize)
 
 if binSize == 1
     BinnedImage = Image;

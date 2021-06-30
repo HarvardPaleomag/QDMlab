@@ -1,13 +1,11 @@
 function expData = make_square_hole(kwargs)
-%[expData] = make_square_hole('filePath', 'save', 'checkPlot')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
 
 arguments
     kwargs.filePath = 'none'
     kwargs.save = true;
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
-
+    kwargs.checkPlot = true;
 end
 
 filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'title', 'Pick a magnetic field map file');

@@ -1,5 +1,4 @@
 function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin)
-%[transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin)
 % Function lets you pick several points on a reference image and the target
 % image. It calculates a transformation
 % 

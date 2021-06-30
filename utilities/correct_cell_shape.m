@@ -1,5 +1,4 @@
 function elements = correct_cell_shape(elements)
-%[elements] = correct_cell_shape(elements)
 % Takes a cell and converts its shape to (1,n) if the shape is (n,1)
 if ischar(elements)
     elements = {elements};

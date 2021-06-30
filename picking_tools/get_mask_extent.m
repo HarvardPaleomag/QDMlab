@@ -1,5 +1,4 @@
 function [x, y, w, h] = get_mask_extent(mask)
-%[x, y, w, h] = get_mask_extent(mask)
 % Takes a mask and retuns the extent of the smallest possible rectangle 
 % around it, where values ~= 0.
 

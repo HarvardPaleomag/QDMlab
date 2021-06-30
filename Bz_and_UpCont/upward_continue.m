@@ -1,5 +1,4 @@
 function ucMaps = upward_continue(kwargs)
-%[ucMaps] = upward_continue('nFiles', 'UC', 'unit', 'save')
 
 arguments
     kwargs.nFiles = 'none';
@@ -93,7 +92,6 @@ end
 end
 
 function Btrunc = makeEvenArray(Bdata)
-%[Btrunc] = makeEvenArray(Bdata)
 %make even sized arrays
 if mod(size(Bdata, 1), 2)
     if mod(size(Bdata, 2), 2)

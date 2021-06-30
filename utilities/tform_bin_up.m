@@ -1,5 +1,4 @@
 function [transForm, refFrame] = tform_bin_up(transForm, refFrame, bin)
-%[transForm, refFrame] = tform_bin_up(transForm, refFrame, bin)
 %{
 Transforms the binned data up to LED. Calls tform_led2data.
 

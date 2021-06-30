@@ -1,5 +1,4 @@
 function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs, kwargs)
-%[peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs; 'forceGuess', 'checkPlot', 'gaussianFit', 'smoothDegree', 'pixel')
 %{
 helper function to determine an initial guess of a QDM spectra (i.e.
 pixel).
@@ -50,11 +49,11 @@ arguments
     globalData double
     freqs double
 
-    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
-    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
-    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
-    kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2;
-    kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan];
+    kwargs.forceGuess (1,1) {mustBeMember(kwargs.forceGuess, [1, 0])} = 0
+    kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = 0
+    kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = 0
+    kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
+    kwargs.pixel  (1,3) {mustBeNumeric} = [nan nan nan]
 end
 smoothDegree = kwargs.smoothDegree;
 

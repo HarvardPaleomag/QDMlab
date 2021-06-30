@@ -12,7 +12,6 @@
 %      Copyright (C) 2017-2020 MIT Paleomagnetism Lab, Harvard Paleomagnetics Lab
 % -----------------------------------------------------------------------------------
 
-show_references()
 
 UNIT='T';
 SAVE=1;         %1 = save processed data to disk
@@ -91,36 +90,13 @@ U_hat=U/norm(U);
 
 LEDcropfactor=size(ledImg,1) / size(B111ferro,1);
 
-if any(isnan(B111ferro),'all')
-    answer = questdlg(['NaN values detected in data! Do you want to substitute with 0? '...
-                       'If NO, you have to crop the area in the following step.'], ...
-                       'Yes', 'No');
-    % Handle response
-    switch answer
-        case 'Yes'
-            msg = sprintf('repacing NaN values with 0');
-            logMsg('info',msg,1,0);
-            B(isnan(B))=0;
-        case 'No'
-            msg = sprintf('NaN values detected NEED to be cropped before Bz conversion');
-            logMsg('warn',msg,1,0);
-        case 'Cancel'
-            msg = sprintf('Operation terminated by user during QDMdataprocessing');
-            logMsg('error',msg,1,0);
-            return
-    end
-end
-    
 %tools for selecting a region of interest and cropping the field map
 %and optical image accordingly
 lin=[];
 col=[];
 disp(sprintf('Cropping area selection:  (+) saturate color scale, (-) desaturate color scale, \n(*) or (/) restore original color scale, (S)kip'));
 figure;
-imAlpha=ones(size(B));
-imAlpha(isnan(B))=0;
-imagesc(B,'AlphaData',imAlpha);
-set(gca,'color','m');
+imagesc(B);
 title('Select area to crop')
 axis equal, axis tight, axis xy
 caxis([-1 1]*max(abs(caxis))*0.1);
@@ -179,10 +155,10 @@ corners=[lin,col];
 B=B(max([1 lin(1)]):min([lin(2) size(B,1)]) , max([1 col(1)]):min([col(2) size(B,2)]) );
 
 %crop the LED image in the same way
-croppoint1=round(1+(corners(1,1)-1)*LEDcropfactor);
-croppoint2=round(corners(2,1)*LEDcropfactor);
-croppoint3=round(1+(corners(1,2)-1)*LEDcropfactor);
-croppoint4=round(corners(2,2)*LEDcropfactor);
+croppoint1=min(1, round(corners(1,1)*LEDcropfactor));
+croppoint2=max(size(ledImg,1), round(corners(2,1)*LEDcropfactor));
+croppoint3=min(1, round(corners(1,2)*LEDcropfactor));
+croppoint4=max(size(ledImg,2), round(corners(2,2)*LEDcropfactor));
 
 newLED=ledImg(croppoint1:croppoint2,croppoint3:croppoint4);
 

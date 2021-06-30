@@ -1,6 +1,5 @@
 % Custom validation function
 function fileMustExistInFolder(fileName, folders)
-%fileMustExistInFolder(fileName, folders)
     fileName = check_suffix(fileName);
     
     % construct folder
