@@ -46,24 +46,13 @@ dipMaps = dir(sprintf('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/N
 nDipMaps = size(dipMaps,1);
 
 %% calculate fit for the region
-fit = dipole_fit('filePath',filePath, 'expData', bData, ...
+fit = fit_source('filePath',filePath, 'expData', bData, ...
                 'xy', [col(1), row(1)], 'dx', diff(col), 'dy', diff(row), ...
                 'fitOrder', kwargs.fitOrder, 'nRuns', 2, ...
                 'cropFactor', max([diff(col) diff(row)]), 'save', false,...
                 'checkPlot', kwargs.checkPlot);
 
 bData(row(1):row(2), col(1):col(2)) = fit.residuals;
-
-% bData
-% ic = 1;
-% for i = col(1):col(2)
-%     jc = 1;
-%     for j = row(1):row(2)
-%         bData(j, i) = fit.residuals(jc, ic);%-residualMap(jc, ic);
-%         jc = jc + 1;
-%     end
-%     ic = ic + 1;
-% end
 
 expData.(dataName) = bData;
 

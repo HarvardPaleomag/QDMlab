@@ -1,5 +1,5 @@
-function results = dipole_fit(kwargs)
-%[results] = dipole_fit('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
+function results = fit_source(kwargs)
+%[results] = fit_source('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
 %fitOrder is : 
 %
 %
@@ -103,7 +103,7 @@ terms = [3,8,15];
 % change random number generator
 rng('shuffle')
 
-set(0, 'DefaultFigureColormap', jet)
+set(0, 'DefaultFigureColormap', parula)
 
 outFileName = 'DipoleInversions.txt';
 
@@ -449,7 +449,7 @@ if kwargs.checkPlot
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
     % data figure
-    dataFig = figure('units','normalized','outerposition',[0.2 0.6 0.6 0.3],'NumberTitle', 'off', 'Name', 'dipole_fit');
+    dataFig = figure('units','normalized','outerposition',[0.2 0.6 0.6 0.3],'NumberTitle', 'off', 'Name', 'fit_source');
     ax1 = subplot(1, 3, 1);
     imagesc(xc, yc, bDataCropped);
     axis xy, axis equal, axis tight;
