@@ -67,14 +67,14 @@ function results = subtract_source_series(nFolders, kwargs)
 arguments
     nFolders {foldersMustExist};
     kwargs.fileName char = 'Bz_uc0.mat';
-    kwargs.transFormFile {mustBeBoolean(kwargs.transFormFile)} = false;
+    kwargs.transFormFile = false;
     kwargs.refIdx {mustBeInteger} = 1;
     kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.outputTrue {mustBeBoolean(kwargs.outputTrue)} = false;
     kwargs.save {mustBeBoolean(kwargs.save)} = false;
     kwargs.upCont = false;
-    kwargs.nROI {mustBeBoolean(kwargs.nROI)} = false;
-    kwargs.imageFolder {mustBeBoolean(kwargs.imageFolder)} = false;
+    kwargs.nROI = false;
+    kwargs.imageFolder = false;
     kwargs.unTransform {mustBeBoolean(kwargs.unTransform)} = true;
     kwargs.saveAllSub {mustBeBoolean(kwargs.saveAllSub)} = false;
     kwargs.pixelsize = 4.68e-6
@@ -177,6 +177,7 @@ for j = 1:numberoffolders
         SOURCENAME = ['Source', num2str(i), '_Step', num2str(j)];
 %         try
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
+
             iResult = dipole_fit('filePath', iFile, 'fitOrder', 1, ...
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...

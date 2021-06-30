@@ -246,7 +246,7 @@ for j = 1:numberoffolders
             yMin(i, j, k) = yLim(1);
             yMax(i, j, k) = yLim(2);
 
-            %             close all
+            close all
         end
     end
     allResults(iFile) = fileResults;
