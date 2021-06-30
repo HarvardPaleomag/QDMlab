@@ -7,8 +7,8 @@ arguments
     kwargs.filePath = 'none';
     kwargs.save = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
-    kwargs.row = 'none';
-    kwargs.col = 'none';
+    kwargs.row = false;
+    kwargs.col = false;
     kwargs.title = 'Select area to crop';
 end
 
@@ -20,10 +20,9 @@ else
     expData = load(filePath);
 end
 
-[~, dataName, ledName] = is_B111(expData);
-
 [row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
 
+[~, dataName, ledName] = is_B111(expData);
 bData = expData.(dataName);
 led = expData.(ledName);
 
