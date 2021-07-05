@@ -295,8 +295,7 @@ end
 function initialGuess = get_initial_guess(gpudata, freq, diamond)
 %[initialGuess] = get_initial_guess(gpudata, freq, diamond)
 initialGuess = zeros(4, size(gpudata, 2), 'single');
-%     n = 1; % cut off outer points
-%     gpudata = gpudata(n:end-n,:);
+
 
 % amplitude
 mx = nanmax(gpudata);
