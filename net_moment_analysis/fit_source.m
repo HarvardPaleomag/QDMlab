@@ -428,7 +428,7 @@ logMsg('RESULT',msg,1,1);
 nameext = [name, ext];
 
 %% plotting / saving
-if kwargs.checkPlot
+if kwargs.checkPlot || kwargs.save
     % whole map figure
     f = figure('Units', 'normalized', ...
                'Position',[0.1 0.1 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
