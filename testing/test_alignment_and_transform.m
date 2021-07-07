@@ -28,7 +28,7 @@ imagesc(sem)
 a = subplot(1,2,2);
 QDM_figure(nrm.ledImg, 'led', true, 'ax', a)
 %%
-[semTform semRef] = get_image_tform_complex(nrm.ledImg, sem, 'checkPlot',true)
+[semTform semRef] = get_image_tform_complex(nrm.ledImg, sem, 'checkPlot',true);
 
 %%
 close all
