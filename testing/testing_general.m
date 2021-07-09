@@ -115,13 +115,13 @@ linkaxes([ax1 ax2]);
 
 %% dipole fit
 close all; clc;
-dfit = dipole_fit('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'xy', [334,254]);
+dfit = fit_source('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'xy', [334,254]);
 pause(2)
 close all
-dfitc = dipole_fit('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'constrained', true, 'xy', [334,254]);
+dfitc = fit_source('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'constrained', true, 'xy', [334,254]);
 pause(2)
 close all
-dfitcMinMax = dipole_fit('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'constrained', true, 'maxheight', 10e-6, 'minheight', 3e-6, 'xy', [334,254]);
+dfitcMinMax = fit_source('filePath', milnrmBz, 'fitOrder', 1, 'cropFactor', 10, 'save',0, 'constrained', true, 'maxheight', 10e-6, 'minheight', 3e-6, 'xy', [334,254]);
 pause(2)
 close all
 f = figure('units','normalized','outerposition',[0.2 0.4 0.4 0.5],'NumberTitle', 'off', 'Name', 'Dipole fitting comparison');
@@ -136,12 +136,12 @@ QDM_figure(dfitc.model, 'ax', ax3, 'title', 'constrained');
 ax4 = subplot(2,2,4);
 QDM_figure(dfitcMinMax.model, 'ax', ax4, 'title', 'constrained h = [3e-6,10e-6]');
 linkaxes([ax1 ax2 ax3 ax4]);
-%% dipole_fit_series
+%% fit_source_series
 clc
 close all
-dipfitSer = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''));
-dipfitSerConst = dipole_fit_series(strrep(milnrmBz, '/Bz_uc0.mat', ''), 'constrained', true, 'minheight', 5e-6, 'maxheight', 5e-6, 'checkPlot', true);
-f = figure('units','normalized','outerposition',[0.2 0.4 0.3 0.5],'NumberTitle', 'off', 'Name', 'dipole_fit_series constrains');
+dipfitSer = fit_source_series(strrep(milnrmBz, '/Bz_uc0.mat', ''));
+dipfitSerConst = fit_source_series(strrep(milnrmBz, '/Bz_uc0.mat', ''), 'constrained', true, 'minheight', 5e-6, 'maxheight', 5e-6, 'checkPlot', true);
+f = figure('units','normalized','outerposition',[0.2 0.4 0.3 0.5],'NumberTitle', 'off', 'Name', 'fit_source_series constrains');
 ax1 = subplot(2,2,1);
 QDM_figure(dipfitSer.data{1}, 'ax', ax1);
 axis xy; axis equal; axis tight;
@@ -167,7 +167,7 @@ folders = { ...
     '/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/FOV1/600G/4x4Binned', ...
     '/Users/mike/Dropbox/science/harvard/QDM2_data/antares/mike/MIL/MIL3/FOV1/1000G/4x4Binned', ...
     };
-dseries = dipole_fit_series(folders);
+dseries = fit_source_series(folders);
 %%
 clc
 close all

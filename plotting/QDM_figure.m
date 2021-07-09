@@ -210,13 +210,15 @@ end
 
 
 %% Create colorbar
-cb = colorbar(ax);
-if isequal(kwargs.led, false)
-    unit = strrep(kwargs.unit, 'micro', '\mu');
-    unit = strrep(unit, 'mu', '\mu');
-    title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
-else
-    title(cb, '', 'Fontsize', 12);
+if ~isequal(kwargs.cbTitle, false)
+    cb = colorbar(ax);
+    if isequal(kwargs.led, false)
+        unit = strrep(kwargs.unit, 'micro', '\mu');
+        unit = strrep(unit, 'mu', '\mu');
+        title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
+    else
+        title(cb, '', 'Fontsize', 12);
+    end
 end
 
 %% scalebar

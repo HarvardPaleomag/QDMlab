@@ -22,7 +22,7 @@ if ~isequal(kwargs.binning, false) & refFrame.ImageSize ~= size(data)
     if isequal(kwargs.binning,'none')
         kwargs.binning = detect_binning(data, 'refFrame', refFrame);
     end
-    msg = ['binning (' num2str(binning) ') detected correcting the tform'];
+    msg = ['binning (' num2str(kwargs.binning) ') detected correcting the tform'];
     logMsg('debug',msg,1,0);
     [transForm, refFrame] = tform_bin_down(transForm, refFrame, kwargs.binning);
 end

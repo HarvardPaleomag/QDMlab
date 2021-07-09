@@ -1,5 +1,29 @@
 Release Notes
 *************
+2021.1.3
+========
+  features
+  --------
+  - adds python admin_tools
+  - adds `projective`, `polynomial` options to `get_image_tform_complex`
+  - adds colormap switching to `QDM_figure`
+  - adds `ODMR_to_B111_plot`
+  - adds more information to return value of `dipole_fit_series`
+  - adds title option to `crop_map`
+  - adds option not to threshold in `filter_hot_pixels`
+
+  important changes
+  -----------------
+  - `demag_behavior` keyword `pixelError` now called `pixelShift`
+  - ODMR_to_B111 now returns all fits
+
+  minor fixes
+  -----------
+  - fixes issue with `tform_data` if binning wasn't correct
+  - adds frequencies xlabels in globalFraction_estimator
+  - proper logging in `subtract_constant`
+  - indexing in `xy2index` and `index2xy`
+
 2021.1.2a hotfix
 ================
 - fixes bug where an error would occur in `QDM_figure` if all values are 0 or nan

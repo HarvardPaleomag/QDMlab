@@ -5,12 +5,11 @@ function out = RMSInBox(kwargs)
 
 arguments
     kwargs.filePath = 'none'
-    kwargs.binsize = 4;
     kwargs.saveCropMap = false;
 end
 
 expData = crop_map('filePath', kwargs.filePath, 'checkPlot', false, ...
-    'save', kwargs.saveCropMap);
+                   'save', kwargs.saveCropMap);
 
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);

@@ -16,6 +16,7 @@ arguments
     fixedData double
     movingData double
     kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false 
+    kwargs.transformationType {mustBeMember(kwargs.transformationType , ['similarity','projective','polynomial'])} = 'similarity' 
     kwargs.binning {mustBeInteger(kwargs.binning)} = 1
 end 
 
@@ -31,7 +32,11 @@ end
 
 [mp, fp] = cpselect(movingData, fixedData, 'Wait', true);
 
-transForm = fitgeotrans(mp, fp, 'similarity');
+if isequal(kwargs.transformationType, 'polynomial')
+    transForm = fitgeotrans(mp, fp, kwargs.transformationType, 2);
+else
+    transForm = fitgeotrans(mp, fp, kwargs.transformationType);
+end
 
 % create refence frame for fixed image
 refFrame = imref2d(size(fixedData));
