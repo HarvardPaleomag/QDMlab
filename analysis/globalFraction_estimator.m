@@ -70,7 +70,7 @@ ax3 = axes('Parent',f,'position',[0.7 0.3  0.25 0.54]);
 
 %% plot pixels
 %% left most pixel
-[x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
+[y1,x1] = index2xy(iMin, size(binDataNorm), 'type', 'binDataNorm');
 plot(ax1, freq, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
 hold(ax1, 'on');
 plot(ax1, freq, globalMean, 'b:','lineWidth',1)
@@ -79,7 +79,7 @@ title(ax1, 'min(min) pixel')
 
 %% center pixel random
 randInt = randi(size(idxMin,2));
-[x2,y2] = index2xy(randInt, nCol, 'type', 'binDataNorm');
+[y2,x2] = index2xy(randInt, size(binDataNorm), 'type', 'binDataNorm');
 p2_data = plot(ax2, freq, squeeze(binDataNorm(y2,x2,:)), 'k','lineWidth',1);
 hold(ax2, 'on');
 globalPlot = plot(ax2,freq, globalMean, 'b:','lineWidth',1);
@@ -90,7 +90,7 @@ legend([p2_data, globalPlot, p2], 'data', 'global', 'corrected','Location','sout
 legend('boxoff')
 
 %% right most pixel
-[x3,y3] = index2xy(iMax, nCol, 'type', 'binDataNorm');
+[y3,x3] = index2xy(iMax, size(binDataNorm), 'type', 'binDataNorm');
 plot(ax3, freq, squeeze(binDataNorm(y3,x3,:)), 'k','lineWidth',1);
 hold(ax3, 'on');
 plot(ax3, freq, globalMean, 'b:','lineWidth',1);
@@ -135,7 +135,7 @@ function updateRand(src, event, binDataNorm, globalMean, x2,y2,p2,p2_data, nCol,
 %updateRand(src, event, binDataNorm, globalMean, x2, y2, p2, p2_data, nCol, sld)
 
     idx.Value = round(idx.Value);
-    [x2,y2] = index2xy(idx.Value, nCol, 'type', 'binDataNorm');
+    [y2,x2] = index2xy(idx.Value, size(binDataNorm), 'type', 'binDataNorm');
 
     drand = correct_global(binDataNorm(y2,x2,:), sld.Value, 'mean', globalMean);
     set(p2_data, 'ydata', squeeze(binDataNorm(y2,x2,:)))
