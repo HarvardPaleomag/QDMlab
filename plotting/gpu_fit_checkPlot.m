@@ -10,7 +10,7 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         gfs{i} = mat2str(GF);
     end
 
-    fig = figure('units','normalized','outerposition',[0.05 0.5 0.9 0.3]);
+    fig = figure('units','normalized','outerposition',[0.05 0.5 0.9 0.33]);
     ax1 = subplot(1,3,1);
     ax2 = subplot(1,3,2);
     ax3 = subplot(1,3,3);
@@ -33,7 +33,6 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
     %clickSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
-
         x = round(click(1));
         y = round(click(2));
         plot_spectra(x,y);
@@ -49,12 +48,15 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         fitData(fit.states(:,:,idxGF)~=0) = nan;
 
         res = imagesc(fitData, 'Parent', ax1,'CDataMapping','scaled','hittest', 'off');
+        set(ax1, 'CLim', [min(fitData,[],'all'), max(fitData,[],'all')]);
         set(res,'AlphaData',~isnan(fitData))
         title(ax1, 'Resonance')
 
         %% CHI
-        imagesc(fit.chiSquares(:,:,idxGF),'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
-        title('X^2');
+        chiData = fit.chiSquares(:,:,idxGF);
+        chi = imagesc(chiData,'Parent',ax2,'CDataMapping','scaled','hittest', 'off');
+        set(ax2, 'CLim', [min(chiData,[],'all'), max(chiData,[],'all')]);
+        title(ax2, 'X^2');
 
         for ax = [ax1 ax2]
             axis(ax, 'tight');
@@ -62,7 +64,7 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
             axis(ax, 'xy')
             xlabel(ax, 'pixel');
             ylabel(ax, 'pixel');
-            colorbar(ax)
+            colorbar(ax)            
         end
 
         n = 0;
@@ -90,10 +92,9 @@ function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
         pg = reshape(fit.pg, 6, [], size(GFs,2));
         initialP = reshape(fit.initialGuess.p, 6, [], size(GFs,2));
 
-        titleTxt = sprintf('%4i (%4i,%4i)', ...
-            idx, round(x),round(y));
+        titleTxt = sprintf('x:%4i, y:%4i (%4i) GF =%.2f ', ...
+            round(x),round(y), idx, GFs(idxGF));
         
- 
         plot(freq, squeeze(d(:,y,x)), 'k.','DisplayName','data', 'LineWidth', 1.5)
         hold on
         plot(freq, 1+model_GPU(p(:,idx, idxGF), freq, 'diamond', diamond), 'b','DisplayName','Fit', 'LineWidth', 1.5)

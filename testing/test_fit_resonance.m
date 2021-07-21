@@ -1,9 +1,9 @@
 clear all
 close all
 clc
-% expData = load('D:\data\mike\VISC\ALH84001\S10\FOV1_VISC_20-20\run_00000.mat');
+expData = load('D:\data\mike\VISC\ALH84001\S10\FOV1_VISC_20-20\run_00000.mat');
 
-expData = load('D:\data\mike\NRM\run_00000.mat');
+% expData = load('Z:\antares\roger\diagnostics\polymer_spherules\Mount2_FOV1_IRM2\IRM10000G\run_00000.mat');
 % expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/run_00000.mat');
 %%
 binSize = 64; nRes = 1;
@@ -42,9 +42,9 @@ nGF = 2;
 GFs = linspace(0.1, 1, nGF);
 data = [];
 
-for GF = GFs
-    data = cat(2, data, correct_global_vec(gpuData, GF));
-end
+    for GF = GFs
+        data = cat(2, data, correct_global_vec(gpuData, GF));
+    end
 
 d = reshape(data, nFreq, nPixel, []); % reshape into (f, pixel, gf)
 [normData,mn,mx] = normalize_gpu_data(data, nFreq, nPixel,nGF);
@@ -62,7 +62,7 @@ mdata_ = squeeze(mean(d_, 2));
 plot(mdata_(:,1),':');
 %% normalize GF data
 clc
-[normData,mn,mx] = normalize_gpu_data(data, nFreq, nPixel,nGF);
+[normData,mn,mx] = normalize_gpu_data(data);
 d = reshape(data, nFreq, nPixel, []); % reshape into (f, pixel, gf)
 
 %% gaussian fit
@@ -83,9 +83,10 @@ end
 %%
 close all 
 clc
-nGF = 3;
-GFs = linspace(0.2,0.5,nGF);
-fit = fit_resonance(expData, 16, 1, 'type',2, 'globalFraction', GFs,'checkPlot',1);
+GFs = 0.1:0.1:0.6;
+nGFs = size(GFs,2);
+fits = fit_resonance(expData, 4, 1, 'type',2, 'globalFraction', GFs,'checkPlot',1);
+save('Y:\fits.mat', '-struct', 'fits')
 %%
 close all
 ax = [];
@@ -93,7 +94,7 @@ for i = 1: nGF
     a = subplot(ceil(nGF/5),5,i);
     QDM_figure(100*(fit.resonance(:,:,i)./fit.resonance(:,:,1)-1),...
         'ax',a, 'st',2, ...
-        'clim',[-1,1]*1e-2,'title',sprintf('res: GF(%.2f)', GFs(i)));
+        'clim',[-1,1]*1e-1,'title',sprintf('res: GF(%.2f)', GFs(i)));
     ax = [ax a];
 end
 linkaxes(ax)
@@ -103,7 +104,7 @@ ax = [];
 for i = 1: nGF
     a = subplot(ceil(nGF/5),5,i);
     QDM_figure(fit.chiSquares(:,:,i)-fit.chiSquares(:,:,1), 'ax',a, 'st',2, ...
-        'clim',[-1e-4,1e-4],'title',sprintf('Chi: GF(%.2f)', GFs(i)));
+        'title',sprintf('Chi: GF(%.2f)', GFs(i)));
     ax = [ax a];
 end
 % colormap(turbo(11));
@@ -112,14 +113,14 @@ linkaxes(ax)
 %%
 close all
 clc
-comp = fit.resonance(:,:,1);
-whichGF = ones(size(fit.chiSquares,[1,2])) * GFs(1);
+comp = fits.resonance(:,:,1);
+whichGF = ones(size(fits.chiSquares,[1,2])) * GFs(1);
 gamma = 0.0028;
 zfs = 2.870;
 
- for i = 2: nGF
-    d = fit.resonance(:,:,i);
-    idx = fit.chiSquares(:,:,i) < fit.chiSquares(:,:,i-1);
+ for i = 2: size(GFs,2)
+    d = fits.resonance(:,:,i);
+    idx = fits.chiSquares(:,:,i) < fits.chiSquares(:,:,i-1);
     whichGF(idx) = GFs(i);
     comp(idx) = d(idx);
  end
@@ -128,12 +129,12 @@ comp = comp/gamma;
 
 f = figure('units','normalized','outerposition',[0.15 0.4 0.7 0.4],'NumberTitle', 'off', 'Name', 'title');
 ax1 = subplot(1,3,1);
-QDM_figure((zfs-fit.resonance(:,:,1))/gamma-9, 'ax', ax1,'title', sprintf('GF:%.4f',GFs(1)),'preThreshold', 1);
+QDM_figure((zfs-fits.resonance(:,:,1))/gamma-9, 'ax', ax1,'title', sprintf('GF:%.4f',GFs(1)),'preThreshold', 1);
 ax2 = subplot(1,3,2);
 QDM_figure(comp-9, 'ax', ax2, 'title', 'composite','preThreshold', 1);
 ax3 = subplot(1,3,3);
 imagesc(whichGF);
-colormap(ax3, turbo(nGF))
+colormap(ax3, jet(size(GFs,2)))
 colorbar(ax3)
 linkaxes([ax1 ax2 ax3]);
 axis equal xy tight
@@ -189,7 +190,7 @@ function initialGuess = get_initial_guess(gpudata, freq, diamond)
 end
 
 
-function [normData, mn, mx] = normalize_gpu_data(data, nFreq, nPixel, nGF)
+function [normData, mn, mx] = normalize_gpu_data(data)
     % double normalizes the data (0-1)
     % Parameters
     % ----------
