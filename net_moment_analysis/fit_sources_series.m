@@ -1,5 +1,5 @@
 function results = fit_sources_series(nFolders, kwargs, constrains, filter)
-%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'outputTrue', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
+%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -32,10 +32,6 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %         default: false
 %         if true:  refernce - tform -> target
 %         if false: target   - tform -> reference
-%     outputTrue: bool
-%         default: false
-%         if true `dipoleinversions.txt` will be written to disk
-%         if false `dipoleinversions.txt` will not be written to disk
 %     nROI:
 %         selections
 %     IMAGEFOLDER: char
@@ -43,7 +39,8 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %     save: bool (false)
 %         if true: individual fits are saved
 %         if false: fits are not saved
-%
+%         if true `dipoleinversions.txt` will be written to disk
+%         if false `dipoleinversions.txt` will not be written to disk
 %     constraints
 %     -----------
 %     m0: double [1e-12]
@@ -90,7 +87,6 @@ arguments
     kwargs.pixelSize = 4.68e-6;
     kwargs.nRuns = 10;
     
-    kwargs.outputTrue = false;
     kwargs.save = false;
 
     kwargs.checkPlot = false;
