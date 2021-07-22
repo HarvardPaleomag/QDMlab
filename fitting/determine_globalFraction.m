@@ -1,4 +1,4 @@
-function [globalFraction, GF] = determine_globalFraction(expData, binSize, nRes, GFs)
+function [globalFraction, GF, idx] = determine_globalFraction(expData, binSize, nRes, GFs)
     arguments
         expData
         binSize
