@@ -63,7 +63,7 @@ arguments
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
     kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = false;
-    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = false;
+    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
     kwargs.slopeCorrection = false;
