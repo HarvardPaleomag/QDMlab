@@ -53,7 +53,7 @@ end
 % reshape and transpose each image
 % NOTE: I guess the data is written pixel by pixel, starting left top
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
-data = QDMreshape(dataStack, expData.imgNumCols, expData.imgNumRows);
+data = QDMreshape(dataStack, expData.imgNumRows, expData.imgNumCols);
 
 % binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
