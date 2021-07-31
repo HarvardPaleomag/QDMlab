@@ -22,18 +22,24 @@ arguments
     kwargs.type = 'gpu';
 end
 
-row = fix(index / shape(1))+1;
-col = mod(index, shape(1));
 
-if col == 0 
-    col = shape(2);
-    row = row-1;
-end
+switch kwargs.type
+    case 'binDataNorm'
+        row = fix(index / shape(2))+1; % without remainder
+        col = mod(index, shape(2));    % remainder
 
-if strcmp(kwargs.type, 'binDataNorm')
-    x_ = col;
-    col = row ;
-    row = x_;
+        if col == 0 
+            col = shape(2);
+            row = row-1;
+        end
+    case 'gpu'
+        col = fix(index / shape(1))+1; % without remainder
+        row = mod(index, shape(1));    % remainder
+
+        if row == 0 
+            row = shape(1);
+            col = col-1;
+        end
 end
 end
 
