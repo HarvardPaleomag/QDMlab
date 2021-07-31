@@ -72,7 +72,7 @@ function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selec
 
 
 arguments
-    nFolders cell {foldersMustExist(nFolders)}
+    nFolders (1,:) cell {foldersMustExist(nFolders)}
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
@@ -92,9 +92,9 @@ arguments
     filter.filterProps struct = struct();
 
 end
-%%
-% fix shape for nFolders
-nFolders = correct_cell_shape(nFolders);
+% %%
+% % fix shape for nFolders
+% nFolders = correct_cell_shape(nFolders);
 
 % define optional function parameters
 fileName = kwargs.fileName;
@@ -111,11 +111,11 @@ fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
 %% load the reference data
 refFile = load(fixedFile);
-[~, dataName, ledName] = is_B111(refFile);
+[~, dataName, ~] = is_B111(refFile);
 % read data and threshold to 5
 fixedData = refFile.(dataName);
-% read LED
-fixedLed = refFile.(ledName);
+% % read LED
+% fixedLed = refFile.(ledName);
 
 %%
 if ~all( structfun(@isempty, filter.filterProps))
@@ -170,14 +170,13 @@ for j = 1:size(nFiles, 2)
 
         if kwargs.reverse
             msg = ['transforming mask to match << ...', iFile(end-40:end), ' >>'];
-            logMsg('info','dipole_fit',msg,1,0);
+            logMsg('info',msg,1,0);
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
         end
 
         % create masked_data: mask is array with 0 where is should be
         % masked and 1 where it should not
         mData = iMask .* iFileData.transData;
-%         mData = mData - nanmedian(mData, 'all');
 
         % masked reference
         d0ROI = crop_data(fixedData, nROI{i});
@@ -187,7 +186,6 @@ for j = 1:size(nFiles, 2)
         mDataCut = crop_data(mData, iMask);
         d0Cut = crop_data(d0, iMask);
 
-%         disp(['<> masking << ...', iFile(end-40:end), ' >>'])
 
         % predefine the variables
         nPixel = zeros(error.bootStrapN,1);

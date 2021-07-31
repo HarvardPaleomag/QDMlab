@@ -1,5 +1,26 @@
 Release Notes
 *************
+2021.1.4
+========
+  features
+  --------
+  - adds option alignmentType: str ['laser']
+    allows `subtract_blank` to subtract any two maps
+    use `alignmentType, 'led'`
+  - adds polynomial option for image alignment
+  - fixes issue with misaligned maps after fitting
+
+  important changes
+  -----------------
+  - function `dipole_fit` renamed now `fit_source`
+  - function `dipole_fit_series` renames now `fit_sources_series`
+
+  minor fixes
+  -----------
+  - removes use of `nanstd`, `nanmean` and `nanmedian` replaced with `std`, `mean`,`median`
+  - small fixes and optimization in `ODMR_to_B111_plot`, `QDM_figure`, `scalebar` and `demag_behavior_plot`
+  - removes `reshape_QDM_data`
+
 2021.1.3
 ========
   features
