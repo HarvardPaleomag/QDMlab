@@ -15,6 +15,9 @@ function subtractedData = subtract_blank(kwargs)
 %   save: bool [true]
 %       if true: a new file with the name: `B111BlankSub.mat` will be
 %       created. Otherwise the results will only be returned.
+%   alignmentType: str ['laser']
+%       laser: laser images are used for alignment -> subtraction of blank maps
+%       led: led images are used for alignment -> subtraction of measurements
 %
 % Note
 % ----
@@ -24,6 +27,7 @@ function subtractedData = subtract_blank(kwargs)
 arguments
     kwargs.nFiles = 'none'
     kwargs.blankFile = 'none'
+    kwargs.alignmentType = 'laser'
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.save {mustBeBoolean(kwargs.save)} = true
 end
@@ -34,7 +38,6 @@ laserFileName = 'laser.jpg';
 
 %% manual
 % if nFoilders and blankData uses default values i.e. false
-
 nFiles = automatic_input_ui__(kwargs.nFiles, 'title', 'Select measurement file', 'type', 'file');
 blankFile = automatic_input_ui__(kwargs.blankFile, 'title', 'Select blank file', 'single', true, 'type', 'file');
 
@@ -51,7 +54,19 @@ blankData = load(blankFile);
 %                             'reverse', true, ...
 %                             'laser',true, 'checkPlot', checkPlot);
 [blankFolder ]= fileparts(blankFile);
-movingData = imread(fullfile(blankFolder, laserFileName));
+
+[bool, dataName,ledName] = is_B111(blankData);
+
+switch kwargs.alignmentType
+case 'laser'
+    if exist(blankData, 'laser')
+        movingData = blankData.laser;
+    else
+        movingData = imread(fullfile(blankFolder, laserFileName));
+    end
+case 'led'
+    movingData = blankData.(ledName);
+end
 
 for i = 1 : size(nFiles, 2)
     iFile = nFiles{i};
@@ -60,8 +75,21 @@ for i = 1 : size(nFiles, 2)
     msg = sprintf('loading laser & magnetic data: << %s >>', iFolder);
     logMsg('info',msg,1,0);
     
-    fixedData = imread(fullfile(iFolder, laserFileName));
     fileData = load(iFile);
+
+    switch kwargs.alignmentType
+    case 'laser'
+        if exist(fileData, 'laser')
+            fixedData = fileData.laser;
+        else
+            fixedData = imread(fullfile(iFolder, laserFileName));
+        end
+    case 'led'
+        fixedData = fileData.(ledName);
+    end
+
+    % fixedData = imread(fullfile(iFolder, laserFileName));
+    % copy data for saving
     newFileData = fileData;
     
     [transForm, refFrame] = get_image_tform(fixedData, movingData,...
@@ -72,8 +100,8 @@ for i = 1 : size(nFiles, 2)
     B111paraTransformed = tform_data(blankData.B111para, transForm, refFrame);
 
     % crop the FOV and subtract blank
-%     [x, y, w, h] = get_mask_extent(B111ferroTransformed);
-%     B111ferro = fileData.B111ferro;
+    % [x, y, w, h] = get_mask_extent(B111ferroTransformed);
+    % B111ferro = fileData.B111ferro;
     
     B111ferroTransformed(B111ferroTransformed==0) = nan;
     fileB111ferro = fileData.B111ferro;

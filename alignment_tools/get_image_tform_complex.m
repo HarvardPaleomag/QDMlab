@@ -44,7 +44,7 @@ refFrame = imref2d(size(fixedData));
 if isequal(kwargs.checkPlot, true)
     checkFigure = figure('Name', 'Align images');
     
-    transformedData = imwarp(movingData, transForm, 'OutputView', refFrame,'binning', false);
+    transformedData = imwarp(movingData, transForm, 'OutputView', refFrame);
 
     subplot(2, 1, 1)
     imshowpair(fixedData, movingData, 'Scaling', 'joint')

@@ -80,14 +80,14 @@ if ~strcmp(cutOff, 'none')
 
     if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
-        chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
+        chiFilter = abs(chi) > mean(chi, 'all','omitnan') + 15 * std(chi, 0, 'all','omitnan');
         chi(chiFilter) = nan;
 
         % calculate the mean over all pixels
-        dMed = nanmedian(abs(chi), 'all');
+        dMed = median(abs(chi), 'all','omitnan');
 
         %calculate the standard deviation of all pixels
-        dStd = nanstd(chi, 0, 'all');
+        dStd = std(chi, 0, 'all','omitnan');
         
         msg = sprintf('using chi2 values: median = %.2e; std = %.2e',dMed, dStd);
         logMsg('debug',msg,1,0);
@@ -97,10 +97,10 @@ if ~strcmp(cutOff, 'none')
         toFilter = toFilter | chiFilter;
     else
         % calculate the mean over all pixels
-        dMed = nanmedian(data, 'all');
+        dMed = median(data, 'all','omitnan');
 
         %calculate the standard deviation of all pixels
-        dStd = nanstd(data, 0, 'all');
+        dStd = std(data, 0, 'all','omitnan');
         %create boolean array with pixels with intensity higher than cutoff
         toFilter = toFilter | abs(data) > dMed + cutOff * dStd;
         
@@ -173,7 +173,7 @@ else
             
                 % calculate the mean 
                 % if include_hot_pixel without using the pixel itself
-                new_val = nanmean(window, 'all');
+                new_val = mean(window, 'all','omitnan');
 
                 filteredData(row,col) = new_val;
 
