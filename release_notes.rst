@@ -1,5 +1,11 @@
 Release Notes
 *************
+2021.1.4a
+=========
+  fixes
+  -----
+  - fixes issue where the `checkPlot` in `ODMR_to_B111` fails to show the correct pixel
+  
 2021.1.4
 ========
   features
