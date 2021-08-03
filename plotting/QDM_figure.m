@@ -60,7 +60,7 @@ arguments
     kwargs.colormap = 'parula';
     kwargs.clim = false;
     
-    kwargs.std {mustBeInteger} = 10;
+    kwargs.std {mustBeInteger} = 4;
     
     kwargs.scaleBar = false
     kwargs.pixelSize = 4.7e-6
