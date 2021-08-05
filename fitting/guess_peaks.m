@@ -102,7 +102,7 @@ function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs
     end
     
     %% First check
-    % if there are less than 3 peaks repeat findpeaks routine on unsmoothed
+    % if there are less than 2/3 peaks repeat findpeaks routine on unsmoothed
     % data
     if peaksNotFound || length(peakLocation) < nPeaks
         if kwargs.gaussianFit
@@ -139,7 +139,7 @@ function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs
             % if numPeaks is smaller than 3
             % return 0 0 -> GPU_fit then uses the global guess
             fitFlg = 2;
-            msg = sprintf('less than 3 peaks found in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data', pixel');
+            msg = sprintf('less than %i peaks found in pixel (y,x): (%3i, %3i) Res. #%1i out of range -> using global data', nPeaks, pixel');
             logMsg('warn',msg,1,0);
             peakValue = 0;
             peakLocation = 0;

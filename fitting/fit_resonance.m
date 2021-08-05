@@ -77,12 +77,6 @@ tStart = tic;
 % preallocate fit
 fit = struct();
 
-%% check type/diamond combination
-if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
-    msg = sprintf('Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet');
-    logMsg('error',msg,1,0);
-end
-
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
