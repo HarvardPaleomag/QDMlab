@@ -15,6 +15,8 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = false
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.minPeakDistance (1,1) {mustBeNumeric} = 0
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+
 end
 
 %%
@@ -32,18 +34,23 @@ meanData = squeeze(mean(data,[1,2],'omitnan'));
 [pkVal, pkLoc, fitFlg] = guess_peaks(meanData, meanData, freq, ...
                                'smoothDegree', kwargs.smoothDegree, ...
                                'forceGuess', kwargs.forceGuess,...
-                               'checkPlot', kwargs.checkPlot);
+                               'checkPlot', kwargs.checkPlot, ...
+                               'diamond', kwargs.diamond);
 
-Rguess = [(pkLoc(1)+pkLoc(2)+pkLoc(3))/3  0.0005  ( mean(meanData(1:10)) +pkVal-1)' mean(meanData(1:10))-1 ]; %resonance [GHz], Width [GHz], (contrast1; contrast2; contrast3)', baseline
+switch kwargs.diamond
+    case 'N14'
+        Rguess = [(pkLoc(1)+pkLoc(2)+pkLoc(3))/3  0.0005  ( mean(meanData(1:10)) +pkVal-1)' mean(meanData(1:10))-1 ]; %resonance [GHz], Width [GHz], (contrast1; contrast2; contrast3)', baseline
+    case 'N15'
+        Rguess = [(pkLoc(1)+pkLoc(2))/2  0.0005  ( mean(meanData(1:10)) +pkVal-1)' mean(meanData(1:10))-1 ]; %resonance [GHz], Width [GHz], (contrast1; contrast2; contrast3)', baseline
+end
+        
 Rguess = Rguess';
 
 % write guess
-guess = zeros(sizeY, sizeX, 6);
-guess(:,:,1) = Rguess(1);
-guess(:,:,2) = Rguess(2);
-guess(:,:,3) = Rguess(3);
-guess(:,:,4) = Rguess(4);
-guess(:,:,5) = Rguess(5);
-guess(:,:,6) = Rguess(6);
+guess = zeros(sizeY, sizeX, size(Rguess, 1));
+
+for i = 1:size(Rguess)
+    guess(:,:,i) = Rguess(i);
+end
 
 guess = single(guess);

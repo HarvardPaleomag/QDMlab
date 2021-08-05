@@ -111,7 +111,7 @@ binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 meanData = squeeze(mean(binDataNorm, [1, 2]));
 
 if kwargs.type ~= 2
-    initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
+    initialGuess = global_guess(binDataNorm, freq, 'diamond', kwargs.diamond); % initial guess for GPUfit
 end
 
 %% prepare GPUfit data
@@ -157,6 +157,7 @@ if kwargs.type == 1 %% old local/gaussian guess
                 'smoothDegree', kwargs.smoothDegree, ...
                 'forceGuess', kwargs.forceGuess, ...
                 'gaussianFit', kwargs.gaussianFit, ...
+                'diamond', kwargs.diamond, ...
                 'pixel', [y, x, nRes]);
             
             % check if find peaks returned 3 peaks
@@ -170,7 +171,12 @@ if kwargs.type == 1 %% old local/gaussian guess
             if fitFlg ~= 2
                 % if it returns 3 -> replace the global guess with
                 % the local
-                resonance = (pkLoc(1) + pkLoc(2) + pkLoc(3)) / 3; % in GHz
+                switch kwargs.diamond
+                    case 'N14'
+                        resonance = (pkLoc(1) + pkLoc(2) + pkLoc(3)) / 3; % in GHz
+                    case 'N15'
+                        resonance = (pkLoc(1) + pkLoc(2)) / 2; % in GHz
+                end
                 width = 0.0005;
                 contrast = (mean(pixelData(1:10)) + pkVal - 1)';
                 baseline = mean(pixelData(1:10)) - 1;
@@ -178,7 +184,7 @@ if kwargs.type == 1 %% old local/gaussian guess
             end
         end
     end
-    initialGuess = reshape(initialGuess, [imgPts, 6]);
+    initialGuess = reshape(initialGuess, imgPts, []);
     initialGuess = transpose(initialGuess);
 end
 
