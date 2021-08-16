@@ -93,8 +93,8 @@ arguments
 
 end
 % %%
-% % fix shape for nFolders
-% nFolders = correct_cell_shape(nFolders);
+% fix shape for nFolders
+nFolders = correct_cell_shape(nFolders);
 
 % define optional function parameters
 fileName = kwargs.fileName;
