@@ -233,7 +233,7 @@ for j = 1:numberoffolders
             yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
             %% actual fitting
-            SOURCENAME = ['Source', num2str(i), '_Step', num2str(j)];
+            sourceName = sprintf('S%is%i', i,j);
 
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             constrainArgs = namedargs2cell(constrains);
@@ -242,13 +242,13 @@ for j = 1:numberoffolders
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
                 constrainArgs{:}, ...
-                'imageFolder', kwargs.imageFolder, 'sourceName', SOURCENAME);
+                'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
 
             %% results
             iResult.xLims = xLim;
             iResult.yLims = yLim;
             iResult.iSource = i;
-            iResult.sourceName = SOURCENAME;
+            iResult.sourceName = sourceName;
             
             fileResults{i,j,k} = iResult;
             iFiles{i, j, k} = iFile;
