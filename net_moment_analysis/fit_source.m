@@ -497,10 +497,10 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tDipolarity\r\n');
+        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tx\ty\tHeight\tDipolarity\r\n');
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), dipolarity);
+    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.2f\t%1.2f\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, xopt/step, yopt/step, abs(hopt), dipolarity);
     fclose(fid);
 end
 
@@ -510,7 +510,7 @@ end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
-    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
+    'h', -hopt, 'res', resids, 'x',xopt/step,'y',yopt/step, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
     'xCrop', xCrop, 'yCrop', yCrop, 'sourceName', kwargs.sourceName);
 %     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
