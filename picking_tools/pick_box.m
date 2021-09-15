@@ -22,6 +22,7 @@ arguments
     kwargs.led (1,1) {mustBeBoolean(kwargs.led)} = false
     kwargs.closeFig (1,1) {mustBeBoolean(kwargs.closeFig)} = false
     kwargs.returnCoordinates (1,1) {mustBeBoolean(kwargs.returnCoordinates)} = false
+    kwargs.title = 'pick boxes'
 end
 
 % data = filter_hot_pixels(data);
@@ -30,7 +31,7 @@ end
 if kwargs.led == 1
     fig = QDM_figure(data, 'kwargs.led', true, 'title', 'pick boxes (ESC to exit)');
 else
-    fig = QDM_figure(data, 'title', 'pick boxes (ESC to exit)', 'st',6);
+    fig = QDM_figure(data, 'title', [kwargs.title,' (ESC to exit)'], 'st',6);
 end
 
 figTitle = 'Pick Sources (ESC to exit)';
