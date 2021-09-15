@@ -82,48 +82,50 @@ fits.B111ferro = B111ferro; fits.B111para = B111para;
 fits.ledImg = ledImg; fits.laserImg = laserImg; 
 fits.pixelAlerts = pixelAlerts;
 
-%% PLOTS
-rng = .03;
-
-r1 = nanmean(B111para(~pixelAlerts))-rng;    r2 = nanmean(B111para(~pixelAlerts))+rng;
- 
-%f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap(gca, turbo(512)); title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
-[f1, ~, ~] = QDM_figure(negDiff, 'preThreshold', false, 'title', 'Negative current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-saveas(f1, fullfile(myDir, folderName,  'negCurrent.png'),'png');
-
-%f2=figure; imagesc( (posDiff) ); axis equal tight; caxis([r1 r2]); colorbar; colormap(gca, turbo(512)); title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
-[f2, ~, ~] = QDM_figure(posDiff, 'preThreshold', false, 'title', 'Positive current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-saveas(f2, fullfile(myDir, folderName,  'posCurrent.png'),'png');
-
-%f3=figure; imagesc( B111ferro ); axis equal tight; caxis(-.1 + [-rng rng]); colorbar; colormap(gca, turbo(512)); title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
-[f3, ~, ~] = QDM_figure(B111ferro, 'preThreshold', false, 'title','Positive + negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-saveas(f3, fullfile(myDir, folderName,  'ferromagImg.png'),'png');
-
-%f4=figure; imagesc(ledImg); axis equal tight; colorbar; colormap(gca, gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
-[f4, ~, ~] = QDM_figure(ledImg, 'preThreshold', false, 'led', true, 'title', 'LED image');
-saveas(f4, fullfile(myDir, folderName,  'ledImg.png'),'png');
-
-%f5=figure; imagesc( B111para ); axis equal tight; caxis([r1 r2]); colorbar; colormap(gca, turbo(512)); title('Positive + negative para B_{111} (gauss)'); set(gca,'YDir','normal');
-[f5, ~, ~] = QDM_figure(B111para, 'preThreshold', false, 'title','Positive - negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-saveas(f5, fullfile(myDir, folderName,  'paramagImg.png'),'png');
-
-f6=figure('Name','data','units','normalized','outerposition',[0 0 1 1]); set(gca,'YDir','normal');
-s1 = subplot(2,2,1); %imagesc( (negDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s1,turbo(512)); title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
-QDM_figure(negDiff, 'ax', s1, 'preThreshold', false, 'title', 'Negative current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-s2 = subplot(2,2,2); %imagesc( (posDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s2,turbo(512)); title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
-QDM_figure(posDiff, 'ax', s2, 'preThreshold', false, 'title', 'Positive current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-s3 = subplot(2,2,3); %imagesc( B111ferro ,'hittest', 'off'); axis equal tight;  caxis(mean2(B111ferro) + [-rng rng]); colorbar; colormap(s3,turbo(512)); title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
-QDM_figure(B111ferro, 'ax', s3, 'preThreshold', false, 'title','Positive + negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
-s4 = subplot(2,2,4); %imagesc( (ledImg) ,'hittest', 'off'); axis equal tight; colorbar; colormap(s4,gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
-QDM_figure(ledImg, 'ax', s4, 'preThreshold', false, 'led', true, 'title', 'LED image');
-sgtitle(', B111 points up and out of page');
-ax = [s1,s2,s3];
-linkaxes(ax);
-saveas(f6, fullfile(myDir, folderName, 'allPlots.png'),'png');
-
-map = [ 1 1 1; 1 0 0];
-f7=figure; imagesc( pixelAlerts ); axis equal tight; colormap(gca, map); title('pixel alerts'); set(gca,'YDir','normal');
-saveas(f7, fullfile(myDir, folderName,  'pixelAlerts.png'),'png');
+ODMR_to_B111_plot(fits, fullfile(myDir, folderName));
+% %% PLOTS
+% rng = .03;
+% 
+% r1 = nanmean(B111para(~pixelAlerts))-rng;    r2 = nanmean(B111para(~pixelAlerts))+rng;
+%  
+% %f1=figure; imagesc( (negDiff) ); axis equal tight; caxis([-r2 -r1]); colorbar; colormap(gca, turbo(512)); title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
+% [f1, ~, ~] = QDM_figure(negDiff, 'preThreshold', false, 'title', 'Negative current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% saveas(f1, fullfile(myDir, folderName,  'negCurrent.png'),'png');
+% 
+% %f2=figure; imagesc( (posDiff) ); axis equal tight; caxis([r1 r2]); colorbar; colormap(gca, turbo(512)); title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
+% [f2, ~, ~] = QDM_figure(posDiff, 'preThreshold', false, 'title', 'Positive current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% saveas(f2, fullfile(myDir, folderName,  'posCurrent.png'),'png');
+% 
+% %f3=figure; imagesc( B111ferro ); axis equal tight; caxis(-.1 + [-rng rng]); colorbar; colormap(gca, turbo(512)); title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
+% [f3, ~, ~] = QDM_figure(B111ferro, 'preThreshold', false, 'title','Positive + negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% saveas(f3, fullfile(myDir, folderName,  'ferromagImg.png'),'png');
+% 
+% %f4=figure; imagesc(ledImg); axis equal tight; colorbar; colormap(gca, gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
+% [f4, ~, ~] = QDM_figure(ledImg, 'preThreshold', false, 'led', true, 'title', 'LED image');
+% saveas(f4, fullfile(myDir, folderName,  'ledImg.png'),'png');
+% 
+% %f5=figure; imagesc( B111para ); axis equal tight; caxis([r1 r2]); colorbar; colormap(gca, turbo(512)); title('Positive + negative para B_{111} (gauss)'); set(gca,'YDir','normal');
+% [f5, ~, ~] = QDM_figure(B111para, 'preThreshold', false, 'title','Positive - negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% saveas(f5, fullfile(myDir, folderName,  'paramagImg.png'),'png');
+% 
+% f6=figure('Name','data','units','normalized','outerposition',[0 0 1 1]); set(gca,'YDir','normal');
+% s1 = subplot(2,2,1); %imagesc( (negDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s1,turbo(512)); title('Negative current B_{111} (gauss)'); set(gca,'YDir','normal');
+% QDM_figure(negDiff, 'ax', s1, 'preThreshold', false, 'title', 'Negative current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% caxis(auto
+% s2 = subplot(2,2,2); %imagesc( (posDiff) ,'hittest', 'off'); axis equal tight; caxis auto; colorbar; colormap(s2,turbo(512)); title('Positive current B_{111} (gauss)'); set(gca,'YDir','normal');
+% QDM_figure(posDiff, 'ax', s2, 'preThreshold', false, 'title', 'Positive current B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% s3 = subplot(2,2,3); %imagesc( B111ferro ,'hittest', 'off'); axis equal tight;  caxis(mean2(B111ferro) + [-rng rng]); colorbar; colormap(s3,turbo(512)); title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
+% QDM_figure(B111ferro, 'ax', s3, 'preThreshold', false, 'title','Positive + negative ferro B_{111} (gauss)', 'cbTitle', 'B_{111} (G)');
+% s4 = subplot(2,2,4); %imagesc( (ledImg) ,'hittest', 'off'); axis equal tight; colorbar; colormap(s4,gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
+% QDM_figure(ledImg, 'ax', s4, 'preThreshold', false, 'led', true, 'title', 'LED image');
+% sgtitle(', B111 points up and out of page');
+% ax = [s1,s2,s3];
+% linkaxes(ax);
+% saveas(f6, fullfile(myDir, folderName, 'allPlots.png'),'png');
+% 
+% map = [ 1 1 1; 1 0 0];
+% f7=figure; imagesc( pixelAlerts ); axis equal tight; colormap(gca, map); title('pixel alerts'); set(gca,'YDir','normal');
+% saveas(f7, fullfile(myDir, folderName,  'pixelAlerts.png'),'png');
 
 if kwargs.checkPlot
     fig = figure('Name', 'spectra');

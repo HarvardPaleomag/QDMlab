@@ -1,10 +1,22 @@
-function window = return_bin_data(data, row, col, binSize)
-%[window] = return_bin_data(data, row, col, binSize)
+function [idx, rIdx, cIdx] = return_bin_data(row, col, kwargs)
+%[idx, rIdx, cIdx] = return_bin_data(row, col; 'binSize', 'sizeUnbinned', 'type')
 % returns the data used for the bin binnedData(row,col,:)
+arguments
+    row
+    col
+    kwargs.binSize = 4;
+    kwargs.sizeUnbinned = [1200, 1920];
+    kwargs.type = 'binDataNorm';
+end
 
-% calculate the indices
-rIdx = row*binSize-1:row*binSize-1+binSize-1;
-cIdx = col*binSize-1:col*binSize-1+binSize-1;
+idx = [];
 
-% crop the data
-window = data(rIdx, cIdx, :);
+rIdx = row * kwargs.binSize - 1:row * kwargs.binSize - 1 + kwargs.binSize - 1;
+cIdx = col * kwargs.binSize - 1:col * kwargs.binSize - 1 + kwargs.binSize - 1;
+
+for r = rIdx
+    for c = cIdx
+        i = xy2index(r, c, kwargs.sizeUnbinned, 'type', kwargs.type);
+        idx = [idx, i];
+    end
+end

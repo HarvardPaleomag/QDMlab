@@ -77,15 +77,15 @@ switch kwargs.location
 end
 
 xEnd = xStart + kwargs.scaleBar * pixelPerUnit;
-yEnd = yStart + 0.07*top* pixelPerUnit;
+yEnd = yStart + 0.1*top* pixelPerUnit;
 yCenter = mean([yStart, yEnd]);
 
 % left
-plot(ax, [xStart, xStart],[yStart, yEnd], '-', 'LineWidth',2, 'color', kwargs.color)
+plot(ax, [xStart, xStart],[yStart, yEnd], '-', 'LineWidth',1.5, 'color', kwargs.color)
 % right
-plot(ax, [xEnd, xEnd],[yStart, yEnd], '-', 'LineWidth',2, 'color', kwargs.color)
+plot(ax, [xEnd, xEnd],[yStart, yEnd], '-', 'LineWidth',1.5, 'color', kwargs.color)
 % line
-plot(ax, [xStart, xEnd],[yCenter, yCenter], '-', 'LineWidth',2, 'color', kwargs.color)
+plot(ax, [xStart, xEnd],[yCenter, yCenter], '-', 'LineWidth',1.5, 'color', kwargs.color)
 text(ax, xStart+(kwargs.scaleBar * pixelPerUnit/2), yStart-textShift, ...
     sprintf('%.0f %s', kwargs.scaleBar, strrep(kwargs.unit, 'micron', '\mum')), ...
     'color', kwargs.color, 'HorizontalAlignment', 'center')

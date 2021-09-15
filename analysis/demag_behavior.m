@@ -1,5 +1,5 @@
 function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selection, error, filter)
-%[results, files, nROI, nMasks] = demag_behavior(nFolders; 'bootStrapN', 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'freeHand', 'freeHandSelection', 'nROI', 'pixelError', 'reverse', 'selectionThreshold', 'threshold', 'transFormFile', 'upCont')
+%[results, files, nROI, nMasks] = demag_behavior(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'checkPlot', 'reverse', 'nROI', 'freeHand', 'freeHandSelection', 'selectionThreshold', 'bootStrapN', 'pixelShift', 'filterProps')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -15,44 +15,30 @@ function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selec
 %         absolute path of a file where previously calculated transformations
 %         are in. If file does not exist the file will be created so that
 %         you dont have to do this every time.
-%     removeHotPixel: bool [0]
-%         if True hotpixels will be removed
-%         if False hotpixels will not be removed
-%     includeHotPixel: bool [0]
-%         | if 1: hotpixel value is also used to calculate the new value that replaces the hot pixel
-%         | if 0: only pixels in window with winSize are used to calculate the new value that replaces the hot pixel
 %     selectionThreshold: numeric [0.25]
-%         | defines the Threshold above which the mask is created.
-%         | **Example:** selectionThreshold = 0.5
-%         | :code:`maskSelection = [1 2 0; 1 1 2; 0 1 1]`  ->
-%         | :code:`mask          = [0 1 0; 1 0 1; 0 0 1]`
+%         defines the Threshold above which the mask is created.
+%         **Example:** selectionThreshold = 0.5
+%         :code:`maskSelection = [1 2 0; 1 1 2; 0 1 1]`  ->
+%         :code:`mask          = [0 1 0; 1 0 1; 0 0 1]`
 %     upCont: cell
 %         Cellarray of upward continuation distances for each of the files.
 %         Needs to be in same order.
-%     filter: str
-%         Uses filter_hot_pixels to clean the maps before calculating the
-%         results.
-%         Note: 'includeHotPixel' is false by default
 %     freeHand: bool [0]
 %         Instead of using a rectangular selection use freehand drawn
 %     freeHandSelection: bool [0]
-%         | If true: the selectionThreshold is used to create the mask from the maskSelection.
-%         | If false: the mask = maskSelection
+%         If true: the selectionThreshold is used to create the mask from the maskSelection.
+%         If false: the mask = maskSelection
 %     fixedIdx: int [1]
 %         index of the reference LED image. This will fixed while the other
 %         image is transformed.
 %     chi:
-%         | if true the chi2 value is used to filter and not the data itself
-%         | **Note:** the chi2 value is calculated from the sum(pos1, pos2, neg1,neg2) chi values.
+%         if true the chi2 value is used to filter and not the data itself
+%         **Note:** the chi2 value is calculated from the sum(pos1, pos2, neg1,neg2) chi values.
 %     nROI: cell
-%         | cell with region of interest.
-%         | **Note:** the ROI and the selection are not necessarily the same.|
-%           If the ROI was selected with freeHand then ROI == selection.
-%           Otherwise it is a rectangle around the selection.
-%     reverse: bool ==> CURRENTLY NOT SUPPORTED
-%         default: false
-%         if true:  refernce - tform -> target
-%         if false: target   - tform -> reference
+%         cell with region of interest.
+%         **Note:** the ROI and the selection are not necessarily the same.|
+%         If the ROI was selected with freeHand then ROI == selection.
+%         Otherwise it is a rectangle around the selection.
 %     bootStrapN: int, bool [1]
 %         This uses a boot strapping approach to estimate errors. It will
 %         shift the mask by 'pixelError' 'bootStrapN' times. The
@@ -60,7 +46,7 @@ function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selec
 %         error is estimated.
 %         If 'bootStrapError' == 1 only one value is calculated -> no error
 %         estimation.
-%     pixelError: int [0]
+%     pixelShift: int [0]
 %         Used for bootstrapping an error estimate.
 %         The number of pixels the mask will be randomly shifted to estimate
 %         an error.
@@ -80,13 +66,13 @@ function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selec
 %
 %     The most simple way to estimate the coercivity is to call:
 %     literal blocks::
-%         >> estimate_coercivity(nFolders)
+%         >> demag_behavior(nFolders)
 %
 %     This calls the function with the default parameters (the values in square brackets *[]*).     
 
 
 arguments
-    nFolders cell {foldersMustExist(nFolders)}
+    nFolders (1,:) cell {foldersMustExist(nFolders)}
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
@@ -100,13 +86,13 @@ arguments
     selection.freeHandSelection (1,1) {mustBeBoolean(selection.freeHandSelection)} = false
     selection.selectionThreshold (1,1) {mustBeNumeric} = 0.25
     
-    error.bootStrapN = 1
-    error.pixelError = 4
+    error.bootStrapN (1,1) {mustBeNumeric} = 1
+    error.pixelShift (1,1) {mustBeNumeric} = 4
     
     filter.filterProps struct = struct();
 
 end
-%%
+% %%
 % fix shape for nFolders
 nFolders = correct_cell_shape(nFolders);
 
@@ -116,7 +102,7 @@ fileName = check_suffix(fileName);
 
 nROI = kwargs.nROI;
 
-if ~kwargs.upCont
+if isequal(kwargs.upCont, false)
     kwargs.upCont = num2cell(zeros(1, size(nFolders,2)));
 end
 
@@ -125,11 +111,11 @@ fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
 
 %% load the reference data
 refFile = load(fixedFile);
-[~, dataName, ledName] = is_B111(refFile);
+[~, dataName, ~] = is_B111(refFile);
 % read data and threshold to 5
 fixedData = refFile.(dataName);
-% read LED
-fixedLed = refFile.(ledName);
+% % read LED
+% fixedLed = refFile.(ledName);
 
 %%
 if ~all( structfun(@isempty, filter.filterProps))
@@ -184,14 +170,13 @@ for j = 1:size(nFiles, 2)
 
         if kwargs.reverse
             msg = ['transforming mask to match << ...', iFile(end-40:end), ' >>'];
-            logMsg('info','dipole_fit',msg,1,0);
+            logMsg('info',msg,1,0);
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
         end
 
         % create masked_data: mask is array with 0 where is should be
         % masked and 1 where it should not
         mData = iMask .* iFileData.transData;
-%         mData = mData - nanmedian(mData, 'all');
 
         % masked reference
         d0ROI = crop_data(fixedData, nROI{i});
@@ -201,7 +186,6 @@ for j = 1:size(nFiles, 2)
         mDataCut = crop_data(mData, iMask);
         d0Cut = crop_data(d0, iMask);
 
-%         disp(['<> masking << ...', iFile(end-40:end), ' >>'])
 
         % predefine the variables
         nPixel = zeros(error.bootStrapN,1);
@@ -226,8 +210,8 @@ for j = 1:size(nFiles, 2)
             % create masked_data: mask is array with 0 where is should be
             % masked and 1 where it should not
             if error.bootStrapN > 1
-                dx = randi([-error.pixelError, error.pixelError]);
-                dy = randi([-error.pixelError, error.pixelError]);
+                dx = randi([-error.pixelShift, error.pixelShift]);
+                dy = randi([-error.pixelShift, error.pixelShift]);
             end
             
             if dx ~= 0 && dy ~= 0

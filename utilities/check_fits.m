@@ -23,12 +23,13 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     
     n = 0;
     point = 0;
-    set(qdm,'ButtonDownFcn',@clickFitFcn)
+    set(qdm,'ButtonDownFcn',@buttonSelectPixel)
     
             
     ax2 = subplot(1,3,2);
     ax3 = subplot(1,3,3);
-    function clickFitFcn(hObj, event)
+    function buttonSelectPixel(hObj, event)
+    %buttonSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
         x = click(1);
@@ -67,9 +68,8 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
         ylabel('Intensity')
         xlabel('f (Hz)')
     end
+end
 
-    %%
-    function out = reshapeImg(img, nFreq, nCol, nRow)
-        out = reshape(img, [nFreq, nCol, nRow]);
-    end
+function out = reshapeImg(img, nFreq, nCol, nRow)
+    out = reshape(img, [nFreq, nCol, nRow]);
 end

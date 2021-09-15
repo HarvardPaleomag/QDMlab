@@ -1,5 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'checkPlot', 'fileName', 'filterStruct', 'fixedIdx', 'reverse', 'transFormFile', 'upCont')
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'reverse', 'checkPlot', 'filterProps')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -77,26 +77,22 @@ if kwargs.checkPlot
         'fileName', kwargs.fileName, 'fixedIdx', kwargs.fixedIdx);
 else
     [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
-    'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
+        'transFormFile', kwargs.transFormFile, 'reverse', kwargs.reverse);
 end
 
-if contains(kwargs.fileName, 'B111')
-    refData = refFileData.B111ferro;
-    refLed = refFileData.ledImg;
-else
-    refData = refFileData.Bz;
-    refLed = refFileData.newLED;
-end
+[bool, dataName,ledName] = is_B111(refFileData);
+refData = refFileData.(dataName);
+refLed = refFileData.(ledName);
 
 % cycle through all folders
 for i = 1:size(nFolders, 2)
     % create filename
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, kwargs.fileName);
-    
-    msg = sprintf('loading << %s >> target file for transformation', iFile(end-30:end)');
-    logMsg('debug',msg,1,0);
-%     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
+
+    msg = sprintf('loading << %s >> target file for transformation', iFile(end -30:end)');
+    logMsg('debug', msg, 1, 0);
+    %     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 
     nFiles{end+1} = iFile;
 
@@ -118,20 +114,20 @@ for i = 1:size(nFolders, 2)
         h = kwargs.upCont{i};
         if h ~= 0
             msg = sprintf('calculating upward continuation (%i) micron', h);
-            logMsg('info',msg,1,0);
-%             disp(['<>   calculating upward continuation (' num2str(h) ') micron'])
+            logMsg('info', msg, 1, 0);
+            %             disp(['<>   calculating upward continuation (' num2str(h) ') micron'])
             targetData = UpCont(targetData, h*1e-6, 1/pixelsize);
         end
     end
 
     %% filtering
-    if ~all( structfun(@isempty, filter.filterProps))
+    if ~all(structfun(@isempty, filter.filterProps))
         if isfield(filter.filterProps, 'chi') && isequal(filter.filterProps.chi, true)
             filter.filterProps.chi = target.chi2Pos1 + target.chi2Pos2 + target.chi2Neg1 + target.chi2Neg2;
         end
         filterProps = namedargs2cell(filter.filterProps);
-        msg = sprintf('filtering: ...%s... .mat', iFile(end-40:end-20));
-        logMsg('info',msg,1,0);
+        msg = sprintf('filtering: ...%s... .mat', iFile(end -40:end - 20));
+        logMsg('info', msg, 1, 0);
         targetData = filter_hot_pixels(targetData, filterProps{:});
     end
 
@@ -146,12 +142,12 @@ for i = 1:size(nFolders, 2)
 
     if kwargs.reverse
         msg = sprintf('reverse doesnt work, yet!');
-        logMsg('warn',msg,1,0);
+        logMsg('warn', msg, 1, 0);
         transData = targetData;
         transLed = targetLed;
     else
-        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end-30:end));
-        logMsg('info',msg,1,0);
+        msg = sprintf('transforming: target data & LED  << ... %s >>', iFile(end -30:end));
+        logMsg('info', msg, 1, 0);
         transData = tform_data(targetData, iTransForm, iRefFrame);
         transLed = tform_data(targetLed, iTransForm, iRefFrame);
     end
@@ -163,7 +159,7 @@ for i = 1:size(nFolders, 2)
     fileTransForm.refData = refData;
     fileTransForm.refLed = refLed;
 
-    fileTransForm.kwargs.fileName = iFile;
+    fileTransForm.fileName = iFile;
     fileTransForm.targetLed = targetLed;
     fileTransForm.targetData = targetData;
 
@@ -188,44 +184,28 @@ end
 
 function check_plot(fileTransForm)
 %check_plot(fileTransForm)
-    figure('units','normalized','outerposition',[0.2 0.4 0.5 0.5],'NumberTitle', 'off', 'Name', fileTransForm.fileName);
-    ax1 = subplot(2,3,1);
-    ref = fileTransForm.refData;
-    pcolor(ref);
-    axis xy; axis equal; axis tight; shading flat;
-    title('reference Data')
+figure('units', 'normalized', 'outerposition', [0.2, 0.4, 0.5, 0.5], 'NumberTitle', 'off', 'Name', fileTransForm.fileName);
+ax1 = subplot(2, 3, 1);
+ref = fileTransForm.refData;
+QDM_figure(ref, 'title', 'reference Data', 'ax', ax1)
 
-    ax2 = subplot(2,3,2);
-    target = fileTransForm.targetData;
-    pcolor(target);
-    axis xy; axis equal; axis tight;shading flat;
-    title('target Data')
+ax2 = subplot(2, 3, 2);
+target = fileTransForm.targetData;
+QDM_figure(target, 'title', 'target Data', 'ax', ax2)
 
-    ax3 = subplot(2,3,3);
-    trans = fileTransForm.transData;
-    pcolor(trans);
-    axis xy; axis equal; axis tight;shading flat;
-    title('transformed Data')
+ax3 = subplot(2, 3, 3);
+trans = fileTransForm.transData;
+QDM_figure(trans, 'title', 'transformed Data', 'ax', ax3)
 
-    ax4 = subplot(2,3,4);
-    pcolor(fileTransForm.refLed);
-    axis xy; axis equal; axis tight; shading flat;
-    colormap(ax4, bone)
-    title('reference LED')
+ax4 = subplot(2, 3, 4);
+QDM_figure(fileTransForm.refLed, 'title', 'reference LED', 'ax', ax4, 'led', 'true')
 
-    ax5 = subplot(2,3,5);
-    pcolor(fileTransForm.targetLed);
-    axis xy; axis equal; axis tight;shading flat;
-    colormap(ax5, bone)
-    title('target LED')
+ax5 = subplot(2, 3, 5);
+QDM_figure(fileTransForm.targetLed, 'title', 'target LED', 'ax', ax5, 'led', 'true')
 
-    ax6 = subplot(2,3,6);
-    pcolor(fileTransForm.transLed);
+ax6 = subplot(2, 3, 6);
+QDM_figure(fileTransForm.transLed, 'title', 'transformed LED', 'ax', ax6, 'led', 'true')
 
-    axis xy; axis equal; axis tight;shading flat;
-    title('transformed LED')
-    colormap(ax6, bone)
-
-    linkaxes([ax1 ax2 ax3]);
-    linkaxes([ax4 ax5 ax6]);
+linkaxes([ax1, ax2, ax3]);
+linkaxes([ax4, ax5, ax6]);
 end

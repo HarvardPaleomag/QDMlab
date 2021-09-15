@@ -47,14 +47,20 @@ winSize = kwargs.winSize;
 dshape = size(data);
 
 % pefilter data values to catch extreme outlier
-aboveStd = abs(data) >= kwargs.threshold;
+if ~isequal(kwargs.threshold, false)
+    toFilter = abs(data) >= kwargs.threshold;
+else
+    toFilter = zeros(size(data));
+end
 
-if kwargs.threshold && numel(nonzeros(aboveStd))
-    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(aboveStd)), kwargs.threshold);
+if kwargs.threshold && numel(nonzeros(toFilter))
+    msg = sprintf('found %i pixels with field values above %.1e G', numel(nonzeros(toFilter)), kwargs.threshold);
     logMsg('debug',msg,1,0);
 end
 
-data(aboveStd) = nan;
+if any(toFilter, 'all')
+    data(toFilter) = nan;
+end
 
 %% Check if cutOff value is  given
 if strcmp(cutOff, 'none') && ~isequal(chi, false)
@@ -74,29 +80,29 @@ if ~strcmp(cutOff, 'none')
 
     if all(size(chi) == dshape)
         % pefilter chi values to catch extreme outlier
-        chiFilter = abs(chi) > nanmean(chi, 'all') + 15 * nanstd(chi, 0, 'all');
+        chiFilter = abs(chi) > mean(chi, 'all','omitnan') + 15 * std(chi, 0, 'all','omitnan');
         chi(chiFilter) = nan;
 
         % calculate the mean over all pixels
-        dMed = nanmedian(abs(chi), 'all');
+        dMed = median(abs(chi), 'all','omitnan');
 
         %calculate the standard deviation of all pixels
-        dStd = nanstd(chi, 0, 'all');
+        dStd = std(chi, 0, 'all','omitnan');
         
         msg = sprintf('using chi2 values: median = %.2e; std = %.2e',dMed, dStd);
         logMsg('debug',msg,1,0);
 
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | (chi > dMed + cutOff * dStd);
-        aboveStd = aboveStd | chiFilter;
+        toFilter = toFilter | (chi > dMed + cutOff * dStd);
+        toFilter = toFilter | chiFilter;
     else
         % calculate the mean over all pixels
-        dMed = nanmedian(data, 'all');
+        dMed = median(data, 'all','omitnan');
 
         %calculate the standard deviation of all pixels
-        dStd = nanstd(data, 0, 'all');
+        dStd = std(data, 0, 'all','omitnan');
         %create boolean array with pixels with intensity higher than cutoff
-        aboveStd = aboveStd | abs(data) > dMed + cutOff * dStd;
+        toFilter = toFilter | abs(data) > dMed + cutOff * dStd;
         
         msg = sprintf('using data values: median = %.2e; std = %.2e',dMed, dStd);
         logMsg('debug',msg,1,0);
@@ -115,20 +121,20 @@ dataMedian = median(abs(data), 'all', 'omitnan');
 % replace pixels with nan if specified
 if isnan(winSize)
     % set pixel value to nan
-    filteredData(aboveStd) = nan;
-    filteredPixels(aboveStd) = 1;
+    filteredData(toFilter) = nan;
+    filteredPixels(toFilter) = 1;
 % replace pixels with 0 if specified
 elseif winSize == 0
     % set pixel value to nan
-    filteredData(aboveStd) = 0;
-    filteredPixels(aboveStd) = 1;
+    filteredData(toFilter) = 0;
+    filteredPixels(toFilter) = 1;
 % otherwise calculate the mean over winSize
 else
     for row = 1:dshape(1)
         for col = 1:dshape(2)
             % pixels that exceed the mean + cutOff std deviations are replaced by
             % the mean of a square of winSize pixels
-            if aboveStd(row, col)
+            if toFilter(row, col)
                 % set pixel to 1 to check which pixel were removed
                 filteredPixels(row, col) = 1;
 
@@ -167,7 +173,7 @@ else
             
                 % calculate the mean 
                 % if include_hot_pixel without using the pixel itself
-                new_val = nanmean(window, 'all');
+                new_val = mean(window, 'all','omitnan');
 
                 filteredData(row,col) = new_val;
 

@@ -1,5 +1,5 @@
-function results = dipole_fit(kwargs)
-%[results] = dipole_fit('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
+function results = fit_source(kwargs)
+%[results] = fit_source('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
 %fitOrder is : 
 %
 %
@@ -70,7 +70,7 @@ arguments
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
     kwargs.statsPlot (1,1) {mustBeBoolean(kwargs.statsPlot)} = false;
-    kwargs.save {mustBeBoolean(kwargs.save)} = 'none';
+    kwargs.save {mustBeBoolean(kwargs.save)} = 'none'; 
     
     kwargs.constrained {mustBeBoolean(kwargs.constrained)} = false; 
     kwargs.m0 = 1e-12;
@@ -103,7 +103,7 @@ terms = [3,8,15];
 % change random number generator
 rng('shuffle')
 
-set(0, 'DefaultFigureColormap', jet)
+set(0, 'DefaultFigureColormap', parula)
 
 outFileName = 'DipoleInversions.txt';
 
@@ -128,6 +128,12 @@ if strcmp(kwargs.xy, 'picker')
     XY = [x y];
 else
     XY = kwargs.xy;
+end
+
+if isequal(kwargs.sourceName, 'none')
+    kwargs.sourceName = '';
+else
+    kwargs.sourceName = ['_' kwargs.sourceName];
 end
 
 %% check NV distance (h)
@@ -202,8 +208,8 @@ else
     yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
 end
 
-x0 = j * step;
-y0 = i * step;
+x0 = double(j) * step;
+y0 = double(i) * step;
 
 %adjust if the crop area falls outside the image
 scansize = size(bData);
@@ -230,7 +236,7 @@ xc = x(xCrop(1):xCrop(2));
 yc = y(yCrop(1):yCrop(2));
 
 if kwargs.checkPlot
-    figure
+    f = figure('units','normalized','outerposition',[0 1 0.3 0.5],'NumberTitle', 'off', 'Name', 'Total Moment');
     imagesc(xc, yc, abs(bDataCropped));
     axis xy, axis equal, axis tight
     caxis([0, 1]*max(abs(caxis)));
@@ -372,11 +378,11 @@ fsort = sort(fval);
 
 i = find(fval <= fsort(kwargs.minTol));
 if numel(i) > 1
-    msg = sprintf('averaging %d points\n', numel(i));
+    msg = sprintf('averaging %d points', numel(i));
     logMsg('info',msg,1,0);
 end
 if numel(i) > 0.1 * numel(fval)
-    msg = sprintf('Too many points are being averaged. Consider adjusting MINTOL parameter.');
+    msg = sprintf('too many points are being averaged. Consider adjusting MINTOL parameter.');
     logMsg('warn',msg,1,0);
 end
 
@@ -428,10 +434,10 @@ logMsg('RESULT',msg,1,1);
 nameext = [name, ext];
 
 %% plotting / saving
-if kwargs.checkPlot
+if kwargs.checkPlot || kwargs.save
     % whole map figure
     f = figure('Units', 'normalized', ...
-               'Position',[0.1 0.2 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
+               'Position',[0.1 0.1 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
            
     ax1 = subplot(1, 2, 1);
     QDM_figure(bData, 'ax', ax1);
@@ -449,20 +455,20 @@ if kwargs.checkPlot
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
     
     % data figure
-    dataFig = figure();
-    ax1 = subplot(2, 2, 1);
+    dataFig = figure('units','normalized','outerposition',[0.2 0.6 0.6 0.3],'NumberTitle', 'off', 'Name', 'fit_source');
+    ax1 = subplot(1, 3, 1);
     imagesc(xc, yc, bDataCropped);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
     title('Original Scan');
-    ax2 = subplot(2, 2, 2);
+    ax2 = subplot(1, 3, 2);
     imagesc(xc, yc, bModel);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
     title('Model Scan');
-    ax3 = subplot(2, 2, 4);
+    ax3 = subplot(1, 3, 3);
     imagesc(xc, yc, residuals);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
@@ -481,7 +487,7 @@ end
 
 if kwargs.save
     % save figure
-    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+    saveas(dataFig, [filePath, '/Fit_', name, kwargs.sourceName, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
     
     % add line to dipoleinversions.txt
     fid = fopen([filePath, '/', outFileName], 'r');
@@ -491,10 +497,10 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tDipolarity\r\n');
+        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tx\ty\tHeight\tDipolarity\r\n');
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), dipolarity);
+    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.2f\t%1.2f\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, xopt/step, yopt/step, abs(hopt), dipolarity);
     fclose(fid);
 end
 
@@ -504,9 +510,9 @@ end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
-    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
+    'h', -hopt, 'res', resids, 'x',xopt/step,'y',yopt/step, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
-    'xCrop', xCrop, 'yCrop', yCrop);
+    'xCrop', xCrop, 'yCrop', yCrop, 'sourceName', kwargs.sourceName);
 %     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
 %     save full model
 end

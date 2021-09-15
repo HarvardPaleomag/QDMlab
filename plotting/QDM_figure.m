@@ -1,5 +1,5 @@
 function [fig, ax, im] = QDM_figure(data, kwargs, filter) 
-%[fig, ax, im] = QDM_figure(data; 'fig', 'ax', 'led', 'nROI', 'pixelAlerts', 'title', 'cbTitle', 'axis', 'std', 'scaleBar', 'filterStruct', 'preThreshold')
+%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'clim', 'std', 'scaleBar', 'pixelSize', 'filterProps', 'preThreshold', 'mustBe')
 % Creates a QDM figure
 %
 % Parameter
@@ -45,16 +45,29 @@ arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
     kwargs.led = false;
-    kwargs.nROI = 'none';
     kwargs.pixelAlerts = 'none';
+
     kwargs.title = 'QDM DATA';
-    kwargs.cbTitle = 'B_z (T)';
+    kwargs.cbTitle = 'B_z';
+    kwargs.unit = 'G'; % assuming the input data is in G
+    
+    kwargs.nROI = 'none';
+
     kwargs.axis = 'on';
+    kwargs.xc = false;
+    kwargs.yc = false;
+    kwargs.alpha = false;
+    kwargs.colormap = 'parula';
+    kwargs.clim = false;
+    
     kwargs.std {mustBeInteger} = 10;
+    
     kwargs.scaleBar = false
+    kwargs.pixelSize = 4.7e-6
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
+    filter.mustBe = false;
 end
 
 %% check for data
@@ -81,7 +94,7 @@ else
     fig = kwargs.fig;
 end
 
-if filter.preThreshold && ~kwargs.led
+if filter.preThreshold & ~kwargs.led
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 
@@ -100,19 +113,48 @@ if ~strcmp(kwargs.pixelAlerts, 'none')
     data(kwargs.pixelAlerts) = nan;
 end
 
+if ~isequal(filter.mustBe, false)
+    switch filter.mustBe
+        case 'neg'
+            data(data>0) = nan;
+        case 'pos'
+            data(data<0) = nan;
+    end
+end
 
 %% Create image
 imAlpha=ones(size(data));
 imAlpha(isnan(data)) = 0;
-im = imagesc(data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
 
-xc = 1:size(data, 2);
-yc = 1:size(data, 1);
+if isequal(kwargs.xc, false)
+    xc = 1:size(data, 2);
+else
+    xc= kwargs.xc;
+end
 
-colormap(ax, turbo(512));
+if isequal(kwargs.yc, false)
+    yc = 1:size(data, 1);
+else
+    yc= kwargs.yc;
+end
+
+if ~isequal(kwargs.unit, 'G')
+    data = convert_to(data, kwargs.unit);
+end
+
+im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+
+switch kwargs.colormap
+    case 'parula'
+        colormap(ax, parula(512));
+    case 'turbo'
+        colormap(ax, turbo(512));
+    case 'jet'
+        colormap(ax, jet(512));
+end
 
 % Create title
-title(kwargs.title, 'Fontsize', 12);
+title(ax, kwargs.title, 'Fontsize', 12);
 
 %% 
 % Create axes
@@ -136,38 +178,57 @@ if iscell(kwargs.nROI)
 end
 
 % Set the remaining axes properties
-if isnumeric(kwargs.std)
+if isequal(kwargs.clim, false) & isnumeric(kwargs.std)
     med = median(abs(data), 'all', 'omitnan');
     st = std(data, [], 'all', 'omitnan');
     mx = max(data, [], 'all', 'omitnan');
     mn = min(data, [], 'all', 'omitnan');
     
-    if (med + kwargs.std * st) > max(abs([mx,mn]))
-        msg = sprintf('Clim values exceeds min/max');
-        logMsg('debug',msg,1,0);
-    elseif ~all(data > 0, 'all')
-        msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('debug',msg,1,0);
-        set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
-    else
-        msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
-                     med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
-        logMsg('info',msg,1,0);
-        set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+    try
+        if (med + kwargs.std * st) > max(abs([mx,mn]))
+            msg = sprintf('Clim values exceeds min/max');
+            logMsg('debug',msg,1,0);
+        elseif all(data(~isnan(data)) > 0, 'all') | all(data(~isnan(data)) < 0, 'all')
+            set(ax, 'CLim', [mn, mx]);
+        elseif ~all(data(~isnan(data)) > 0, 'all')
+            msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('debug',msg,1,0);
+            set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
+        else
+            msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
+                         med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
+            logMsg('info',msg,1,0);
+            set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
+        end
+    catch
+        return
     end
+elseif ~isequal(kwargs.clim, false)
+    set(ax, 'CLim', kwargs.clim);
 end
 
 
 
 %% Create colorbar
-cb = colorbar(ax);
-title(cb, kwargs.cbTitle, 'Fontsize', 12);
+if ~isequal(kwargs.cbTitle, false)
+    cb = colorbar(ax);
+    if isequal(kwargs.led, false)
+        unit = strrep(kwargs.unit, 'micro', '\mu');
+        unit = strrep(unit, 'mu', '\mu');
+        title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
+    else
+        title(cb, '', 'Fontsize', 12);
+    end
+end
 
+%% scalebar
 if ~isequal(kwargs.scaleBar, false)
     msg = sprintf('adding scalebar to the figure. NOTE this is set to a default pixelSize of 4.7e-6 and should be called separately if the size is wrong.');
     logMsg('info',msg,1,0);
     msg = sprintf('e.g. >> [f,a,i] = QDM_figure(Bz); scalebar(''ax'', a, ''scaleBar'', 250, ''location'', ''bottom left'')');
     logMsg('info',msg,1,1);
-    scalebar('ax', ax, 'scaleBar', kwargs.scaleBar)
+    scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
+hold(ax, 'off');
 
+end

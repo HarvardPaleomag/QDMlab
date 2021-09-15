@@ -1,4 +1,4 @@
-function tform_data = tform_data(data, transForm, refFrame)
+function tform_data = tform_data(data, transForm, refFrame, kwargs)
 %[tform_data] = tform_data(data, transForm, refFrame)
 %{
 Convenience function to transforms data into a different reference frame
@@ -11,12 +11,20 @@ parameters:
         %todo: 'none' if the data should just be transformed.
 %}
 % Last change: April 21, 2020: Mike
+arguments
+    data
+    transForm
+    refFrame
+    kwargs.binning = 'none'
+end
 
-if refFrame.ImageSize ~= size(data)
-    binning = detect_binning(data, 'refFrame', refFrame);
-    msg = ['binning (' num2str(binning) ') detected correcting the tform'];
+if ~isequal(kwargs.binning, false) & refFrame.ImageSize ~= size(data)
+    if isequal(kwargs.binning,'none')
+        kwargs.binning = detect_binning(data, 'refFrame', refFrame);
+    end
+    msg = ['binning (' num2str(kwargs.binning) ') detected correcting the tform'];
     logMsg('debug',msg,1,0);
-    [transForm, refFrame] = tform_bin_down(transForm, refFrame, binning);
+    [transForm, refFrame] = tform_bin_down(transForm, refFrame, kwargs.binning);
 end
 
 tform_data = imwarp(data, transForm, 'OutputView', refFrame);

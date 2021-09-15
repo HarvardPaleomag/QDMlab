@@ -49,7 +49,7 @@ if kwargs.laser
     fixedLed = get_laser(nFolders{fixedIdx}, 'data', fixedData);
 end
 % resize led to match data binning
-% todo see if it is not better to not do that but in the functiopn that
+% todo see if it is not better to not do that but in the function that
 % calculates the transformation
 % fixed_led = imwarp(fixed_led, resize_binning);
 nTransForms = containers.Map;

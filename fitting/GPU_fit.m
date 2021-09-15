@@ -62,7 +62,7 @@ arguments
     kwargs.forceGuess (1,1) {mustBeBoolean(kwargs.forceGuess)} = false;
     kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
-    kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = false;
+    kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
@@ -104,9 +104,6 @@ for fileNum=startN:1:endN
     
     %%% select header and data file
     dataFile = dataFiles(fileNum).name;
-
-    %%%
-    LEDimgFile = 'laser.csv';
     
     loadStart = tic; % for timing 
     msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
@@ -217,3 +214,25 @@ for fileNum=startN:1:endN
 end
 msg = sprintf('all GPU fitting tasks completed in: %.1f s', toc(tStart));
 logMsg('FINAL',msg,1,0);
+end
+
+function fileData = load_data(dataFolder, startN, endN)
+%[fileData] = load_data(dataFolder, startN, endN)
+    fileData = {endN};
+    dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
+    loadStart = tic; % for timing 
+    for fileNum=startN:1:endN
+        %%% select header and data file
+        dataFile = dataFiles(fileNum).name;
+
+        msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
+        logMsg('debug',msg,1,0);
+        
+        filePath = fullfile(dataFolder, dataFile);
+        expData = load(fullfile(dataFolder, dataFile)); %matfile(filePath,'Writable',true)
+        expData.filePath = filePath;
+        fileData{fileNum} = expData;
+        msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
+        logMsg('info',msg,1,1);
+    end
+end

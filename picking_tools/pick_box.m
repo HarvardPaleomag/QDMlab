@@ -22,15 +22,16 @@ arguments
     kwargs.led (1,1) {mustBeBoolean(kwargs.led)} = false
     kwargs.closeFig (1,1) {mustBeBoolean(kwargs.closeFig)} = false
     kwargs.returnCoordinates (1,1) {mustBeBoolean(kwargs.returnCoordinates)} = false
+    kwargs.title = 'pick boxes'
 end
 
-data = filter_hot_pixels(data);
+% data = filter_hot_pixels(data);
 
 
 if kwargs.led == 1
-    fig = QDM_figure(data, 'kwargs.led', true);
+    fig = QDM_figure(data, 'kwargs.led', true, 'title', 'pick boxes (ESC to exit)');
 else
-    fig = QDM_figure(data);
+    fig = QDM_figure(data, 'title', [kwargs.title,' (ESC to exit)'], 'st',6);
 end
 
 figTitle = 'Pick Sources (ESC to exit)';
@@ -48,12 +49,12 @@ while n
 
         loc = iROI.Position;
 
-        x0 = round(loc(1));
-        dx = round(loc(3));
+        x0 = int16(loc(1));
+        dx = int16(loc(3));
         x1 = x0 + dx;
 
-        y0 = round(loc(2));
-        dy = round(loc(4));
+        y0 = int16(loc(2));
+        dy = int16(loc(4));
         y1 = y0 + dy;
 
         % create box for plotting

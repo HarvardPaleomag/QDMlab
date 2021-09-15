@@ -26,7 +26,7 @@ sizeY = size(data,1); % binned image y-dimensions
 % meanData = squeeze(mean(mean(data,1),2));
 % m1 = mean(data,1);
 % m2 = nanmean(squeeze(m1),1);
-meanData = squeeze(nanmean(data,[1,2]));
+meanData = squeeze(mean(data,[1,2],'omitnan'));
 
 %% Resonance 1:
 [pkVal, pkLoc, fitFlg] = guess_peaks(meanData, meanData, freq, ...

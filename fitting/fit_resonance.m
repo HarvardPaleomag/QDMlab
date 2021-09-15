@@ -63,7 +63,7 @@ arguments
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
     kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = false;
-    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = false;
+    kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
     kwargs.slopeCorrection = false;
@@ -122,7 +122,7 @@ gpudata = transpose(gpudata); %transpose to make it 51 x pixels
 gpudata = single(gpudata);
 
 if kwargs.slopeCorrection
-    gpudata_ = slope_correction(gpudata, freq, kwargs.slopeCorrection);
+    gpudata = slope_correction(gpudata, freq, kwargs.slopeCorrection);
 end
 
 xValues = single(freq');
@@ -295,8 +295,7 @@ end
 function initialGuess = get_initial_guess(gpudata, freq, diamond)
 %[initialGuess] = get_initial_guess(gpudata, freq, diamond)
 initialGuess = zeros(4, size(gpudata, 2), 'single');
-%     n = 1; % cut off outer points
-%     gpudata = gpudata(n:end-n,:);
+
 
 % amplitude
 mx = nanmax(gpudata);

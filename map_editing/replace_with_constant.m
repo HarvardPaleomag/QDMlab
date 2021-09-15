@@ -1,4 +1,4 @@
-function expData = subtract_constant(kwargs)
+function expData = replace_with_constant(kwargs)
 %[expData] = subtract_constant('filePath', 'save', 'editFigure')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
@@ -15,23 +15,28 @@ expData = load(filePath{:});
 [~, dataName, ~] = is_B111(expData);
 bData = expData.(dataName);
 
-[lin, col] = pick_box2('expData', expData, 'title', 'Select constant to subtract', 'point', true);
+[nROI, coordinates] = pick_box(bData, 'title', 'select Area for replacement');
+[lin, col] = pick_box2('expData', expData, 'title', 'Select constant to replace', 'point', true);
 
 const = bData(lin,col);
-bData = bData - const;
 
-msg = sprintf('Constant %s value of %.2e subtracted from map', dataName, const);
-logMsg('info',msg,1,0);
+for i = 1:size(nROI,2)
+    coord = coordinates{i};
+    x1 = coord(1);
+    x2 = coord(1) + coord(3);
+    y1 = coord(2);
+    y2 = coord(2) + coord(4);
 
-[fPath,fileName,~]=fileparts(filePath{1,1});
+    bData(y1:y2, x1:x2) = const;
+end
 
 if kwargs.editFigure
     fig = figure('Units', 'normalized', ...
                  'Position',[0.2 0.2 0.5 0.5], 'Name', 'edited map');
-    QDM_figure(bData, 'title', 'edited map', 'fig', fig);
+    QDM_figure(bData, 'title', 'edited map', 'fig', fig, 'nROI', nROI);
     
     if kwargs.save
-        imagePath = fullfile(fPath, sprintf('%s_%sSub.png', fileName, dataName));
+        imagePath = fullfile(filePath, sprintf('%s_%sRep.png', fileName, dataName));
         msg = sprintf('saving image << %s >>', imagePath');
         logMsg('info',msg,1,0);
         saveas(fig, imagePath)
@@ -43,7 +48,7 @@ if kwargs.save
     expData.([dataName '_original']) = expData.(dataName);
     expData.(dataName) = bData;
     
-    iFileNew = strrep(filePath{1,1}, '.mat', sprintf('_%sSub.mat', dataName));
+    iFileNew = strrep(filePath{1,1}, '.mat', sprintf('_%sRep.mat', dataName));
     msg = sprintf('saving edited data to file << %s >>', iFileNew');
     logMsg('info',msg,1,0);
     save(iFileNew,'-struct','expData');

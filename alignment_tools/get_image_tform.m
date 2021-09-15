@@ -53,7 +53,7 @@ ptsDistorted = detectSURFFeatures(movingData);
 msg = sprintf('matching features in fixed and moving data');
 logMsg('debug',msg,1,1);
 
-index_pairs = matchFeatures(featuresOriginal,featuresDistorted);
+index_pairs = matchFeatures(featuresOriginal, featuresDistorted);
 matchedPtsOriginal  = validPtsOriginal(index_pairs(:,1));
 matchedPtsDistorted = validPtsDistorted(index_pairs(:,2));
 

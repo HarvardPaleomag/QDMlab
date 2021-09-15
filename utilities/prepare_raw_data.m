@@ -1,5 +1,5 @@
 function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
-%[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes)
+%[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes; 'gpuData')
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
 % 2. Bins data: (imresize)
@@ -53,8 +53,7 @@ end
 % reshape and transpose each image
 % NOTE: I guess the data is written pixel by pixel, starting left top
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
-data = reshape(dataStack, [], expData.imgNumCols, expData.imgNumRows); % reshape into freq x col x rows
-data = permute(data,[3 2 1]); % permute the axis to rows x cols x freq
+data = QDMreshape(dataStack, expData.imgNumRows, expData.imgNumCols);
 
 % binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);

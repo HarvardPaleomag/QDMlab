@@ -1,24 +1,29 @@
-function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin)
-%[transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin)
+function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, kwargs)
+%[transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin; 'checkPlot', 'binning')
 % Function lets you pick several points on a reference image and the target
 % image. It calculates a transformation
 % 
-% parameters:
-%     fixedData: QDM/LED data
-%     movingData: QDM/LED data
+% Parameters
+% ----------
+%     fixedData: double QDM/LED data
+%     movingData: double QDM/LED data
 %         data to be matched to the refernce data
-% 
-% optional parameters:
-%     checkPlot: bool 
-%         default: false
+%     binning: int [1]
+%       needed for correct transformation
+%     checkPlot: bool [false]
 %         Adds a plot to check alignment if true
-p = inputParser;
-addRequired(p, 'fixedData');
-addRequired(p, 'movingData');
-addParameter(p, 'checkPlot', false, @islogical);
-parse(p, fixedData, movingData, varargin{:});
-
-checkPlot = p.Results.checkPlot;
+%
+% Note
+% ----
+%     Both fixedData and movingData have to be data, not jpg files. You can
+%     load a jpg with imread().
+arguments
+    fixedData double
+    movingData double
+    kwargs.checkPlot {mustBeBoolean(kwargs.checkPlot)} = false 
+    kwargs.transformationType {mustBeMember(kwargs.transformationType , ['similarity','projective','polynomial'])} = 'similarity' 
+    kwargs.binning {mustBeInteger(kwargs.binning)} = 1
+end 
 
 if max(fixedData, [], 'all') > 1
     fixedData = double(fixedData);
@@ -32,15 +37,19 @@ end
 
 [mp, fp] = cpselect(movingData, fixedData, 'Wait', true);
 
-transForm = fitgeotrans(mp, fp, 'similarity');
+if isequal(kwargs.transformationType, 'polynomial')
+    transForm = fitgeotrans(mp, fp, kwargs.transformationType, 2);
+else
+    transForm = fitgeotrans(mp, fp, kwargs.transformationType);
+end
 
-% create refence frame for fixed image //todo fix refFrame
+% create refence frame for fixed image
 refFrame = imref2d(size(fixedData));
 
-if checkPlot == true
+if isequal(kwargs.checkPlot, true)
     checkFigure = figure('Name', 'Align images');
     
-    transformedData = tform_data(movingData, transForm, refFrame); %imwarp(moving_data, tform,'OutputView', rframe);
+    transformedData = imwarp(movingData, transForm, 'OutputView', refFrame);
 
     subplot(2, 1, 1)
     imshowpair(fixedData, movingData, 'Scaling', 'joint')
@@ -51,6 +60,5 @@ if checkPlot == true
     imshowpair(fixedData, transformedData, 'Scaling', 'joint')
     title('corrected')
     axis xy; axis equal, axis tight
-%     movedData = imwarp(movingData, transForm, 'OutputView', refFrame);
-%     imshowpair(fixedData, movedData, 'blend');
+
 end

@@ -1,5 +1,57 @@
 Release Notes
 *************
+2021.1.4
+========
+  features
+  --------
+  - adds option alignmentType: str ['laser']
+    allows `subtract_blank` to subtract any two maps
+    use `alignmentType, 'led'`
+  - adds polynomial option for image alignment
+  - fixes issue with misaligned maps after fitting
+
+  important changes
+  -----------------
+  - function `dipole_fit` renamed now `fit_source`
+  - function `dipole_fit_series` renames now `fit_sources_series`
+
+  minor fixes
+  -----------
+  - removes use of `nanstd`, `nanmean` and `nanmedian` replaced with `std`, `mean`,`median`
+  - small fixes and optimization in `ODMR_to_B111_plot`, `QDM_figure`, `scalebar` and `demag_behavior_plot`
+  - removes `reshape_QDM_data`
+
+2021.1.3
+========
+  features
+  --------
+  - adds python admin_tools
+  - adds `projective`, `polynomial` options to `get_image_tform_complex`
+  - adds colormap switching to `QDM_figure`
+  - adds `ODMR_to_B111_plot`
+  - adds more information to return value of `dipole_fit_series`
+  - adds title option to `crop_map`
+  - adds option not to threshold in `filter_hot_pixels`
+
+  important changes
+  -----------------
+  - `demag_behavior` keyword `pixelError` now called `pixelShift`
+  - ODMR_to_B111 now returns all fits
+
+  minor fixes
+  -----------
+  - fixes issue with `tform_data` if binning wasn't correct
+  - adds frequencies xlabels in globalFraction_estimator
+  - proper logging in `subtract_constant`
+  - indexing in `xy2index` and `index2xy`
+
+2021.1.2a hotfix
+================
+- fixes bug where an error would occur in `QDM_figure` if all values are 0 or nan
+- fixes typo in `get_transformed_maps` when using `'checkPlot'` keyword
+- fixes typo in `pick_box`
+- fixes bug in `show_references`
+
 2021.1.2
 ========
   features

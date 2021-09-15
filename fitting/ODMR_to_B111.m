@@ -1,5 +1,5 @@
 function fits = ODMR_to_B111(kwargs)
-%[fits] = QDM_lorentzian_fit('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'nucSpinPol', 'save', 'diamond', 'slopeCorrection')
+%[fits] = ODMR_to_B111('nFolders', 'binSizes', 'fieldPolarity', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'plotGuessSpectra', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', 'diamond', 'slopeCorrection')
 % and then determines B111 field values from the different polarities.
 %
 % Parameters
@@ -32,7 +32,13 @@ function fits = ODMR_to_B111(kwargs)
 %       uses a linear slope correction on the raw data to determine the
 %       initial guess. 
 %       Note: only works for type = 2
-
+%
+%   Returns
+%   -------
+%   fits: cell (nFolders, binSizes)
+%         e.g. fits{1,2} is the first measurement folder with the second binSize
+%         e.g. fits{3,1} is the third measurement folder with the first binSize
+%
 arguments
     kwargs.nFolders {foldersMustExist(kwargs.nFolders)} = 'none';
     kwargs.binSizes = 'none'
@@ -68,12 +74,14 @@ end
 fp = containers.Map({0 1 2 4},{'np  ' 'n   ' 'p   ' 'nppn'});
 type = fp(kwargs.fieldPolarity);
 
-for dataFolder = nFolders
-    dataFolder = dataFolder{:};
+fits = cell(size(nFolders,2), size(binSizes, 2));
+
+for i = 1:size(nFolders,2)
+    dataFolder = nFolders{i};
     for n=1:size(binSizes,2)
         binSize=binSizes(n);
         %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
-        fits = GPU_fit(dataFolder, binSize,...
+        fit = GPU_fit(dataFolder, binSize,...
                         'fieldPolarity',kwargs.fieldPolarity, ...
                         'type', kwargs.type,...
                         'globalFraction', kwargs.globalFraction,...
@@ -86,12 +94,12 @@ for dataFolder = nFolders
                         'slopeCorrection', kwargs.slopeCorrection,...
                         'save', kwargs.save);
                     
-        fits.kwargs = kwargs;
-        fits.nFolder = dataFolder;
+        fit.kwargs = kwargs;
+        fit.nFolder = dataFolder;
         
         folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
 
-        fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize);
+        fit = plotResults_CommLine(dataFolder, folderName, type, fit, binSize);
         
         if kwargs.save
             % copy laser image and csv
@@ -105,8 +113,9 @@ for dataFolder = nFolders
             msg = sprintf('saving %s into %s', fName, dataFolder);
             logMsg('info',msg,1,0);
 
-            save(fullfile(dataFolder, folderName, fName), '-struct', 'fits');
+            save(fullfile(dataFolder, folderName, fName), '-struct', 'fit');
         end
+        fits{i,n} = fit;
     end
 end
 

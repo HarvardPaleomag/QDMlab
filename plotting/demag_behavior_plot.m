@@ -1,4 +1,5 @@
 function demag_behavior_plot(results, kwargs)
+%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'led', 'mean')
 %coercivity_result_plot(results; 'steps', 'stepUnit', 'led', 'mean')
 % plots results from estimate_coercivity
 % 
@@ -17,6 +18,8 @@ arguments
     results struct
     kwargs.steps  (1,:) double = false
     kwargs.stepUnit  (1,:) = 'mT'
+    kwargs.dataUnit  (1,:) = 'G'
+
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
     kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
 end
@@ -51,8 +54,8 @@ stds = rand(1, nFiles);
 for j = 1:nFiles
     % load the data of this file
     iFileData = results.transDatas{j};
-    data(abs(iFileData) > nanmean(iFileData, 'all') + 100 * nanstd(iFileData, 0, 'all') ) = nan;
-    iFileData = iFileData - nanmedian(iFileData, 'all');
+    data(abs(iFileData) > mean(iFileData, 'all','omitnan') + 100 * std(iFileData, 0, 'all','omitnan') ) = nan;
+    iFileData = iFileData - median(iFileData, 'all','omitnan');
 
     %% get max and min data values -> global max min
     if max(iFileData, [], 'all') > mx
@@ -71,11 +74,12 @@ for j = 1:nFiles
     title = fNameSplit{end-2};
     
     if ~ all(steps == 1:nFiles,'all')
-        title = [title sprintf(' (%.1f %s)', steps(j), kwargs.stepUnit)];
+        title = [sprintf('%.1f %s', steps(j), kwargs.stepUnit)];
     end
 
     ax = subplot(rows, 3, j);
-    QDM_figure(iFileData, 'ax', ax, 'title', title);
+    QDM_figure(iFileData, 'ax', ax, 'title', title, 'unit', kwargs.dataUnit);
+    hold(ax, 'on');
     axes = [axes ax];
     
     for i = 1:nMasks
@@ -93,25 +97,30 @@ linkaxes(axes)
 
 for ax = axes
     lim = mean(means)+5*mean(stds);
+    lim = convert_to(lim, kwargs.dataUnit);
     set(ax,'CLim',[-1 1] * lim);
 end
 
 % figure
+ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
+hold(ax, 'on');
+
 for i = 1:nMasks
-    ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
-    hold on
-    errorbar(steps, results.pPixels(i, :, 1) / results.pPixels(i, 1, 1), ...
-        results.pPixels(i, :, 2) /results.pPixels(i, 1, 1), ...
-        'o-', 'DisplayName', num2str(i))
-    ylabel('norm. n(+)pixel')
-    legend
-end
-if kwargs.mean
-    mn = mean(results.pPixelRats); 
-    st = std(results.pPixelRats); 
-    errorbar(steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
+    errorbar(ax, steps, results.pPixels(i, :, 1) / results.pPixels(i, 1, 1), ...
+             results.pPixels(i, :, 2) /results.pPixels(i, 1, 1), ...
+             'o-', 'DisplayName', num2str(i))
 end
 
+if kwargs.mean
+    mn = mean(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
+    st = std(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
+    errorbar(ax, steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
+end
+ylabel(ax, 'norm. n(+)pixel')
+legend(ax)
+h = plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
+% the following line skip the name of the previous plot from the legend
+h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 %% additional LED plot
 if kwargs.led
     axes = [];
@@ -119,18 +128,6 @@ if kwargs.led
     for j = 1:nFiles
     % load the data of this file
         iFileLed = results.transLeds{j};
-    % 
-    %     %% get max and min data values -> global max min
-    %     if max(iFileData, [], 'all') > mx
-    %         mx = nanmax(iFileData, [], 'all');
-    %     end
-    %     if min(iFileData, [], 'all') < mn
-    %         mn = nanmin(iFileData, [], 'all');
-    %     end
-    % 
-    %     fileName = results.nFiles{1, j};
-    %     fNameSplit = split(fileName,filesep);
-    %     step = fNameSplit(end-2);
 
         ax = subplot(rows-1, 3, j);
         imagesc(ax, iFileLed)
