@@ -12,6 +12,11 @@ function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, 
 %       needed for correct transformation
 %     checkPlot: bool [false]
 %         Adds a plot to check alignment if true
+%
+% Note
+% ----
+%     Both fixedData and movingData have to be data, not jpg files. You can
+%     load a jpg with imread().
 arguments
     fixedData double
     movingData double
