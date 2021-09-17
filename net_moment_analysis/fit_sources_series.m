@@ -34,6 +34,8 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %         if false: target   - tform -> reference
 %     nROI:
 %         selections
+%     downSample:
+%         downsamples the selected ROI by a factor to speed up calculation
 %     IMAGEFOLDER: char
 %         name of folder to store fit images
 %     save: bool (false)
@@ -242,7 +244,7 @@ for j = 1:numberoffolders
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
-                'downSample', kwargs.downSample,
+                'downSample', kwargs.downSample, ...
                 constrainArgs{:}, ...
                 'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
 

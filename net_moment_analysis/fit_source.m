@@ -197,15 +197,19 @@ i = round(XY(2)/kwargs.downSample);
 % cropi, cropj are the cropping indices for x(i) and y(j) of the
 % original map
 
+downsampledcropFactor=round(kwargs.cropFactor/kwargs.downSample);
+
 % check if the optional parameters dx and dy are not 0
 if all([kwargs.dx,kwargs.dy])
     % define cropj, cropi from dx, dy instead of CROPFACT
-    xCrop = round([j j+kwargs.dx]);
-    yCrop = round([i i+kwargs.dy]);
-    i = i+kwargs.dy/2; j = j+kwargs.dx/2;
+    DSdx=round(kwargs.dx/kwargs.downSample);
+    DSdy=round(kwargs.dy/kwargs.downSample);
+    xCrop = round([j j+DSdx]);
+    yCrop = round([i i+DSdy]);
+    i = i+DSdy/2; j = j+DSdx/2;
 else
-    xCrop = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
-    yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
+    xCrop = round(1+j+[-downsampledcropFactor downsampledcropFactor]);
+    yCrop = round(1+i+[-downsampledcropFactor downsampledcropFactor]);
 end
 
 x0 = double(j) * step;
