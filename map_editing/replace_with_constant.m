@@ -33,10 +33,11 @@ end
 if kwargs.editFigure
     fig = figure('Units', 'normalized', ...
                  'Position',[0.2 0.2 0.5 0.5], 'Name', 'edited map');
-    QDM_figure(bData, 'title', 'edited map', 'fig', fig, 'nROI', nROI);
+    QDM_figure(bData, 'title', 'edited map', 'fig', fig);
     
     if kwargs.save
-        imagePath = fullfile(filePath, sprintf('%s_%sRep.png', fileName, dataName));
+        [path,name] = fileparts(filePath);
+        imagePath = fullfile(path, sprintf('%s_%sRep.png', name, dataName));
         msg = sprintf('saving image << %s >>', imagePath');
         logMsg('info',msg,1,0);
         saveas(fig, imagePath)
