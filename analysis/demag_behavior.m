@@ -77,6 +77,7 @@ arguments
     kwargs.transFormFile = 'none'
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
     kwargs.upCont = false;
+    kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = false;
     
     kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
