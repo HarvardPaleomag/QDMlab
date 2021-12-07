@@ -77,7 +77,7 @@ switch kwargs.location
 end
 
 xEnd = xStart + kwargs.scaleBar * pixelPerUnit;
-yEnd = yStart + 0.1*top* pixelPerUnit;
+yEnd = yStart + 0.0*top* pixelPerUnit;
 yCenter = mean([yStart, yEnd]);
 
 % left
