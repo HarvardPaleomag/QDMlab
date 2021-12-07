@@ -59,7 +59,7 @@ blankData = load(blankFile);
 
 switch kwargs.alignmentType
 case 'laser'
-    if exist(blankData, 'laser')
+    if isfield(blankData, 'laser')
         movingData = blankData.laser;
     else
         movingData = imread(fullfile(blankFolder, laserFileName));
@@ -79,7 +79,7 @@ for i = 1 : size(nFiles, 2)
 
     switch kwargs.alignmentType
     case 'laser'
-        if exist(fileData, 'laser')
+        if isfield(fileData, 'laser')
             fixedData = fileData.laser;
         else
             fixedData = imread(fullfile(iFolder, laserFileName));
