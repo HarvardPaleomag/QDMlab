@@ -1,5 +1,5 @@
 function [transForm, refFrame] = get_image_tform_complex(fixedData, movingData, kwargs)
-%[transForm, refFrame] = get_image_tform_complex(fixedData, movingData, varargin; 'checkPlot', 'binning')
+%[transForm, refFrame] = get_image_tform_complex(fixedData, movingData; 'checkPlot', 'transformationType', 'binning')
 % Function lets you pick several points on a reference image and the target
 % image. It calculates a transformation
 % 

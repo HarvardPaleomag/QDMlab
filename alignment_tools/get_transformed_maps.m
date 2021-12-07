@@ -1,5 +1,5 @@
 function [transformedData, nFiles] = get_transformed_maps(nFolders, kwargs, filter)
-%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'reverse', 'checkPlot', 'filterProps')
+%[transformedData, nFiles] = get_transformed_maps(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'quadBgSub', 'reverse', 'checkPlot', 'filterProps')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %

@@ -1,5 +1,5 @@
 function results = fit_sources_series(nFolders, kwargs, constrains, filter)
-%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
+%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'downSample', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)

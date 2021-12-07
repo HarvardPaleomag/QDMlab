@@ -1,5 +1,5 @@
 function subtractedData = subtract_blank(kwargs)
-%[subtractedData] = subtract_blank('nFiles', 'blankFile', 'checkPlot', 'save')
+%[subtractedData] = subtract_blank('nFiles', 'blankFile', 'alignmentType', 'checkPlot', 'save')
 % Subtracts a blank map from the Data
 %
 % Parameters
