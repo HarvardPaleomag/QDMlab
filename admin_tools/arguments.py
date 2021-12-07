@@ -3,6 +3,9 @@ import admin_tools
 
 
 def get_in_out_params(reload = False, save = False):
+    """
+    INTERNAL
+    """
     func_files = {}
     code = admin_tools.preload_code(reload=reload)
 
@@ -90,6 +93,9 @@ def get_in_out_params(reload = False, save = False):
     return func_files
 
 def split_funcname(l):
+    """
+    INTERNAL
+    """
     if '=' in l:
         fName = l[9:].split('=')[1].split('(')[0].strip(' ')
     else:
@@ -97,6 +103,9 @@ def split_funcname(l):
     return fName
 
 def detect_indent(l):
+    """
+    INTERNAL
+    """
     out = ''
     for i,c in enumerate(l):
         if c in [' ', '\t']:
@@ -106,6 +115,9 @@ def detect_indent(l):
     return out
 
 def first_line_comments(reload = False, save = False):
+    """
+    Function to automatically add the first line comment. Adds all possible parameters to it.
+    """
     func_files = get_in_out_params(reload = reload)
 
     for func in sorted(func_files):
