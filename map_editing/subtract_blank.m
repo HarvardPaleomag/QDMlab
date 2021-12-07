@@ -59,7 +59,7 @@ blankData = load(blankFile);
 
 switch kwargs.alignmentType
 case 'laser'
-    if exist(blankData, 'laser')
+    if isfield(blankData, 'laser')
         movingData = blankData.laser;
     else
         movingData = imread(fullfile(blankFolder, laserFileName));
