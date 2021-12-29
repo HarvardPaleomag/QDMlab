@@ -8,7 +8,7 @@
     <param.description>For decades, paleomagnetic measurements of the natural remanent magnetization of bulk, millimeter to centimeter-sized rock samples were performed using classical net moment rock magnetometers. In this case, the integration over vast numbers of magnetic particles severely limits the spatial resolution of the analysis.
 The invention and development of magnetic imaging with the quantum diamond microscope (QDM) allows for the measurement of weakly magnetic (10-16 Am2) samples at unprecedented spatial resolution. The raw data for each pixel in a magnetic map consists of several individual spectra of nitrogen vacancy fluorescence. Therefore, before a magnetic map can be analyzed, large amounts of data need to be processed and fitted. QDMlab, is an open source MATLAB toolbox for analyzing QDM magnetic field maps. QDMlab contains easy to use functions for (1) magnetic field map generation, (2) map editing, and (3) novel approaches for map analysis. QDMlab utilizes modern computational techniques like graphical processing unit (GPU) and spectral fitting routines as well as automated imaging alignment using machine learning algorithms.</param.description>
     <param.screenshot>/Users/mike/Dropbox/science/_projects/QDMlab_paper/figs/QDMlab_logo.png</param.screenshot>
-    <param.version>2021.1.4</param.version>
+    <param.version>2021.1.5</param.version>
     <param.output>${PROJECT_ROOT}/QDMlab.mltbx</param.output>
     <param.products.name />
     <param.products.id />
