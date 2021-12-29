@@ -106,7 +106,7 @@ for i = 1:size(nFolders, 2)
     targetLed = target.(ledName);
     
     if kwargs.quadBgSub
-        [targetData] = QuadBGsub(targetData);
+        targetData = QuadBGsub(targetData);
     end
     % pre filtering
     targetData = filter_hot_pixels(targetData);
