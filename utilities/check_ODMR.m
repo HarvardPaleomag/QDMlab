@@ -1,4 +1,5 @@
 function check_ODMR(folder, laser, rawDataPos, rawDataNeg)
+%check_ODMR(folder, laser, rawDataPos, rawDataNeg; 'laser', 'rawDataPos', 'rawDataNeg')
     
 arguments
     folder
@@ -106,6 +107,7 @@ end
 end
 
 function croppedData = crop_data(data, mask)
+%[croppedData] = crop_data(data, mask)
     [x, y, w, h] = get_mask_extent(mask);
 
     % cut around data

@@ -9,7 +9,8 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
     size(dataPosLeft)
     % prefilter data for hot pixels
-    data = filter_hot_pixels(Bzdata.B111ferro);
+    [bool, dataName, ledName] = is_B111(Bzdata)
+    data = filter_hot_pixels(Bzdata.(dataName));
     binning = detect_binning(Bzdata);
     
     % Create image
@@ -68,8 +69,4 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
         ylabel('Intensity')
         xlabel('f (Hz)')
     end
-end
-
-function out = reshapeImg(img, nFreq, nCol, nRow)
-    out = reshape(img, [nFreq, nCol, nRow]);
 end

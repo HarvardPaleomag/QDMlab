@@ -1,5 +1,5 @@
 function demag_behavior_plot(results, kwargs)
-%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'led', 'mean')
+%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'parameter', 'ylabel', 'led', 'mean')
 %coercivity_result_plot(results; 'steps', 'stepUnit', 'led', 'mean')
 % plots results from estimate_coercivity
 % 
@@ -19,7 +19,8 @@ arguments
     kwargs.steps  (1,:) double = false
     kwargs.stepUnit  (1,:) = 'mT'
     kwargs.dataUnit  (1,:) = 'G'
-
+    kwargs.parameter = 'pPixels'
+    kwargs.ylabel = 'norm. n(+)pixel'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
     kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
 end
@@ -35,9 +36,9 @@ else
     end
 end
 
-if size(steps) ~= size(results.pPixels, 2)
+if size(steps) ~= size(results.(kwargs.parameter), 2)
     s = size(steps,2);
-    s2 = size(results.pPixels,2);
+    s2 = size(results.(kwargs.parameter),2);
     error('WARNING: number of steps (%i) does not match number of results (%i)', s, s2);
 end
 
@@ -106,17 +107,17 @@ ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
 hold(ax, 'on');
 
 for i = 1:nMasks
-    errorbar(ax, steps, results.pPixels(i, :, 1) / results.pPixels(i, 1, 1), ...
-             results.pPixels(i, :, 2) /results.pPixels(i, 1, 1), ...
+    errorbar(ax, steps, results.(kwargs.parameter)(i, :, 1) / results.(kwargs.parameter)(i, 1, 1), ...
+             results.(kwargs.parameter)(i, :, 2) /results.(kwargs.parameter)(i, 1, 1), ...
              'o-', 'DisplayName', num2str(i))
 end
 
 if kwargs.mean
-    mn = mean(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
-    st = std(results.pPixels(:, :, 1) ./ results.pPixels(:, 1, 1)); 
+    mn = mean(results.(kwargs.parameter)(:, :, 1) ./ results.(kwargs.parameter)(:, 1, 1)); 
+    st = std(results.(kwargs.parameter)(:, :, 1) ./ results.(kwargs.parameter)(:, 1, 1)); 
     errorbar(ax, steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
 end
-ylabel(ax, 'norm. n(+)pixel')
+ylabel(ax, kwargs.ylabel)
 legend(ax)
 h = plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
 % the following line skip the name of the previous plot from the legend

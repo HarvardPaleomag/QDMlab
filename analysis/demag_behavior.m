@@ -1,5 +1,5 @@
 function [results, files, nROI, nMasks] = demag_behavior(nFolders, kwargs, selection, error, filter)
-%[results, files, nROI, nMasks] = demag_behavior(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'checkPlot', 'reverse', 'nROI', 'freeHand', 'freeHandSelection', 'selectionThreshold', 'bootStrapN', 'pixelShift', 'filterProps')
+%[results, files, nROI, nMasks] = demag_behavior(nFolders; 'fileName', 'transFormFile', 'fixedIdx', 'upCont', 'quadBgSub', 'checkPlot', 'reverse', 'nROI', 'freeHand', 'freeHandSelection', 'selectionThreshold', 'bootStrapN', 'pixelShift', 'filterProps')
 % These codes (1) register the maps and (2) analizes a user selected magnetic
 % pattern for changes from one map to the next.(folders, varargin)
 %
@@ -78,7 +78,7 @@ arguments
     kwargs.fixedIdx (1,1) {mustBePositive} = 1
     kwargs.upCont = false;
     kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = false;
-    
+
     kwargs.checkPlot  (1,1) {mustBeBoolean(kwargs.checkPlot)} = false;
     kwargs.reverse  (1,1) {mustBeBoolean(kwargs.reverse)} = false;
     kwargs.nROI = false
