@@ -48,6 +48,8 @@ arguments
     kwargs.transFormFile = 'none';
     kwargs.fixedIdx = 1;
     kwargs.upCont = false;
+    kwargs.quadBgSub (1,1) {mustBeBoolean(kwargs.quadBgSub)} = false;
+
     % other
     kwargs.reverse = false;
     kwargs.checkPlot = false;
@@ -97,15 +99,15 @@ for i = 1:size(nFolders, 2)
     nFiles{end+1} = iFile;
 
     target = load(iFile);
-
-    if contains(kwargs.fileName, 'B111')
-        targetData = target.B111ferro;
-        targetLed = target.ledImg;
-    else
-        targetData = target.Bz;
-        targetLed = target.newLED;
+    
+    [~, dataName, ledName] = is_B111(target);
+    % read data and threshold to 5
+    targetData = target.(dataName);
+    targetLed = target.(ledName);
+    
+    if kwargs.quadBgSub
+        targetData = QuadBGsub(targetData);
     end
-
     % pre filtering
     targetData = filter_hot_pixels(targetData);
 

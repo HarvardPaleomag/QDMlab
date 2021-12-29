@@ -34,6 +34,8 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %         if false: target   - tform -> reference
 %     nROI:
 %         selections
+%     downSample:
+%         downsamples the selected ROI by a factor to speed up calculation
 %     IMAGEFOLDER: char
 %         name of folder to store fit images
 %     save: bool (false)
@@ -74,7 +76,7 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %             - xMax{i,j,k}
 %             - yMin{i,j,k}
 %             - yMax{i,j,k}
-%             - individualResults{i,j,k} results for each ROI/file/UC 
+%             - individualResults{i,j,k} results for each ROI/file/UC
 %
 %     Each is a cell with result{i,j,k} with:
 %           ith ROI, jth file, kth UC value:
@@ -86,7 +88,8 @@ arguments
     kwargs.nROI = false;
     kwargs.pixelSize = 4.68e-6;
     kwargs.nRuns = 10;
-    
+    kwargs.downSample = 1; % speedup
+
     kwargs.save = false;
 
     kwargs.checkPlot = false;
@@ -233,7 +236,7 @@ for j = 1:numberoffolders
             yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
             %% actual fitting
-            SOURCENAME = ['Source', num2str(i), '_Step', num2str(j)];
+            sourceName = sprintf('S%is%i', i,j);
 
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             constrainArgs = namedargs2cell(constrains);
@@ -241,15 +244,16 @@ for j = 1:numberoffolders
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
+                'downSample', kwargs.downSample, ...
                 constrainArgs{:}, ...
-                'imageFolder', kwargs.imageFolder, 'sourceName', SOURCENAME);
+                'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
 
             %% results
             iResult.xLims = xLim;
             iResult.yLims = yLim;
             iResult.iSource = i;
-            iResult.sourceName = SOURCENAME;
-            
+            iResult.sourceName = sourceName;
+
             fileResults{i,j,k} = iResult;
             iFiles{i, j, k} = iFile;
             % fit results
@@ -260,12 +264,12 @@ for j = 1:numberoffolders
             dipolarity(i, j, k) = iResult.dipolarity;
             xloc(i, j, k) = iResult.x;
             yloc(i, j, k) = iResult.y;
-            
+
             % data
             datas{i, j, k} = iResult.data;
             models{i, j, k} = iResult.model;
             residuals(i, j, k) = iResult.res;
-            
+
             % croplimits
             xMin(i, j, k) = xLim(1);
             xMax(i, j, k) = xLim(2);
@@ -274,7 +278,7 @@ for j = 1:numberoffolders
             %             close all
         end
     end
-    
+
 end
 
 
@@ -283,7 +287,7 @@ results.nFiles = iFiles;
 
 results.moments = moments;
 results.decs = declinations;
-results.incs = inclinations;                
+results.incs = inclinations;
 results.heights = heights;
 results.dipolarity = dipolarity;
 results.x = xloc;
@@ -292,10 +296,10 @@ results.y = yloc;
 results.data = datas;
 results.model = models;
 results.res = residuals;
-                 
+
 results.xMin = xMin;
-results.xMax = xMax; 
-results.yMin = yMin; 
+results.xMax = xMax;
+results.yMin = yMin;
 results.yMax = yMax;
 
 results.individualResults = fileResults;

@@ -70,7 +70,7 @@ arguments
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
     kwargs.statsPlot (1,1) {mustBeBoolean(kwargs.statsPlot)} = false;
-    kwargs.save {mustBeBoolean(kwargs.save)} = 'none';
+    kwargs.save {mustBeBoolean(kwargs.save)} = 'none'; 
     
     kwargs.constrained {mustBeBoolean(kwargs.constrained)} = false; 
     kwargs.m0 = 1e-12;
@@ -128,6 +128,12 @@ if strcmp(kwargs.xy, 'picker')
     XY = [x y];
 else
     XY = kwargs.xy;
+end
+
+if isequal(kwargs.sourceName, 'none')
+    kwargs.sourceName = '';
+else
+    kwargs.sourceName = ['_' kwargs.sourceName];
 end
 
 %% check NV distance (h)
@@ -191,15 +197,19 @@ i = round(XY(2)/kwargs.downSample);
 % cropi, cropj are the cropping indices for x(i) and y(j) of the
 % original map
 
+downsampledcropFactor=round(kwargs.cropFactor/kwargs.downSample);
+
 % check if the optional parameters dx and dy are not 0
 if all([kwargs.dx,kwargs.dy])
     % define cropj, cropi from dx, dy instead of CROPFACT
-    xCrop = round([j j+kwargs.dx]);
-    yCrop = round([i i+kwargs.dy]);
-    i = i+kwargs.dy/2; j = j+kwargs.dx/2;
+    DSdx=round(kwargs.dx/kwargs.downSample);
+    DSdy=round(kwargs.dy/kwargs.downSample);
+    xCrop = round([j j+DSdx]);
+    yCrop = round([i i+DSdy]);
+    i = i+DSdy/2; j = j+DSdx/2;
 else
-    xCrop = round(1+j+[-kwargs.cropFactor kwargs.cropFactor]);
-    yCrop = round(1+i+[-kwargs.cropFactor kwargs.cropFactor]);
+    xCrop = round(1+j+[-downsampledcropFactor downsampledcropFactor]);
+    yCrop = round(1+i+[-downsampledcropFactor downsampledcropFactor]);
 end
 
 x0 = double(j) * step;
@@ -481,7 +491,7 @@ end
 
 if kwargs.save
     % save figure
-    saveas(dataFig, [filePath, '/Fit_', name, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+    saveas(dataFig, [filePath, '/Fit_', name, kwargs.sourceName, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
     
     % add line to dipoleinversions.txt
     fid = fopen([filePath, '/', outFileName], 'r');
@@ -491,10 +501,10 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tHeight\tDipolarity\r\n');
+        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tx\ty\tHeight\tDipolarity\r\n');
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, abs(hopt), dipolarity);
+    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.2f\t%1.2f\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, xopt/step, yopt/step, abs(hopt), dipolarity);
     fclose(fid);
 end
 
@@ -504,9 +514,9 @@ end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
-    'h', -hopt, 'res', resids, 'x',xopt,'y',yopt, 'residuals', residuals,...
+    'h', -hopt, 'res', resids, 'x',xopt/step,'y',yopt/step, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
-    'xCrop', xCrop, 'yCrop', yCrop);
+    'xCrop', xCrop, 'yCrop', yCrop, 'sourceName', kwargs.sourceName);
 %     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
 %     save full model
 end

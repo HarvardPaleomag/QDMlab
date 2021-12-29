@@ -40,7 +40,7 @@ end
 bData = expData.(dataName);
 expData.([dataName, '_original']) = bData;
 
-[~, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false, 'title', 'select source');
+[~, row, col] = crop_map('filePath', expData, 'save', false, 'checkPlot', false, 'title', 'select source corners (2x)');
 %% maps ending in _dip for naming the file
 dipMaps = dir(sprintf('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/NRM/4x4Binned/*-dip*.mat', fileName));
 nDipMaps = size(dipMaps,1);
