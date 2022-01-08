@@ -48,7 +48,8 @@ end
     ax2 = subplot(2,2,2);
     LASER = imagesc(laser,'Parent',ax2,'CDataMapping','scaled');
     colormap(ax2, 'gray');
-
+    linkaxis([ax1 ax2]);
+    
     axis equal, axis tight, axis xy
     
     n = 0;

@@ -15,12 +15,20 @@ function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
 %         binning size (can be 1)
 %     nRes: int
 %         number of resonance. Low frequencies = 1, High frequencies = 2
+%     crop: (int, int, int, int) ['none']
+%         cell with {x0, y0, dx, dy} where x0 and y0 is the lower left
+%         corner. See also: pick_box
+%         if crop = 'none' -> no cropping
+%     normalize: bool [true]
+%         Chose if the data should be normalized
 
 arguments
     expData
     binSize
     nRes
     kwargs.gpuData = false
+    kwargs.crop = 'none'
+    kwargs.normalize = true
 end
 
 dataStack = expData.(sprintf('imgStack%i',nRes));
@@ -55,20 +63,34 @@ end
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
 data = QDMreshape(dataStack, expData.imgNumRows, expData.imgNumCols);
 
+if ~strcmp(kwargs.crop, 'none') 
+    % cropping
+    x0 = kwargs.crop(1);
+    y0 = kwargs.crop(2);
+    x1 = kwargs.crop(3)+x0;
+    y1 = kwargs.crop(4)+y0;
+    
+    msg = sprintf('<>   %i: cropping data >> crop = X(%i, %i) Y(%i, %i)', ...
+        nRes, x0,x1,y0,y1);
+    logMsg('debug',msg,1,0);
+    data = data(y0:y1,x0:x1,:);
+end
+   
 % binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
 logMsg('debug',msg,1,0);
-
 binData = imresize(data, 1/binSize, 'method', 'box');
 
 % Correct for severely non-unity baseline by dividing pixelwise by
 % average of all frequency points
-
-binDataNorm = zeros(size(binData));
-NormalizationFactor = mean(binData,3);    % compute average
-
-for y = 1:length(freq)
-    binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
+if kwargs.normalize
+    binDataNorm = zeros(size(binData));
+    NormalizationFactor = mean(binData,3);    % compute average
+    for y = 1:length(freq)
+        binDataNorm(:,:,y) = binData(:,:,y) ./ NormalizationFactor;
+    end
+else
+    binDataNorm = binData;
 end
 
 %% return gpudata if kwargs.gpuData == true

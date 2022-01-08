@@ -7,7 +7,7 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     dataNegLeft = reshapeImg(rawDataNeg.imgStack1, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
     dataNegRight = reshapeImg(rawDataNeg.imgStack2, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
-    size(dataPosLeft)
+
     % prefilter data for hot pixels
     [bool, dataName, ledName] = is_B111(Bzdata)
     data = filter_hot_pixels(Bzdata.(dataName));

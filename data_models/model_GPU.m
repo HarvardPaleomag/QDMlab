@@ -23,7 +23,7 @@ function model = model_GPU(p, freq, kwargs)
 arguments
     p double
     freq double
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC'])} = 'N14';
     kwargs.data {mustBeNumericOrLogical} = false;
     kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
 end

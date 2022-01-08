@@ -43,6 +43,7 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %         if true the results are saved to 'dataFolder'
 %     diamond: str [N14]
 %         The type of diamond. Choses the type of fitting.
+%    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
 %
 % Notes
 % -----
@@ -67,6 +68,7 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
     kwargs.slopeCorrection = false;
+    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
 end
 
 tStart = tic;
@@ -98,6 +100,9 @@ polarities = {'Neg','Pos'};
 sides = {'left' 'right'};
 fits = struct();
 
+if kwargs.crop
+    
+end
 %% GUESS PARAMETER ESTIMATION
 for fileNum=startN:1:endN
     pol = polarities{fileNum};

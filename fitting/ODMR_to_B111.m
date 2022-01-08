@@ -32,6 +32,7 @@ function fits = ODMR_to_B111(kwargs)
 %       uses a linear slope correction on the raw data to determine the
 %       initial guess. 
 %       Note: only works for type = 2
+%   crop: bool False
 %
 %   Returns
 %   -------
@@ -55,6 +56,8 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
     kwargs.slopeCorrection = false;
+    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
+
 end
 
 defaults = struct('binSizes', [4], 'globalFraction', 0.25);

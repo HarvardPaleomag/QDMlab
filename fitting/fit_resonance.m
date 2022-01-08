@@ -65,8 +65,10 @@ arguments
     kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = false;
     kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC'])} = 'N14';
     kwargs.slopeCorrection = false;
+    kwargs.crop = 'none'
+
 end
 show_references()
 
@@ -86,7 +88,8 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'crop', kwargs.crop{1});
+
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions
 sizeY = size(binDataNorm, 1); % binned image y-dimensions
@@ -202,7 +205,7 @@ if kwargs.type == 2
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         fit.initialGuess.chi = chiSquares;
         fit.initialGuess.states = states;
-    elseif strcmp(kwargs.diamond, 'N15')
+    elseif find(strcmp(kwargs.diamond, {'N15', 'DAC'}))
         msg = sprintf('determining initial guess only from (N14) preInitialGuess'); 
         logMsg('debug',msg,1,0);
         initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
@@ -229,6 +232,8 @@ if strcmp(kwargs.diamond, 'N14')
     model_id = ModelID.ESR14N;
 elseif strcmp(kwargs.diamond, 'N15')
     model_id = ModelID.ESR15N;
+elseif strcmp(kwargs.diamond, 'DAC')
+    model_id = ModelID.GAUSS_1D;
 end
 
 max_n_iterations = 1000;
@@ -336,7 +341,7 @@ if strcmp(diamond, 'N14')
     guess(6, :) = parameters(4, :) - 1; % baseline
     guess = single(guess);
     
-elseif strcmp(diamond, 'N15')
+elseif find(strcmp(diamond, {'N15', 'DAC'}))
     guess = zeros(5, size(parameters, 2));
     guess(1, :) = parameters(2, :); % location
     guess(2, :) = 0.0002; % width

@@ -23,13 +23,14 @@ arguments
     kwargs.closeFig (1,1) {mustBeBoolean(kwargs.closeFig)} = false
     kwargs.returnCoordinates (1,1) {mustBeBoolean(kwargs.returnCoordinates)} = false
     kwargs.title = 'pick boxes'
+    kwargs.n = 'none'
 end
 
 % data = filter_hot_pixels(data);
 
 
 if kwargs.led == 1
-    fig = QDM_figure(data, 'kwargs.led', true, 'title', 'pick boxes (ESC to exit)');
+    fig = QDM_figure(data, 'led', true, 'title', 'pick boxes (ESC to exit)');
 else
     fig = QDM_figure(data, 'title', [kwargs.title,' (ESC to exit)'], 'st',6);
 end
@@ -79,7 +80,12 @@ while n
         msg = sprintf('creating mask for box #%i (%ix%i : %i pixel)', n, size(m,2), size(m,1), numel(m));
         logMsg('info',msg,1,0);
         nROI{end+1} = iMask;
-
+        
+        if n == kwargs.n
+            n = false;
+            continue
+        end
+        
         n = n + 1;
     else
         n = false;
