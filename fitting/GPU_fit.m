@@ -68,7 +68,7 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
     kwargs.slopeCorrection = false;
-    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
+    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 'none'
 end
 
 tStart = tic;
@@ -100,9 +100,6 @@ polarities = {'Neg','Pos'};
 sides = {'left' 'right'};
 fits = struct();
 
-if kwargs.crop
-    
-end
 %% GUESS PARAMETER ESTIMATION
 for fileNum=startN:1:endN
     pol = polarities{fileNum};
@@ -119,19 +116,22 @@ for fileNum=startN:1:endN
     msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
     logMsg('info',msg,1,1);
 
-    SpanXTrans = 1:expData.imgNumCols;
-    SpanYTrans = 1:expData.imgNumRows;
-
     pixelAlerts = struct();
+    
     for nRes = 1:2
         side = sides{nRes};
             
         Resfit = fit_resonance(expData, binSize, nRes, ...
-            'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
+            'type',kwargs.type, ...
+            'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
             'slopeCorrection', kwargs.slopeCorrection,...
-            'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
-            'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
+            'gaussianFit',gaussianFit, ...
+            'gaussianFilter', kwargs.gaussianFilter,...
+            'smoothDegree', kwargs.smoothDegree, ...
+            'crop', kwars.crop, ...
+            'checkPlot', kwargs.checkPlot);
+        
         Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
     end

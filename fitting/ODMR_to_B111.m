@@ -56,7 +56,7 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
     kwargs.slopeCorrection = false;
-    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
+    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 'none'
 
 end
 
@@ -81,6 +81,13 @@ fits = cell(size(nFolders,2), size(binSizes, 2));
 
 for i = 1:size(nFolders,2)
     dataFolder = nFolders{i};
+    
+    if strcmp(kwargs.crop, 'none')
+        LED = get_led(dataFolder);
+        [~, coordinates] = pick_box(LED, 'led',1, 'title', 'crop Data', 'n',1);
+        kwargs.crop = coordinates{1};
+    end
+
     for n=1:size(binSizes,2)
         binSize=binSizes(n);
         %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
@@ -95,6 +102,7 @@ for i = 1:size(nFolders,2)
                         'checkPlot', kwargs.checkPlot,...
                         'smoothDegree', kwargs.smoothDegree,...
                         'slopeCorrection', kwargs.slopeCorrection,...
+                        'crop', kwargs.crop,...
                         'save', kwargs.save);
                     
         fit.kwargs = kwargs;
