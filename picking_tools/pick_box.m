@@ -30,7 +30,7 @@ end
 
 
 if kwargs.led == 1
-    fig = QDM_figure(data, 'led', true, 'title', 'pick boxes (ESC to exit)');
+    fig = QDM_figure(data, 'led', true, 'title', [kwargs.title,' (ESC to exit)']);
 else
     fig = QDM_figure(data, 'title', [kwargs.title,' (ESC to exit)'], 'st',6);
 end
