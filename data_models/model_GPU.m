@@ -39,8 +39,7 @@ if strcmp(kwargs.diamond, 'N14')
         -p(3)*p(2).^2./((x-p(1)+Ahyp).^2+p(2).^2)...
         -p(4)*p(2).^2./((x-p(1)).^2+p(2).^2)...
         -p(5)*p(2).^2./((x-p(1)-Ahyp).^2+p(2).^2);
-end
-if strcmp(kwargs.diamond, 'N15')
+elseif strcmp(kwargs.diamond, 'N15')
     msg = sprintf('calculating lorentzian for N15 diamond');
     logMsg('debug',msg,1,0);
     
@@ -49,6 +48,11 @@ if strcmp(kwargs.diamond, 'N15')
     model = p(5)...
         -p(3)*p(2).^2./((x-p(1)+Ahyp).^2+p(2).^2)...
         -p(4)*p(2).^2./((x-p(1)-Ahyp).^2+p(2).^2);
+elseif strcmp(kwargs.diamond, 'DAC')
+    msg = sprintf('calculating gaussian for DAC diamond');
+    logMsg('debug',msg,1,0);
+    
+    model = p(1) * exp(-(x - p(2)).^2 / (2 * p(3)^2)) + p(4)-1;
 end
 
 if kwargs.checkPlot

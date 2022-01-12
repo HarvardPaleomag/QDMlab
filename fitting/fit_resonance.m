@@ -196,7 +196,7 @@ if kwargs.type == 2
     initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
     fit.initialPreGuess = initialPreGuess;
     
-    if strcmp(kwargs.diamond, 'N14')
+    if find(strcmp(kwargs.diamond, {'N14', 'DAC'}))
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
         [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
@@ -205,9 +205,11 @@ if kwargs.type == 2
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         fit.initialGuess.chi = chiSquares;
         fit.initialGuess.states = states;
-    elseif find(strcmp(kwargs.diamond, {'N15', 'DAC'}))
+    elseif find(strcmp(kwargs.diamond, {'N15'}))
         msg = sprintf('determining initial guess only from (N14) preInitialGuess'); 
         logMsg('debug',msg,1,0);
+        % Note: DAC initial guess is different than N15
+        % 
         initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
         fit.initialGuess.states = zeros(size(initialGuess));
     end
@@ -241,15 +243,15 @@ max_n_iterations = 1000;
 msg = sprintf('%i: starting GPU fit, model: %s', nRes);
 logMsg('info',msg,1,0);
 
-% run Gpufit - Res 1
-[parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
+% run Gpufit
+[parameters, states, chiSquares, n_iterations, ~] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.MLE, xValues);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
 states(chiSquares > 1e-4) = 5;
-states(parameters(1, :) > max(freq)) = 6;
-states(parameters(1, :) < min(freq)) = 6;
+% states(parameters(1, :) > max(freq)) = 6;
+% states(parameters(1, :) < min(freq)) = 6;
 
 fit = make_fit_struct(fit, initialPreGuess, initialGuess, parameters, states, ...
     chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
@@ -313,7 +315,7 @@ l = 7; % lowest n values
 mxidx = max(idx(1:l, :));
 mnidx = min(idx(1:l, :));
 
-if strcmp(diamond, 'N15')
+if strcmp(diamond, 'N15') |  strcmp(diamond, 'DAC')
     cIdx = int16((mxidx+mnidx)/2);
 else
     cIdx = int16(mean(cat(1, mxidx, mnidx)));
@@ -323,7 +325,12 @@ center = freq(cIdx);
 initialGuess(2, :) = center;
 
 % width
-initialGuess(3, :) = 0.0005;
+if strcmp(diamond, 'DAC')
+    initialGuess(3, :) = 0.005;
+else
+    initialGuess(3, :) = 0.0005;
+end
+    
 
 % offset
 initialGuess(4, :) = mx;
@@ -341,7 +348,7 @@ if strcmp(diamond, 'N14')
     guess(6, :) = parameters(4, :) - 1; % baseline
     guess = single(guess);
     
-elseif find(strcmp(diamond, {'N15', 'DAC'}))
+elseif find(strcmp(diamond, {'N15'}))
     guess = zeros(5, size(parameters, 2));
     guess(1, :) = parameters(2, :); % location
     guess(2, :) = 0.0002; % width
@@ -349,6 +356,9 @@ elseif find(strcmp(diamond, {'N15', 'DAC'}))
     guess(4, :) = -parameters(1, :); % amplitude (contrast)
     guess(5, :) = parameters(4, :) - 1; % baseline
     guess = single(guess);
+    
+elseif strcmp(diamond, 'DAC')
+    guess = parameters;
 end
 end
 
@@ -365,22 +375,29 @@ fit.initialGuess.p = double(initialGuess);
 fit.parameters = double(reshape(parameters, [], sizeY, sizeX)); % fitted parameters
 fit.p = double(parameters);
 
-% matricies with 2 dimensions for x and y pixels:
+if ~ strcmp(diamond, 'DAC')
+    % matricies with 2 dimensions for x and y pixels:
+    fit.resonance = squeeze(fit.parameters(1, :, :));
+    fit.width = squeeze(fit.parameters(2, :, :));
+    fit.contrastA = squeeze(fit.parameters(3, :, :));
+    fit.contrastB = squeeze(fit.parameters(4, :, :));
 
-fit.resonance = squeeze(fit.parameters(1, :, :));
-fit.width = squeeze(fit.parameters(2, :, :));
-fit.contrastA = squeeze(fit.parameters(3, :, :));
-fit.contrastB = squeeze(fit.parameters(4, :, :));
+    % check for diamond type: N14 has 6 parameters, N15 has only 5
+    nParams = size(initialGuess, 1);
 
-% check for diamond type: N14 has 6 parameters, N15 has only 5
-nParams = size(initialGuess, 1);
-
-if nParams == 6 % for N14 diamonds
-    fit.contrastC = squeeze(fit.parameters(5, :, :));
-    fit.baseline = squeeze(fit.parameters(6, :, :)+1);
-else % for N15 diamonds
-    fit.baseline = squeeze(fit.parameters(5, :, :)+1);
+    if nParams == 6 % for N14 diamonds
+        fit.contrastC = squeeze(fit.parameters(5, :, :));
+        fit.baseline = squeeze(fit.parameters(6, :, :)+1);
+    else % for N15 diamonds
+        fit.baseline = squeeze(fit.parameters(5, :, :)+1);
+    end
+else
+    fit.resonance = squeeze(fit.parameters(2, :, :));
+    fit.width = squeeze(fit.parameters(3, :, :));
+    fit.contrastA = -squeeze(fit.parameters(1, :, :));
+    fit.baseline = squeeze(fit.parameters(4, :, :));
 end
+
 
 fit.states = reshape(states, [sizeY, sizeX]);
 fit.chiSquares = double(reshape(chiSquares, [sizeY, sizeX]));

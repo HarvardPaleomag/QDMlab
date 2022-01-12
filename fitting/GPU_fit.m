@@ -66,9 +66,9 @@ arguments
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC'])} = 'N14'
     kwargs.slopeCorrection = false;
-    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 'none'
+    kwargs.crop = 'none'
 end
 
 tStart = tic;
@@ -129,7 +129,7 @@ for fileNum=startN:1:endN
             'gaussianFit',gaussianFit, ...
             'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, ...
-            'crop', kwars.crop, ...
+            'crop', kwargs.crop, ...
             'checkPlot', kwargs.checkPlot);
         
         Resfit.fileName = fullfile(dataFolder, dataFile);
@@ -138,9 +138,11 @@ for fileNum=startN:1:endN
 
     Resonance1 = fits.(['left' pol]).resonance; 
     Width1 = fits.(['left' pol]).width; 
-    ContrastA1 = fits.(['left' pol]).contrastA; 
-    ContrastB1 = fits.(['left' pol]).contrastB;
+    ContrastA1 = fits.(['left' pol]).contrastA;
     
+    if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastB'))
+        ContrastB1 = fits.(['left' pol]).contrastB;
+    end
     if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastC'))
         ContrastC1 = fits.(['left' pol]).contrastC;
     end
@@ -153,8 +155,11 @@ for fileNum=startN:1:endN
     
     Resonance2 = fits.(['right' pol]).resonance; 
     Width2 = fits.(['right' pol]).width; 
-    ContrastA2 = fits.(['right' pol]).contrastA; 
-    ContrastB2 = fits.(['right' pol]).contrastB;
+    ContrastA2 = fits.(['right' pol]).contrastA;
+    
+    if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastB'))
+        ContrastB2 = fits.(['right' pol]).contrastB; 
+    end
 
     if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastC'))
         ContrastC2 = fits.(['right' pol]).contrastC;
@@ -206,11 +211,20 @@ for fileNum=startN:1:endN
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
                 'binSize','type','gaussianFit', 'pixelAlerts');
+            
         elseif strcmp(kwargs.diamond, 'N15')
             save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
             'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
             'Freqs1', 'chiSquares1', 'p1','freq1',...
             'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
+            'Freqs2', 'chiSquares2', 'p2','freq2',...
+            'binSize','type','gaussianFit', 'pixelAlerts');
+        
+        elseif strcmp(kwargs.diamond, 'DAC')
+            save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
+            'Resonance1', 'Width1', 'ContrastA1', 'Baseline1', ...
+            'Freqs1', 'chiSquares1', 'p1','freq1',...
+            'Resonance2', 'Width2', 'ContrastA2', 'Baseline2', ...
             'Freqs2', 'chiSquares2', 'p2','freq2',...
             'binSize','type','gaussianFit', 'pixelAlerts');
         end

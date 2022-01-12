@@ -54,9 +54,9 @@ arguments
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14','DAC'])} = 'N14'
     kwargs.slopeCorrection = false;
-    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 'none'
+    kwargs.crop  = 'none'
 
 end
 
@@ -79,13 +79,20 @@ type = fp(kwargs.fieldPolarity);
 
 fits = cell(size(nFolders,2), size(binSizes, 2));
 
+% set crop to none if 0 or false
+if kwargs.crop == 0 || kwargs.crop == false
+    kwargs.crop = 'none';
+end
+
 for i = 1:size(nFolders,2)
     dataFolder = nFolders{i};
     
-    if strcmp(kwargs.crop, 'none')
-        LED = get_led(dataFolder);
-        [~, coordinates] = pick_box(LED, 'led',1, 'title', 'crop Data', 'n',1);
-        kwargs.crop = coordinates{1};
+    if ~strcmp(kwargs.crop, 'none')
+        if kwargs.crop == 1 || kwargs.crop == true
+            LED = get_led(dataFolder);
+            [~, coordinates] = pick_box(LED, 'led',1, 'title', 'crop Data', 'n',1,'closeFig',true);
+            kwargs.crop = coordinates{1};
+        end
     end
 
     for n=1:size(binSizes,2)
@@ -110,7 +117,8 @@ for i = 1:size(nFolders,2)
         
         folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
 
-        fit = plotResults_CommLine(dataFolder, folderName, type, fit, binSize);
+        fit = plotResults_CommLine(dataFolder, folderName, type, fit, binSize,...
+            'crop', kwargs.crop);
         
         if kwargs.save
             % copy laser image and csv
