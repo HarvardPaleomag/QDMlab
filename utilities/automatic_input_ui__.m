@@ -57,8 +57,10 @@ end
 nFolders = correct_cell_shape(nFolders);
 
 % check if any file was selected
-if all(~strcmpi(nFolders, {'/'}))
-    error('<>   ERROR: NO files/folders selected, please specify or pick files/folders.')
+if size(nFolders,1) == 1
+    if strcmp(nFolders{1}, '/')
+        error('<>   ERROR: NO files/folders selected, please specify or pick files/folders.')
+    end
 end
 
 if kwargs.single
