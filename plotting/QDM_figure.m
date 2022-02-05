@@ -39,6 +39,9 @@ function [fig, ax, im] = QDM_figure(data, kwargs, filter)
 %     preThreshold: int [5]
 %         Thresholding the map by 'preThreshold' (Gauss), applied before
 %         filtering (i.e. see 'filterStruct')
+%     nOutlier: int [1]
+%         Used to filter the nOutlier lowest and highest values before the
+%         colorscale is calculated.
 
 arguments
     data = false;
@@ -67,6 +70,7 @@ arguments
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
+    filter.nOutlier = 1
     filter.mustBe = false;
 end
 
@@ -138,7 +142,7 @@ else
     yc= kwargs.yc;
 end
 
-if ~isequal(kwargs.unit, 'G')
+if ~isequal(kwargs.unit, 'G') & ~strcmp(kwargs.unit, 'none')
     data = convert_to(data, kwargs.unit);
 end
 
@@ -179,10 +183,14 @@ end
 
 % Set the remaining axes properties
 if isequal(kwargs.clim, false) & isnumeric(kwargs.std)
-    med = median(abs(data), 'all', 'omitnan');
-    st = std(data, [], 'all', 'omitnan');
-    mx = max(data, [], 'all', 'omitnan');
-    mn = min(data, [], 'all', 'omitnan');
+    d = reshape(data,[numel(data), 1]);
+    d = sort(d);
+    d = d(filter.nOutlier:end-filter.nOutlier+1);
+    
+    med = median(abs(d), 'all', 'omitnan');
+    st = std(d, [], 'all', 'omitnan');
+    mx = max(d, [], 'all', 'omitnan');
+    mn = min(d, [], 'all', 'omitnan');
     
     try
         if (med + kwargs.std * st) > max(abs([mx,mn]))
@@ -215,7 +223,11 @@ if ~isequal(kwargs.cbTitle, false)
     if isequal(kwargs.led, false)
         unit = strrep(kwargs.unit, 'micro', '\mu');
         unit = strrep(unit, 'mu', '\mu');
-        title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
+        if strcmp(kwargs.unit, 'none')
+            title(cb, sprintf('%s', kwargs.cbTitle), 'Fontsize', 12);
+        else
+            title(cb, sprintf('%s (%s)', kwargs.cbTitle, unit), 'Fontsize', 12);
+        end
     else
         title(cb, '', 'Fontsize', 12);
     end
