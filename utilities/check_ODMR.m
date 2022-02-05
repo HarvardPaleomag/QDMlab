@@ -2,12 +2,13 @@ function check_ODMR(folder, laser, rawDataPos, rawDataNeg)
 %check_ODMR(folder, laser, rawDataPos, rawDataNeg; 'laser', 'rawDataPos', 'rawDataNeg')
     
 arguments
-    folder
+    folder = 'none'
     laser = true
     rawDataPos = false
     rawDataNeg = false
 end
-    
+    folder = automatic_input_ui__(folder, 'single', 1);
+
     if isequal(rawDataPos, false)
         rawDataPos = load(fullfile(folder, 'run_00000.mat'));
     end
@@ -17,10 +18,10 @@ end
     
     close all
     
-    dataPosLeft = QDMreshape(rawDataPos.imgStack1, rawDataPos.imgNumRows, rawDataPos.imgNumCols);
-    dataPosRight = QDMreshape(rawDataPos.imgStack2, rawDataPos.imgNumRows, rawDataPos.imgNumCols);
-    dataNegLeft = QDMreshape(rawDataNeg.imgStack1, rawDataPos.imgNumRows, rawDataNeg.imgNumCols);
-    dataNegRight = QDMreshape(rawDataNeg.imgStack2, rawDataPos.imgNumRows, rawDataNeg.imgNumCols);
+    dataPosLeft = prepare_raw_data(rawDataPos, 1, 1);%QDMreshape(rawDataPos.imgStack1, rawDataPos.imgNumRows, rawDataPos.imgNumCols);
+    dataPosRight =  prepare_raw_data(rawDataPos, 1, 2);
+    dataNegLeft = prepare_raw_data(rawDataNeg, 1, 1);
+    dataNegRight =  prepare_raw_data(rawDataNeg, 1, 2);
     
     mask = any(~isnan(dataPosLeft),3) & any(~isnan(dataPosRight),3) & any(~isnan(dataNegLeft),3) & any(~isnan(dataNegRight),3);
     
@@ -32,12 +33,12 @@ end
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
 %     freqList = [rawDataPos.freqList;rawDataPos.freqList]';
 
-    laser = load(fullfile(folder, 'laser.csv'));        
-    led = load(fullfile(folder, 'led.csv'));
-    
+    laser = get_laser(folder);     
+    led = get_led(folder);
+    ratio = min(size(laser))/max(size(laser));
     % Create image
-    f = figure;
-    set(gcf,'position',[350,350,1400,900]);
+    f = figure('Units', 'normalized');
+    set(gcf,'OuterPosition',[0.05,0.05,0.7,0.9*ratio]);
     
     % plot QDM data
     ax1 = subplot(2,2,1);
@@ -48,7 +49,7 @@ end
     ax2 = subplot(2,2,2);
     LASER = imagesc(laser,'Parent',ax2,'CDataMapping','scaled');
     colormap(ax2, 'gray');
-    linkaxis([ax1 ax2]);
+    linkaxes([ax1 ax2]);
     
     axis equal, axis tight, axis xy
     
@@ -96,8 +97,8 @@ end
         title(titleTxt)
 
         hold on
-        plot(ax4, freqList(:,1), meanPosRight, '.--')
-        plot(ax4, freqList(:,1), meanNegRight, '.--')
+        plot(ax4, freqList(:,2), meanPosRight, '.--')
+        plot(ax4, freqList(:,2), meanNegRight, '.--')
         plot(ax4, freqList(:,2), squeeze(dataPosRight(round(y), round(x),:)));
         plot(ax4, freqList(:,2), squeeze(dataNegRight(round(y), round(x),:)))
         legend('mean(+)', 'mean(-)', '+', '-');
