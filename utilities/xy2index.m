@@ -7,8 +7,8 @@ function index = xy2index(row, col, shape, kwargs)
 %   x(column) coordinate of pixel
 % y: int
 %   y(row) coordinate of pixel
-% nRows: int
-%    number of Rows in array
+% shape: (int int)
+%    number of Rows, Cols in array
 % type: str (gpu)
 %    can be 'gpu' or 'binDataNorm'
 
