@@ -69,6 +69,8 @@ arguments
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC'])} = 'N14'
     kwargs.slopeCorrection = false;
     kwargs.crop = 'none'
+    kwargs.fcrop (1,1) {mustBeBoolean(kwargs.fcrop)}  = false
+
 end
 
 tStart = tic;
@@ -101,6 +103,9 @@ sides = {'left' 'right'};
 fits = struct();
 
 %% GUESS PARAMETER ESTIMATION
+lowCropIdx = [0,0];
+highCropIdx = [0,0];
+
 for fileNum=startN:1:endN
     pol = polarities{fileNum};
     
@@ -120,7 +125,23 @@ for fileNum=startN:1:endN
     
     for nRes = 1:2
         side = sides{nRes};
-            
+        
+        % get the fcrop values for each side only one time
+        if kwargs.fcrop
+            n = expData.numFreqs;
+            if nRes == 1 & all(lowCropIdx == [0,0])
+                lowCropIdx = pick_fcrop(expData.disp1, expData.freqList(1:n));
+            elseif nRes == 2 & all(highCropIdx == [0,0])
+                highCropIdx = pick_fcrop(expData.disp2, expData.freqList(n+1:end));
+            end
+        end
+        
+        if kwargs.fcrop & nRes == 1
+            kwargs.fcrop = lowCropIdx;
+        elseif kwargs.fcrop & nRes == 2
+            kwargs.fcrop = highCropIdx;
+        end
+        
         Resfit = fit_resonance(expData, binSize, nRes, ...
             'type',kwargs.type, ...
             'globalFraction', kwargs.globalFraction, ...
@@ -130,6 +151,7 @@ for fileNum=startN:1:endN
             'gaussianFilter', kwargs.gaussianFilter,...
             'smoothDegree', kwargs.smoothDegree, ...
             'crop', kwargs.crop, ...
+            'fcrop', kwargs.fcrop, ...
             'checkPlot', kwargs.checkPlot);
         
         Resfit.fileName = fullfile(dataFolder, dataFile);

@@ -68,6 +68,7 @@ arguments
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC'])} = 'N14';
     kwargs.slopeCorrection = false;
     kwargs.crop = 'none'
+    kwargs.fcrop  = false
 
 end
 show_references()
@@ -88,7 +89,7 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'crop', kwargs.crop);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
 
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions

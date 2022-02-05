@@ -57,6 +57,7 @@ arguments
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14','DAC'])} = 'N14'
     kwargs.slopeCorrection = false;
     kwargs.crop  = 'none'
+    kwargs.fcrop (1,1) {mustBeBoolean(kwargs.fcrop)}  = false
 
 end
 
@@ -110,6 +111,7 @@ for i = 1:size(nFolders,2)
                         'smoothDegree', kwargs.smoothDegree,...
                         'slopeCorrection', kwargs.slopeCorrection,...
                         'crop', kwargs.crop,...
+                        'fcrop', kwargs.fcrop,...
                         'save', kwargs.save);
                     
         fit.kwargs = kwargs;
