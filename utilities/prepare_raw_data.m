@@ -29,6 +29,8 @@ arguments
     kwargs.gpuData = false
     kwargs.crop = 'none'
     kwargs.normalize = true
+    kwargs.fcrop  = false
+
 end
 
 dataStack = expData.(sprintf('imgStack%i',nRes));
@@ -58,6 +60,10 @@ if isfield(expData, 'imgStack3')
     dataStack = [dataStacka; dataStackb];
 end
 
+if kwargs.fcrop
+    dataStack = dataStack(kwargs.fcrop(1):kwargs.fcrop(2), :);
+    freq = freq(kwargs.fcrop(1):kwargs.fcrop(2));
+end
 % reshape and transpose each image
 % NOTE: I guess the data is written pixel by pixel, starting left top
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
