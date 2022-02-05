@@ -12,7 +12,7 @@ function fits = ODMR_to_B111(kwargs)
 %     1 = neg,
 %     2 = pos,
 %     4 = nppn
-%   globalFraction: numeric (0.5)
+%   globalFraction: numeric (0.25)
 %     Amount of global ilumination signal to be subtracted from the
 %     measurements before fitting
 %   type: [0,1,2] (2)
@@ -80,7 +80,7 @@ type = fp(kwargs.fieldPolarity);
 fits = cell(size(nFolders,2), size(binSizes, 2));
 
 % set crop to none if 0 or false
-if kwargs.crop == 0 || kwargs.crop == false
+if kwargs.crop == 0 | kwargs.crop == false
     kwargs.crop = 'none';
 end
 
