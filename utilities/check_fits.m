@@ -1,4 +1,4 @@
-function check_fits(Bzdata, rawDataPos, rawDataNeg)
+function check_fits(finalFits, rawDataPos, rawDataNeg)
 %check_fits(Bzdata, rawDataPos, rawDataNeg)
     close all
     disp(['<>   reshaping data: ' num2str(rawDataPos.numFreqs) 'x' num2str(rawDataPos.imgNumCols) 'x' num2str(rawDataPos.imgNumRows)])
@@ -9,13 +9,15 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
 
     % prefilter data for hot pixels
-    [bool, dataName, ledName] = is_B111(Bzdata)
-    data = filter_hot_pixels(Bzdata.(dataName));
-    binning = detect_binning(Bzdata);
+    [bool, dataName, ledName] = is_B111(finalFits);
+    data = filter_hot_pixels(finalFits.(dataName));
+    binning = detect_binning(finalFits);
     
+    LED = finalFits.(ledName);
+    ratio = min(size(LED))/max(size(LED));
     % Create image
-    f = figure;
-    set(gcf,'position',[350,350,1400,300])
+    f = figure('Units', 'normalized');
+    set(gcf,'OuterPosition',[0.15,0.25,0.7,0.4*ratio]);
     
     % plot QDM data
     ax1 = subplot(1,3,1);
@@ -46,6 +48,9 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
         end
         
         hold on
+        px = round(x*binning);
+        py = round(y*binning);
+        
         point = scatter(round(x),round(y),'k');
         
         ax2 = subplot(1,3,2);
@@ -53,8 +58,15 @@ function check_fits(Bzdata, rawDataPos, rawDataNeg)
         title(titleTxt)
 
         hold on
-        plot(freqList(:,1), dataPosLeft(:,round(x*binning),round(y*binning)))
-        plot(freqList(:,1), dataNegLeft(:,round(x*binning),round(y*binning)))
+        f1 = freqList(:,1);
+        idx = int16(xy2index(py/binning,px/binning, size(finalFits.negDiff)));
+        plot(f1, dataPosLeft(:,px,py))
+        model = model_GPU(finalFits.leftPos.p(:,idx), f1,'diamond', finalFits.kwargs.diamond)...
+            / max(model_GPU(finalFits.leftPos.p(:,idx), f1, 'diamond', finalFits.kwargs.diamond))...
+            * max(dataPosLeft(:,px,py));
+        plot(f1, model)
+        plot(f1, dataNegLeft(:,px,py))
+        
         legend('+','-');
         ylabel('Intensity')
         xlabel('f (Hz)')
