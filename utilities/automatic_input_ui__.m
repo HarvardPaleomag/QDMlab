@@ -57,7 +57,7 @@ end
 nFolders = correct_cell_shape(nFolders);
 
 % check if any file was selected
-if strcmp(nFolders{1}(2), '/')
+if all(~strcmpi(nFolders, {'/'}))
     error('<>   ERROR: NO files/folders selected, please specify or pick files/folders.')
 end
 
