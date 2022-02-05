@@ -59,11 +59,14 @@ arguments
     kwargs.alpha = false;
     kwargs.colormap = 'parula';
     kwargs.clim = false;
+    kwargs.symmetricCLim = true
     
+    kwargs.method = 'std'
     kwargs.std {mustBeInteger} = 4;
     
     kwargs.scaleBar = false
     kwargs.pixelSize = 4.7e-6
+    kwargs.nOutlier = 0
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
@@ -178,35 +181,21 @@ if iscell(kwargs.nROI)
 end
 
 % Set the remaining axes properties
-if isequal(kwargs.clim, false) & isnumeric(kwargs.std)
-    med = median(abs(data), 'all', 'omitnan');
-    st = std(data, [], 'all', 'omitnan');
-    mx = max(data, [], 'all', 'omitnan');
-    mn = min(data, [], 'all', 'omitnan');
-    
-    try
-        if (med + kwargs.std * st) > max(abs([mx,mn]))
-            msg = sprintf('Clim values exceeds min/max');
-            logMsg('debug',msg,1,0);
-        elseif all(data(~isnan(data)) > 0, 'all') | all(data(~isnan(data)) < 0, 'all')
-            set(ax, 'CLim', [mn, mx]);
-        elseif ~all(data(~isnan(data)) > 0, 'all')
-            msg = sprintf('setting Clim: +-%.3e, according to: median (%.3e) + %i*std (%.3e)', med+kwargs.std*st, med,kwargs.std, st);
-            logMsg('debug',msg,1,0);
-            set(ax, 'CLim', [-1, 1]*(med + kwargs.std * st));
-        else
-            msg = sprintf('setting Clim: %.3e:%.3e, according to: median (%.3e) +- %i*std (%.3e)', ...
-                         med-kwargs.std*st, med+kwargs.std*st, med,kwargs.std, st);
-            logMsg('info',msg,1,0);
-            set(ax, 'CLim', [med - kwargs.std * st, med + kwargs.std * st]);
-        end
-    catch
-        return
-    end
-elseif ~isequal(kwargs.clim, false)
-    set(ax, 'CLim', kwargs.clim);
+if ~strcmp(kwargs.clim, 'none') & ~size(kwargs.clim,1) ~= 2
+    kwargs.cLim = get_colorscale(data, kwargs.method, 'symmetric', kwargs.symmetricCLim,...
+        'std', kwargs.std, 'nOutlier', kwargs.nOutlier);
 end
 
+if ~strcmp(kwargs.clim, 'none')
+    set(ax, 'CLim', kwargs.cLim);
+end
+
+%% set alpha
+if ~isequal(kwargs.alpha, false)
+    im.AlphaData = abs(data) ./ max(abs(data),[],'all');
+    alpha 'none'
+%     alpha(im, kwargs.alpha * abs(data) ./ max(abs(data),[],'all'));
+end
 
 
 %% Create colorbar
