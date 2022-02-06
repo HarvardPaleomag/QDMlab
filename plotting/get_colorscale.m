@@ -4,6 +4,7 @@ arguments
     data
     method = 'std'
     kwargs.symmetric = 1
+    kwargs.mustBe = 'none'
     filter.std = 0
     filter.nOutlier = 0
 end
@@ -54,6 +55,10 @@ switch method
         logMsg('info',msg,1,0);
 end
 
-
+if strcmp(kwargs.mustBe,'pos')
+    cLim(1) = 0;
+elseif strcmp(kwargs.mustBe,'neg')
+    cLim(2) = 0;
+end
 
 end

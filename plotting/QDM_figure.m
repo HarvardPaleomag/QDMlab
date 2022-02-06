@@ -73,7 +73,6 @@ arguments
     
     filter.filterProps struct = struct();
     filter.preThreshold = 5
-    filter.nOutlier = 1
     filter.mustBe = false;
 end
 
@@ -187,7 +186,7 @@ end
 % Set the remaining axes properties
 if ~strcmp(kwargs.clim, 'none') & ~size(kwargs.clim,1) ~= 2
     kwargs.cLim = get_colorscale(data, kwargs.method, 'symmetric', kwargs.symmetricCLim,...
-        'std', kwargs.std, 'nOutlier', kwargs.nOutlier);
+        'std', kwargs.std, 'nOutlier', kwargs.nOutlier, 'mustBe', filter.mustBe);
 end
 
 if ~strcmp(kwargs.clim, 'none')
