@@ -67,8 +67,9 @@ function d = B111(finalFits, plots)
         ax2 = subplot(2,2,2);
         QDM_figure(d.para-median(d.para, 'all'), 'st', 10, 'preThreshold', 10, 'ax', ax2, 'title', 'B_{111} para', 'mustBe', false);
         ax3 = subplot(2,2,3);
-        QDM_figure(1000.*d.centerShift, 'st', 5, 'preThreshold', 0, 'ax', ax3, ...
-            'title', 'mean(center shift)', 'unit', 'none', 'cbTitle', 'CS (MHz)', 'mustBe', 'pos', 'nOutlier', 100);
+        QDM_figure(1000.*d.centerShift, 'st', 2, 'preThreshold', 0, 'ax', ax3, ...
+            'title', 'mean(center shift)', 'unit', 'none', 'cbTitle', 'CS (MHz)', ...
+            'method', 'fit', 'nOutlier', 10, 'mustBe','pos');
         ax4 = subplot(2,2,4);
         QDM_figure(d.shiftDelta, 'st', 2, 'preThreshold', 1, 'ax', ax4, 'title', 'CS^- - CS^+');
         linkaxes([ax1 ax2 ax3 ax4]);
