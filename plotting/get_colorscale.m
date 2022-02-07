@@ -12,6 +12,7 @@ end
 % Set the remaining axes properties
 
 d = reshape(data,[numel(data), 1]);
+d = d(~isnan(d));
 d = sort(d);
 d = d(1+filter.nOutlier:end-filter.nOutlier);
 
