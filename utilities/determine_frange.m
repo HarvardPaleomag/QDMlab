@@ -46,4 +46,7 @@ for i = 1:4
 
     end
 end
-
+msg = sprintf('start1: %i    end1: %i', frange(1), frange(2));
+logMsg('info',msg,1,0);
+msg = sprintf('start2: %i    end2: %i', frange(3), frange(4));
+logMsg('info',msg,1,0);
