@@ -1,5 +1,5 @@
 function [fig, ax, im] = QDM_figure(data, kwargs, filter) 
-%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'clim', 'std', 'scaleBar', 'pixelSize', 'filterProps', 'preThreshold', 'mustBe')
+%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'cLim', 'std', 'scaleBar', 'pixelSize', 'filterProps', 'preThreshold', 'mustBe')
 % Creates a QDM figure
 %
 % Parameter
@@ -61,11 +61,11 @@ arguments
     kwargs.yc = false;
     kwargs.alpha = false;
     kwargs.colormap = 'parula';
-    kwargs.clim = false;
+    kwargs.cLim = false;
     kwargs.symmetricCLim = true
     
     kwargs.method = 'std'
-    kwargs.std {mustBeInteger} = 4;
+    kwargs.std {mustBeInteger} = 8;
     
     kwargs.scaleBar = false
     kwargs.pixelSize = 4.7e-6
@@ -92,7 +92,7 @@ end
 %% find figure
 if kwargs.fig == 'none'
     if kwargs.ax == 'none'
-        fig = figure('Name', 'QDM map', 'units', 'normalized', 'outerposition', [0.2, 0.2, 0.4, 0.6]);
+        fig = figure('Name', 'QDM map', 'units', 'normalized', 'position', [0.1, 0.1, 0.4, 0.6]);
     else
         fig = ancestor(kwargs.ax, {'figure'}, 'toplevel');
     end
@@ -184,12 +184,12 @@ if iscell(kwargs.nROI)
 end
 
 % Set the remaining axes properties
-if ~strcmp(kwargs.clim, 'none') & ~size(kwargs.clim,1) ~= 2
+if ~strcmp(kwargs.cLim, 'none') & ~isnumeric(kwargs.cLim)
     kwargs.cLim = get_colorscale(data, kwargs.method, 'symmetric', kwargs.symmetricCLim,...
         'std', kwargs.std, 'nOutlier', kwargs.nOutlier, 'mustBe', filter.mustBe);
 end
 
-if ~strcmp(kwargs.clim, 'none')
+if ~strcmp(kwargs.cLim, 'none')
     set(ax, 'CLim', kwargs.cLim);
 end
 
@@ -226,5 +226,5 @@ if ~isequal(kwargs.scaleBar, false)
     scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
 hold(ax, 'off');
-
+movegui(gcf,'center')
 end
