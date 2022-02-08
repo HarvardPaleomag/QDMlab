@@ -24,6 +24,7 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.reference = 'led'
     kwargs.laser (1,1) {mustBeBoolean(kwargs.laser)} = false
 end
 nFolders = correct_cell_shape(nFolders);
@@ -35,7 +36,7 @@ sequence = kwargs.sequence;
 reverse = kwargs.reverse;
 
 % generate reference file name
-fixedFile = [nFolders{fixedIdx}, filesep, fileName];
+fixedFile = fullfile(nFolders{fixedIdx}, filesep, fileName);
 fixedData = load(fixedFile);
 
 
