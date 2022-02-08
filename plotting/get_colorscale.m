@@ -57,9 +57,13 @@ switch method
 end
 
 if strcmp(kwargs.mustBe,'pos')
-    cLim(1) = 0;
+    if cLim(1) < 0
+        cLim(1) = 0;
+    end
 elseif strcmp(kwargs.mustBe,'neg')
-    cLim(2) = 0;
+    if cLim(2) > 0
+        cLim(2) = 0;
+    end
 end
 
 end
