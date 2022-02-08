@@ -55,7 +55,7 @@ if kwargs.save
     
     iFileNew = strrep(filePath, '.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
-    saveas(fig,fullfile(filePath, sprintf('%s_Hole.png', fileName)))
+    saveas(fig,fullfile(filePath, sprintf('%s_crop.png', fileName)))
     save(iFileNew,'-struct','expData');
 end
 
