@@ -122,7 +122,7 @@ for i = 1:size(nFolders,2)
         
         folderName=[num2str(binSize) 'x' num2str(binSize) 'Binned'];
 
-        fit = plotResults_CommLine(dataFolder, folderName, type, fit, binSize,...
+        fit = get_B111(dataFolder, folderName, type, fit, binSize,...
             'crop', kwargs.crop);
         
         if kwargs.savePlots
