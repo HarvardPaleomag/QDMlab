@@ -327,12 +327,11 @@ initialGuess(2, :) = center;
 
 % width
 if strcmp(diamond, 'DAC')
-    initialGuess(3, :) = 0.005;
+    initialGuess(3, :) = 0.004;
 else
     initialGuess(3, :) = 0.0005;
 end
     
-
 % offset
 initialGuess(4, :) = mx;
 end
