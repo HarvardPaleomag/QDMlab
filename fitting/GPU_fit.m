@@ -209,8 +209,6 @@ for fileNum=startN:1:endN
     fits.(['pixelAlerts' pol]) = pixelAlerts;
 
     %% SAVE FIT RESULTS%
-    sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
-
     if kwargs.save
         folderName = sprintf('%ix%iBinned', binSize, binSize);
         
