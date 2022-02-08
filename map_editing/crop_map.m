@@ -20,7 +20,11 @@ else
     expData = load(filePath);
 end
 
-[row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
+if ~kwargs.row & ~kwargs.col
+    [row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
+else
+    row = kwargs.row;
+    col = kwargs.col;
 
 [~, dataName, ledName] = is_B111(expData);
 bData = expData.(dataName);
