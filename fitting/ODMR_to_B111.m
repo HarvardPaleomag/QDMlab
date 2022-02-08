@@ -53,7 +53,10 @@ arguments
     kwargs.gaussianFit (1,1) {mustBeBoolean(kwargs.gaussianFit)} = false;
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
+    
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
+    kwargs.savePlots (1,1) {mustBeBoolean(kwargs.savePlots)} = 1
+
     kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14','DAC'])} = 'N14'
     kwargs.slopeCorrection = false;
     kwargs.crop  = 'none'
@@ -122,6 +125,10 @@ for i = 1:size(nFolders,2)
         fit = plotResults_CommLine(dataFolder, folderName, type, fit, binSize,...
             'crop', kwargs.crop);
         
+        if kwargs.savePlots
+            ODMR_to_B111_plot(fit, fullfile(dataFolder, folderName));
+        end
+
         if kwargs.save
             % copy laser image and csv
             msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
