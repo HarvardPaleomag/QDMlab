@@ -4,25 +4,13 @@ arguments
 end
 
 folder = automatic_input_ui__(folder, "single",1, "type",'dir');
-
-runFiles = dir(fullfile(folder, 'run_*.mat'));
-
-for i = 1:size(runFiles)
-    runFiles(i).data = load(fullfile(runFiles(i).folder, ... 
-        runFiles(i).name), 'disp1', 'disp2', 'freqList');
-end
+[meanDataAll, freqAll] = load_mean_spectra(folder);
 
 figure
 hold on
 
-meanDataAll = [];
-freqAll = [];
-for i = 1:size(runFiles)
-    plot(runFiles(i).data.freqList, ...
-        [runFiles(i).data.disp1, runFiles(i).data.disp2], '.:', ...
-        'displayName', runFiles(i).name)
-    meanDataAll = [meanDataAll; [runFiles(i).data.disp1, runFiles(i).data.disp2]];
-    freqAll = [freqAll; runFiles(i).data.freqList];
+for i = 1:size(meanDataAll, 1)
+    plot(freqAll(i,:), meanDataAll(i,:), '.-', 'DisplayName', sprintf('run (%i)', i-1))
 end
 legend()
 
