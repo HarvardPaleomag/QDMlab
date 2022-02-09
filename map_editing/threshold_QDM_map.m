@@ -14,6 +14,8 @@ function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
 %     chi: array [false]
 %         if chi is provided the data will be filtered according to the chi
 %         values.
+%     save: bool [true]
+%         Specifies if the data should be saved as a new file.
 %     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
