@@ -70,7 +70,7 @@ pixelsize = 4.68e-6;
 kwargs.fileName = check_suffix(kwargs.fileName);
 
 % generate reference file name
-refFile = [nFolders{kwargs.fixedIdx}, filesep, kwargs.fileName];
+refFile = fullfile(nFolders{kwargs.fixedIdx}, filesep, kwargs.fileName);
 refFileData = load(refFile);
 
 % get transformations and rframes
@@ -92,7 +92,7 @@ for i = 1:size(nFolders, 2)
     iFolder = nFolders{i};
     iFile = fullfile(iFolder, filesep, kwargs.fileName);
 
-    msg = sprintf('loading << %s >> target file for transformation', iFile(end -30:end)');
+    msg = sprintf('loading << %s >> target file for transformation', iFile');
     logMsg('debug', msg, 1, 0);
     %     fprintf('<> loading << %s >> target file for transformation\n', iFile(end-size(iFile,2)/2:end))
 

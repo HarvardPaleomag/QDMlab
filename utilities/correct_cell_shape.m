@@ -13,6 +13,7 @@ end
 
 % remove training slash or backslash
 for i = 1:size(elements,2)
+    elements{i} = char(elements{i});
     e = elements{i};
     if e(end) == filesep
         elements{i} = e(1:end-1);

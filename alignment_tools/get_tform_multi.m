@@ -93,14 +93,14 @@ for iFolder = nMovingFolders
     iFolder = iFolder{:};
 
     % load moving data
-    movingFile = [iFolder, filesep, refFileName];
+    movingFile = fullfile(iFolder, filesep, refFileName);
     movingFile = check_suffix(movingFile);
     
     msg = sprintf('aligning: %s', movingFile(end-40:end));
     logMsg('debug',msg,1,0);
     
     if laser
-        moving = imread([iFolder filesep refExtension]);
+        moving = imread(fullfile(iFolder, refExtension));
 %         moving = adapthisteq(moving);
     else
         moving = load(movingFile);

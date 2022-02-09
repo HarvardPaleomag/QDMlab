@@ -108,7 +108,7 @@ if isequal(kwargs.upCont, false)
 end
 
 % generate reference file name
-fixedFile = [nFolders{kwargs.fixedIdx}, filesep, fileName];
+fixedFile = fullfile(nFolders{kwargs.fixedIdx}, filesep, fileName);
 
 %% load the reference data
 refFile = load(fixedFile);
