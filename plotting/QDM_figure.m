@@ -84,6 +84,7 @@ if isequal(data, false)
     
     if kwargs.led
         data = expData.(ledName);
+        kwargs.cbTitle = false
     else
         data = expData.(dataName);
     end
@@ -100,7 +101,7 @@ else
     fig = kwargs.fig;
 end
 
-if filter.preThreshold & ~kwargs.led
+if filter.preThreshold & ~kwargs.led & ~all(logical(~rem(data(:),1)))
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 
@@ -195,9 +196,9 @@ end
 
 %% set alpha
 if ~isequal(kwargs.alpha, false)
-    im.AlphaData = abs(data) ./ max(abs(data),[],'all');
-    alpha 'none'
-%     alpha(im, kwargs.alpha * abs(data) ./ max(abs(data),[],'all'));
+    set(im, 'AlphaData', ~isnan(data));
+%     alpha 'none'
+%     alpha(im, ~isnan(data)); %kwargs.alpha * abs(data) ./ max(abs(data),[],'all'));
 end
 
 
