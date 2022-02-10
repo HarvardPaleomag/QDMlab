@@ -57,7 +57,8 @@ arguments
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
     kwargs.savePlots (1,1) {mustBeBoolean(kwargs.savePlots)} = 1
 
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14','DAC'])} = 'N14'
+    kwargs.diamond {mustBeMember(kwargs.diamond, ...
+        ['N15', 'N14', 'DAC', 'singlet', 'doublet', 'triplet', 'gaussian'])} = 'N15'
     kwargs.slopeCorrection = false;
     kwargs.crop  = 'none'
     kwargs.fcrop (1,1) {mustBeBoolean(kwargs.fcrop)}  = false
@@ -101,7 +102,6 @@ for i = 1:size(nFolders,2)
 
     for n=1:size(binSizes,2)
         binSize=binSizes(n);
-        %   GPU_fit_QDM(INFILE,polarities,bin,neighborguess,diagnostics)
         fit = GPU_fit(dataFolder, binSize,...
                         'fieldPolarity',kwargs.fieldPolarity, ...
                         'type', kwargs.type,...
