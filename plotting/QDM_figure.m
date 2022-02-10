@@ -101,6 +101,8 @@ else
     fig = kwargs.fig;
 end
 
+movegui(fig,'center')
+
 if filter.preThreshold & ~kwargs.led & ~all(logical(~rem(data(:),1)))
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
@@ -227,5 +229,5 @@ if ~isequal(kwargs.scaleBar, false)
     scalebar('ax', ax, 'scaleBar', kwargs.scaleBar, 'pixelSize', kwargs.pixelSize)
 end
 hold(ax, 'off');
-movegui(gcf,'center')
+
 end
