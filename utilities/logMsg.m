@@ -46,7 +46,7 @@ msg = sprintf('<> %6s %s: %s:%s %s', datetime('now', 'Format', 'HH:mm:ss:SS'), .
 % while msg           
           
 if ~kwargs.returnOnly
-    if strcmpi(level, 'INPUT') | strcmpi(level, 'ERROR') | strcmpi(level, 'DEPRECATED')
+    if any(strcmpi(level, {'INPUT', 'ERROR', 'DEPRECATED', 'ATTENTION'}))
         if lineEnd
             fprintf(2, '%s\n',msg);
         else
