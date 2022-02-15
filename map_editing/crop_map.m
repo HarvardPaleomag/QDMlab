@@ -25,6 +25,7 @@ if ~kwargs.row & ~kwargs.col
 else
     row = kwargs.row;
     col = kwargs.col;
+end
 
 [~, dataName, ledName] = is_B111(expData);
 bData = expData.(dataName);
