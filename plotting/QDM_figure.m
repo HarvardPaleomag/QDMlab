@@ -231,3 +231,8 @@ end
 hold(ax, 'off');
 
 end
+
+function bool = isLED(data)
+    data = data(~isnan(data));
+    bool = all(logical(~rem(data(:),1)));
+end
