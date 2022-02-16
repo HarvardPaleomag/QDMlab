@@ -103,7 +103,7 @@ end
 
 movegui(fig,'center')
 
-if filter.preThreshold & ~kwargs.led & ~all(logical(~rem(data(:),1)))
+if ~isequal(filter.preThreshold,'none') & ~kwargs.led & ~all(logical(~rem(data(:),1)))
     data = filter_hot_pixels(data, 'threshold', filter.preThreshold);
 end
 

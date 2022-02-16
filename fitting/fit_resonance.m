@@ -355,6 +355,7 @@ switch diamond
         guess(4, :) = -parameters(1, :); % amplitude (contrast)
         guess(5, :) = parameters(4, :) - 1; % baseline
     case {'singlet'}
+        guess(2, :) = 0.0003; % width
         guess(3, :) = -parameters(1, :); % amplitude (contrast)
         guess(4, :) = parameters(4, :)-1; % baseline
     case {'DAC'}
