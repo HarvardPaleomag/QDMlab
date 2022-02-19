@@ -52,9 +52,10 @@ end
 
 %% save data with new fileName
 if kwargs.save
+    fullpath=filePath;
     [filePath,fileName,~]=fileparts(filePath);
     
-    iFileNew = strrep(filePath, '.mat','_Cropped.mat');
+    iFileNew = strrep(fullpath,'.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     saveas(fig,fullfile(filePath, sprintf('%s_crop.png', fileName)))
     save(iFileNew,'-struct','expData');
