@@ -9,6 +9,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.row = false;
     kwargs.col = false;
+    kwargs.even = true; %enforce even dimensions in crop to be compatible with downstream fft functions
     kwargs.title = 'Select area to crop';
 end
 
@@ -25,6 +26,15 @@ if ~kwargs.row & ~kwargs.col
 else
     row = kwargs.row;
     col = kwargs.col;
+end
+
+if kwargs.even
+    if ~mod(row(2)-row(1),2)
+        row(2)=row(2)-1;
+    end
+    if ~mod(col(2)-col(1),2)
+        col(2)=col(2)-1;
+    end
 end
 
 [~, dataName, ledName] = is_B111(expData);
