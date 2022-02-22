@@ -21,7 +21,7 @@ xc = 1:xc; yc = 1:yc;
 [f2, ~, ~] = QDM_figure(fits.posDiff, 'preThreshold', 20, 'title', 'Positive current', 'cbTitle', 'B_{111}', 'xc', xc,'yc', yc, 'mustBe', 'pos');
 
 %f3=figure; imagesc( B111ferro ); axis equal tight; caxis(-.1 + [-rng rng]); colorbar; colormap(gca, turbo(512)); title('Positive + negative ferro B_{111} (gauss)'); set(gca,'YDir','normal');
-[f3, ~, ~] = QDM_figure(fits.B111ferro, 'preThreshold', 20, 'title', 'Positive + negative (ferro)', 'cbTitle', 'B_{111}');
+[f3, ~, ~] = QDM_figure(fits.B111ferro, 'preThreshold', 5, 'title', 'Positive + negative (ferro)', 'cbTitle', 'B_{111}');
 
 %f4=figure; imagesc(ledImg); axis equal tight; colorbar; colormap(gca, gray(512)); caxis auto; title('LED image'); set(gca,'YDir','normal');
 [f4, ~, ~] = QDM_figure(fits.ledImg, 'preThreshold', 20, 'led', true, 'title', 'LED image', 'xc', xc,'yc', yc);
