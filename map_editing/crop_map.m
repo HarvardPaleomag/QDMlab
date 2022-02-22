@@ -9,6 +9,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.row = false;
     kwargs.col = false;
+    kwargs.even = true; %enforce even dimensions in crop to be compatible with downstream fft functions
     kwargs.title = 'Select area to crop';
 end
 
@@ -25,6 +26,15 @@ if ~kwargs.row & ~kwargs.col
 else
     row = kwargs.row;
     col = kwargs.col;
+end
+
+if kwargs.even
+    if ~mod(row(2)-row(1),2)
+        row(2)=row(2)-1;
+    end
+    if ~mod(col(2)-col(1),2)
+        col(2)=col(2)-1;
+    end
 end
 
 [~, dataName, ledName] = is_B111(expData);
@@ -52,9 +62,10 @@ end
 
 %% save data with new fileName
 if kwargs.save
+    fullpath=filePath;
     [filePath,fileName,~]=fileparts(filePath);
     
-    iFileNew = strrep(filePath, '.mat','_Cropped.mat');
+    iFileNew = strrep(fullpath,'.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
     saveas(fig,fullfile(filePath, sprintf('%s_crop.png', fileName)))
     save(iFileNew,'-struct','expData');
