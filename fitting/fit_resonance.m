@@ -1,4 +1,4 @@
-function fit = fit_resonance(expData, binSize, nRes, kwargs)
+function fit = fit_resonance(expData, header, binSize, nRes, kwargs)
 %[fit] = fit_resonance(expData, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
@@ -56,6 +56,7 @@ function fit = fit_resonance(expData, binSize, nRes, kwargs)
 
 arguments
     expData struct
+    header struct
     binSize double
     nRes (1, 1) int16
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
@@ -89,7 +90,7 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
+[binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
 
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions
@@ -254,7 +255,7 @@ logMsg('info',msg,1,0);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
-states(chiSquares > 5e-4) = 5;
+% states(chiSquares > 5e-4) = 5;
 
 fit = make_fit_struct(fit, initialPreGuess, initialGuess, parameters, states, ...
     chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
@@ -313,7 +314,7 @@ initialGuess(1, :) = -abs(((mx - mn)./mx));
 
 % center frequency
 [~, idx] = sort(gpudata);
-l = 7; % lowest n values
+l = 10; % lowest n values
 mxidx = max(idx(1:l, :));
 mnidx = min(idx(1:l, :));
 
@@ -351,6 +352,7 @@ switch diamond
         guess(5, :) = abs(parameters(1, :)); % amplitude (contrast)
         guess(6, :) = parameters(4, :) - 1; % baseline
     case {'N15', 'doublet'}
+        guess(2, :) = 0.0004; % width
         guess(3, :) = -parameters(1, :); % amplitude (contrast)
         guess(4, :) = -parameters(1, :); % amplitude (contrast)
         guess(5, :) = parameters(4, :) - 1; % baseline

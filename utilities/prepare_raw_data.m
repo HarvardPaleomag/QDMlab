@@ -1,4 +1,4 @@
-function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
+function [binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, kwargs)
 %[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes; 'gpuData')
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
@@ -24,22 +24,20 @@ function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, kwargs)
 
 arguments
     expData
+    header
     binSize
     nRes
     kwargs.gpuData = false
     kwargs.crop = 'none'
     kwargs.normalize = true
     kwargs.fcrop  = false
-
 end
 
 dataStack = expData.(sprintf('imgStack%i',nRes));
 
-if nRes == 1
-    freq = expData.freqList(1:expData.numFreqs) / 1E9;   %everything is in GHz
-else
-    freq = expData.freqList(1+expData.numFreqs : 2*expData.numFreqs) / 1E9;
-end
+fRanges = get_franges(expData, header);   %everything is in GHz
+
+freq = fRanges{nRes};
 
 %% data preparation
 % X/Y of unbinned data
