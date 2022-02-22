@@ -112,13 +112,20 @@ for fileNum=startN:1:endN
     
     %%% select header and data file
     dataFile = dataFiles(fileNum).name;
+    headerFile = strrep(dataFile,'.mat','_header.txt');
     
     loadStart = tic; % for timing 
     msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
     logMsg('debug',msg,1,0);
     
+    % read data & header
     expData = load(fullfile(dataFolder, dataFile));
-
+    header = read_header(fullfile(dataFolder, headerFile));
+    
+    % add path to header struct
+    header.dFile = fullfile(dataFolder, dataFile);
+    header.headerFile = fullfile(dataFolder, headerFile);
+    
     msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
     logMsg('info',msg,1,1);
 
@@ -126,14 +133,14 @@ for fileNum=startN:1:endN
     
     for nRes = 1:2
         side = sides{nRes};
-        
+        fRanges = get_franges(expData, header);
         % get the fcrop values for each side only one time
         if kwargs.fcrop
             n = expData.numFreqs;
             if nRes == 1 & all(lowCropIdx == [0,0])
-                lowCropIdx = pick_fcrop(expData.disp1, expData.freqList(1:n));
+                lowCropIdx = pick_fcrop(expData.disp1, fRanges{1});
             elseif nRes == 2 & all(highCropIdx == [0,0])
-                highCropIdx = pick_fcrop(expData.disp2, expData.freqList(n+1:end));
+                highCropIdx = pick_fcrop(expData.disp2, fRanges{2});
             end
         end
         
@@ -143,7 +150,7 @@ for fileNum=startN:1:endN
             kwargs.fcrop = highCropIdx;
         end
         
-        Resfit = fit_resonance(expData, binSize, nRes, ...
+        Resfit = fit_resonance(expData, header, binSize, nRes, ...
             'type',kwargs.type, ...
             'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
@@ -208,7 +215,8 @@ for fileNum=startN:1:endN
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
     pixelAlerts = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
     fits.(['pixelAlerts' pol]) = pixelAlerts;
-
+    fits.(['header' pol]) = header;
+    
     %% SAVE FIT RESULTS%
     if kwargs.save
         folderName = sprintf('%ix%iBinned', binSize, binSize);

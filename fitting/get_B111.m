@@ -37,23 +37,23 @@ if type == 'np  '
     posB111Output = load(fullfile(dataFolder, folderName, 'run_00001.matdeltaBFit.mat'));
     
     negDiff = - real( (negB111Output.Resonance2-negB111Output.Resonance1)/2 / gamma );
-    posDiff = real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
+    posDiff =   real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
 
     B111ferro = (posDiff + negDiff)/2;
-    B111para = (posDiff - negDiff)/2;
+    B111para  = (posDiff - negDiff)/2;
 else
   if type == 'nppn'
     negB111Output = load(fullfile(dataFolder, folderName, 'run_00000.matdeltaBFit.mat'));
     posB111Output = load(fullfile(dataFolder, folderName, 'run_00001.matdeltaBFit.mat'));
     
     negDiff = - real( (negB111Output.Resonance2-negB111Output.Resonance1)/2 / gamma );
-    posDiff = real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
+    posDiff =   real( (posB111Output.Resonance2-posB111Output.Resonance1)/2 / gamma );
     
     negB111Output2 = load(fullfile(dataFolder, folderName, 'run_00003.matdeltaBFit.mat'));
     posB111Output2 = load(fullfile(dataFolder, folderName, 'run_00002.matdeltaBFit.mat'));
     
     negDiffR = - real( (negB111Output2.Resonance2-negB111Output2.Resonance1)/2 / gamma );
-    posDiffR = real( (posB111Output2.Resonance2-posB111Output2.Resonance1)/2 / gamma );
+    posDiffR =   real( (posB111Output2.Resonance2-posB111Output2.Resonance1)/2 / gamma );
     
     B111ferro = (posDiff + negDiff + posDiffR + negDiffR)/4;  %must divide ferro part by 2
     B111para = (posDiff - negDiff + posDiffR - negDiffR)/4;
