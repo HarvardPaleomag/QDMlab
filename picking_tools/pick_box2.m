@@ -1,5 +1,5 @@
 function [row, col] = pick_box2(kwargs)
-%[row, col] = pick_box2('expData', 'title', 'point', 'even')
+%[row, col] = pick_box2('expData', 'title', 'point', 'even', 'dataName', 'sort', 'close')
 %
 % Parameters
 % ----------

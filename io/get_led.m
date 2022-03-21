@@ -1,4 +1,5 @@
 function ledData = get_led(path, kwargs)
+%[ledData] = get_led(path; 'data')
 %[laserData] = get_laser(path; 'data')
 
 arguments

@@ -1,5 +1,5 @@
 function [nROI, coordinates] = pick_box(data, kwargs)
-%[nROI, coordinates] = pick_box(data; 'led', 'closeFig', 'returnCoordinates', 'title')
+%[nROI, coordinates] = pick_box(data; 'led', 'closeFig', 'returnCoordinates', 'title', 'n')
 % 
 % positional parameters
 %     data: QDM/LED data

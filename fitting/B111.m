@@ -1,4 +1,5 @@
 function d = B111(finalFits, plots)
+%[d] = B111(finalFits; 'resonanceFieldPlot', 'centerShiftPlot', 'fieldsPlot', 'centerShiftDistribution')
     arguments
         finalFits
         plots.resonanceFieldPlot {mustBeBoolean(plots.resonanceFieldPlot)} = false

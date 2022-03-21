@@ -1,4 +1,5 @@
 function [cLim] = get_colorscale(data, method, kwargs, filter)
+%[cLim] = get_colorscale(data, method; 'method', 'symmetric', 'mustBe', 'std', 'nOutlier')
 
 arguments
     data

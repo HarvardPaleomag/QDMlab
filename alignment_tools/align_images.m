@@ -1,5 +1,5 @@
 function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
-%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'laser')
+%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'reference', 'laser')
 % Function to aling a set of images. Function will automatically align the
 % images first and you can check if it is ok. If not the complex alignment
 % will be called.

@@ -1,4 +1,5 @@
 function [idx] = pick_fcrop(meanData,freq)
+%[idx] = pick_fcrop(meanData, freq)
     figure
     axis tight
     plot(freq, meanData, '.-');

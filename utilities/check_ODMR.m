@@ -1,5 +1,5 @@
 function check_ODMR(folder, laser, rawDataPos, rawDataNeg)
-%check_ODMR(folder, laser, rawDataPos, rawDataNeg; 'laser', 'rawDataPos', 'rawDataNeg')
+%check_ODMR(folder, laser, rawDataPos, rawDataNeg; 'folder', 'laser', 'rawDataPos', 'rawDataNeg')
     
 arguments
     folder = 'none'

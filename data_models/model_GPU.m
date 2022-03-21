@@ -1,5 +1,5 @@
 function model = model_GPU(p, freq, kwargs)
-%[model] = model_GPU(p, freq; 'diamond', 'data', 'checkPlot')
+%[model] = model_GPU(p, freq; '['N15',', 'data', 'checkPlot')
 % calculates a model from the fitting parameters from GPU_fit
 % depending on the diamond type
 % 

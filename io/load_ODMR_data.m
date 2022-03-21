@@ -1,4 +1,5 @@
 function runFiles = load_ODMR_data(folder)
+%[runFiles] = load_ODMR_data(folder)
 
 runFiles = dir(fullfile(folder, 'run_*.mat'));
 

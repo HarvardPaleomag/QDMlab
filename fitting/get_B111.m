@@ -1,4 +1,5 @@
 function fit = get_B111(dataFolder, folderName, type, fit, binSize, kwargs)
+%[fit] = get_B111(dataFolder, folderName, type, fit, binSize; 'checkPlot', 'crop')
 %[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot')
 
 arguments

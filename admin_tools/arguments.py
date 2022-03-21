@@ -140,7 +140,7 @@ def first_line_comments(reload = False, save = False):
                 line += '; '
         if args_list:
             line += '\''+ '\', \''.join(args_list) + '\''
-        line += ')\r\n'
+        line += ')\n'
 
         with open(func_files[func]['funcPath'], 'r+', encoding='latin-1') as f:
             lines = f.readlines()

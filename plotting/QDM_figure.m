@@ -1,5 +1,5 @@
 function [fig, ax, im] = QDM_figure(data, kwargs, filter) 
-%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'cLim', 'std', 'scaleBar', 'pixelSize', 'filterProps', 'preThreshold', 'mustBe')
+%[fig, ax, im] = QDM_figure(data; 'data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'cLim', 'symmetricCLim', 'method', 'std', 'scaleBar', 'pixelSize', 'nOutlier', 'filterProps', 'preThreshold', 'mustBe')
 % Creates a QDM figure
 %
 % Parameter
@@ -233,6 +233,7 @@ hold(ax, 'off');
 end
 
 function bool = isLED(data)
+%[bool] = isLED(data)
     data = data(~isnan(data));
     bool = all(logical(~rem(data(:),1)));
 end

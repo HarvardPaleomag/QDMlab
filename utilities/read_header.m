@@ -1,4 +1,5 @@
 function header = read_header(file)
+%[header] = read_header(file)
 
 data = importdata(file);
 

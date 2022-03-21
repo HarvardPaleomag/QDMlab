@@ -1,4 +1,5 @@
 function [meanData freq struct] = load_mean_spectra(folder)
+%[meanDatafreqstruct] = load_mean_spectra(folder)
 runFiles = dir(fullfile(folder, 'run_*.mat'));
 headerFiles = dir(fullfile(folder, 'run_*header.txt'));
 headerNames = {};

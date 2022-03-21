@@ -1,5 +1,5 @@
 function fits = GPU_fit(dataFolder, binSize, kwargs)
-%[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', 'diamond', 'slopeCorrection')
+%[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', '['N15',', 'slopeCorrection', 'crop', 'fcrop')
 
 % Parameters
 % ----------

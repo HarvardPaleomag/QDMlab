@@ -1,5 +1,5 @@
 function check_fits(finalFits, rawDataPos, rawDataNeg)
-%check_fits(Bzdata, rawDataPos, rawDataNeg)
+%check_fits(finalFits, rawDataPos, rawDataNeg)
     close all
     disp(['<>   reshaping data: ' num2str(rawDataPos.numFreqs) 'x' num2str(rawDataPos.imgNumCols) 'x' num2str(rawDataPos.imgNumRows)])
     dataPosLeft = reshapeImg(rawDataPos.imgStack1, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);

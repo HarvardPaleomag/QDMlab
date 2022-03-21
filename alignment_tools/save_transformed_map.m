@@ -1,4 +1,5 @@
 function save_transformed_map(movingPath, referenceData, kwargs)
+%save_transformed_map(movingPath, referenceData; 'reference', 'save', 'checkPlot')
 arguments
     movingPath
     referenceData
