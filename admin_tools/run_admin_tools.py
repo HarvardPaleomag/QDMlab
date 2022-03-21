@@ -1,7 +1,8 @@
 import os, sys
 path = os.path.dirname(__file__)
+path = os.path.abspath(os.path.join(os.path.dirname(path), '..'))
 
-sys.path.append(os.path.split(path)[0])
+sys.path.append(path)
 
 import admin_tools
 from admin_tools import arguments
