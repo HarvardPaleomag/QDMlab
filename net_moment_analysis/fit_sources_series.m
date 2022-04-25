@@ -1,5 +1,5 @@
 function results = fit_sources_series(nFolders, kwargs, constrains, filter)
-%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'downSample', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
+%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'std', 'downSample', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -88,6 +88,7 @@ arguments
     kwargs.nROI = false;
     kwargs.pixelSize = 4.68e-6;
     kwargs.nRuns = 10;
+    kwargs.std = 2;
     kwargs.downSample = 1; % speedup
 
     kwargs.save = false;
@@ -104,6 +105,7 @@ arguments
     constrains.minheight = 0;
     constrains.maxheight = 100e-6;
     constrains.boxwidth = 100e-6;
+    
 
     filter.filterProps struct = struct();
 end
@@ -150,7 +152,7 @@ fixedLed = fixed.(ledName);
 if ~islogical(kwargs.nROI)
     nROI = kwargs.nROI;
 else
-    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true);
+    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true,'std',kwargs.std);
 end
 
 numberoffolders = size(nFolders, 2);

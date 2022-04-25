@@ -65,7 +65,8 @@ arguments
     kwargs.symmetricCLim = true
     
     kwargs.method = 'std'
-    kwargs.std {mustBeInteger} = 8;
+    %kwargs.std {mustBeInteger} = 8;
+    kwargs.std = 8;
     
     kwargs.scaleBar = false
     kwargs.pixelSize = 4.7e-6
