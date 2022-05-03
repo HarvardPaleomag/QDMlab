@@ -308,8 +308,8 @@ function initialGuess = get_initial_guess(gpudata, freq, diamond)
 initialGuess = zeros(4, size(gpudata, 2), 'single');
 
 % amplitude
-mx = nanmax(gpudata);
-mn = nanmin(gpudata);
+mx = max(gpudata, [], 'omitnan');
+mn = min(gpudata, [], 'omitnan');
 initialGuess(1, :) = -abs(((mx - mn)./mx));
 
 % center frequency
