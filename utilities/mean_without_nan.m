@@ -1,4 +1,5 @@
 function meanD = mean_without_nan(data)
+%[meanD] = mean_without_nan(data)
 % takes a QDM image stack and returns the mean for only those pixels, tat
 % do not contain NaN in the data
 
