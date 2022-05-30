@@ -26,4 +26,6 @@ for i = idx
     runFiles(i).header = read_header(fullfile(headerFiles(i).folder, headerFiles(i).name));
 end
 
+msg = sprintf('%i file(s) in %s successfully loaded', size(idx,2), folder);
+logMsg('debug',msg,1,0);
 end
