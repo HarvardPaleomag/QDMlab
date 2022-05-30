@@ -20,6 +20,11 @@ arguments
     kwargs.title = 'select file/directory';
     kwargs.MultiSelect = 'off';
     kwargs.single = false;
+    kwargs.filter='*.mat'
+end
+
+if isstruct(nFolders)
+    return
 end
 
 if strcmp(nFolders, 'none')
@@ -42,7 +47,7 @@ if strcmp(nFolders, 'none')
         
     end
     if strcmp(kwargs.type, 'file')
-        [file,path] = uigetfile('title', kwargs.title, 'MultiSelect', kwargs.MultiSelect);
+        [file,path] = uigetfile(kwargs.filter, kwargs.title, 'MultiSelect', kwargs.MultiSelect);
         if strcmp(kwargs.MultiSelect,'on')
             for f = file
                 f = fullfile(path, f);
