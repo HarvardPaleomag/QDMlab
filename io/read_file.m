@@ -13,19 +13,24 @@ dataFull = load(fullfile(runFile.folder, ...
         runFile.name));
 
 if isfield(dataFull, 'imgStack3')
-    data.left = [dataFull.imgStack1; dataFull.imgStack2];
-    data.right = [dataFull.imgStack3; dataFull.imgStack4];
+    data.lowData = [dataFull.imgStack1; dataFull.imgStack2];
+    data.highData = [dataFull.imgStack3; dataFull.imgStack4];
 else
-    data.left = dataFull.imgStack1;
-    data.right = dataFull.imgStack2;
+    data.lowData = dataFull.imgStack1;
+    data.highData = dataFull.imgStack2;
 end
 
-data.leftMean = mean_without_nan(data.left);
-data.rightMean = mean_without_nan(data.right);
+% add mean spectra
+data.lowMean = mean_without_nan(data.lowData);
+data.highMean = mean_without_nan(data.highData);
+
+data.numFreqs = dataFull.numFreqs;
+data.imgNumCols = dataFull.imgNumCols;
+data.imgNumRows = dataFull.imgNumRows;
 
 %% frequencies in GHz
-data.leftF = dataFull.freqList(1:size(data.left))/1e9;
-data.rightF = dataFull.freqList(size(data.left)+1:end)/1e9;
+data.fLow = dataFull.freqList(1:size(data.lowData))'/1e9;
+data.fHigh = dataFull.freqList(size(data.highData)+1:end)'/1e9;
 
 msg = sprintf('File << %s >> in %s successfully loaded', runFile.name, runFile.folder);
 logMsg('debug',msg,1,0);
