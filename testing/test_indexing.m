@@ -2,9 +2,10 @@ clear all
 close all
 clc
 logLevel = 'debug';
-expData = load('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/QDM_data/NRM_MIL/run_00000.mat');
+expData = load("C:\Users\micha\OneDrive\Desktop\NRM\FOV1\run_00000.mat");
+header = read_header("C:\Users\micha\OneDrive\Desktop\NRM\FOV1\run_00000_header.txt");
 %%
-[binDataNorm, freq] = prepare_raw_data(expData, 1, 1);
+[binDataNorm, freq] = prepare_raw_data(expData, header, 1, 1, normalize=false);
 %%
 data = QDMreshape(expData.imgStack1, expData.imgNumRows, expData.imgNumCols);
 %%
