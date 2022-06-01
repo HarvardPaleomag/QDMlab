@@ -6,6 +6,7 @@ function [row, col] = index2xy(index, shape, kwargs)
 %   index in reshaped array
 % nRows: int
 %   number of Rows in unbinned array
+%
 % Returns
 % -------
 %     x: int
@@ -13,8 +14,13 @@ function [row, col] = index2xy(index, shape, kwargs)
 %     y: int
 %         y(row) coordinate of pixel
 % type: str (gpu)
-%    can be 'gpu' or 'binDataNorm'
-% See also xy2index
+%    can be 'gpu' or 'raw'
+%    if raw: index is asssumed to be from the raw (i.e. expData) array
+%    if gpu: index is assumed to be from the gpu array
+%
+% See also
+% --------
+%   xy2index
 
 arguments
     index
@@ -22,9 +28,8 @@ arguments
     kwargs.type = 'gpu';
 end
 
-
 switch kwargs.type
-    case 'binDataNorm'
+    case 'raw'
         row = fix(index / shape(2))+1; % without remainder
         col = mod(index, shape(2));    % remainder
 
