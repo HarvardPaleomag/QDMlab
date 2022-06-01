@@ -1,4 +1,4 @@
-function globalFraction = globalFraction_estimator(kwargs)
+function globalFraction = globalFraction_estimator(expData, kwargs)
 %[globalFraction] = globalFraction_estimator('expData', 'binSize', 'nRun', 'nRes')
 %
 % Parameters
@@ -18,27 +18,29 @@ function globalFraction = globalFraction_estimator(kwargs)
 %% load/prepare data
 
 arguments
-    kwargs.expData = 'none'
+    expData = 'none'
+    kwargs.header = 'none'
     kwargs.binSize = 'none'
     kwargs.nRun = 'none'
     kwargs.nRes = 'none'
 end
 
+
+%% load data
+expData = automatic_input_ui__(expData, 'type', 'file', 'single', true, 'title','select run_000*.mat file');
+
+% if no expData structure was passed, the file needs to be loaded
+if ~isstruct(expData)
+    msg = sprintf('loading: %s', expData);
+    logMsg('debug',msg,1,0);
+    expData = load(expData);
+end
+
 defaults = struct('binSize', 4, 'nRun',1, 'nRes', 1);
 kwargs = ask_arguments(kwargs, defaults);
 
-if ~isstruct(kwargs.expData)
-    filePath = automatic_input_ui__(kwargs.expData, 'type', 'dir', 'single', true);
-    fileName = sprintf('run_0000%i.mat', kwargs.nRun - 1);
-    msg = sprintf('loading: %s', fullfile(filePath, fileName));
-    logMsg('debug',msg,1,0);
-    expData = load(fullfile(filePath, fileName));
-else
-    expData = kwargs.expData;
-end
-
-
-[binDataNorm, freq] = prepare_raw_data(expData, kwargs.binSize, kwargs.nRes);
+[binDataNorm, freq] = prepare_raw_data(expData, kwargs.binSize, kwargs.nRes, kwargs.header);
+nCol = size(binDataNorm, 2);
 
 %% remove non fitting pixels
 % transform data back into picel by pixel col by col data
@@ -47,7 +49,7 @@ imgStack = QDMreshape_reverse(binDataNorm, nFreq);
 stdD = std(imgStack, 'omitnan');
 pixErr = stdD < 1e-3; % find idx of pixels with std close to zero -> all freqs have same value
 
-%% determine indices
+%% determine indices of binned image
 [~, idxMin] = min(imgStack, [], 'omitnan');
 idxMin(pixErr) = nan;
 
@@ -56,7 +58,6 @@ idxMin(pixErr) = nan;
 
 %%
 globalMean = squeeze(mean(binDataNorm, [1,2]));
-nCol = size(binDataNorm, 2);
 
 %% figure
 % initialize UI figure
@@ -70,7 +71,7 @@ ax3 = axes('Parent',f,'position',[0.7 0.3  0.25 0.54]);
 
 %% plot pixels
 %% left most pixel
-[x1,y1] = index2xy(iMin, nCol, 'type', 'binDataNorm');
+[y1,x1] = index2xy(iMin, size(binDataNorm), 'type', 'raw');
 plot(ax1, freq, squeeze(binDataNorm(y1,x1,:)), 'k','lineWidth',1);
 hold(ax1, 'on');
 plot(ax1, freq, globalMean, 'b:','lineWidth',1)
@@ -79,7 +80,7 @@ title(ax1, 'min(min) pixel')
 
 %% center pixel random
 randInt = randi(size(idxMin,2));
-[x2,y2] = index2xy(randInt, nCol, 'type', 'binDataNorm');
+[y2,x2] = index2xy(randInt, size(binDataNorm), 'type', 'raw');
 p2_data = plot(ax2, freq, squeeze(binDataNorm(y2,x2,:)), 'k','lineWidth',1);
 hold(ax2, 'on');
 globalPlot = plot(ax2,freq, globalMean, 'b:','lineWidth',1);
@@ -90,7 +91,7 @@ legend([p2_data, globalPlot, p2], 'data', 'global', 'corrected','Location','sout
 legend('boxoff')
 
 %% right most pixel
-[x3,y3] = index2xy(iMax, nCol, 'type', 'binDataNorm');
+[y3,x3] = index2xy(iMax, size(binDataNorm), 'type', 'raw');
 plot(ax3, freq, squeeze(binDataNorm(y3,x3,:)), 'k','lineWidth',1);
 hold(ax3, 'on');
 plot(ax3, freq, globalMean, 'b:','lineWidth',1);
@@ -107,7 +108,7 @@ end
 % select pixel option
 nPixels = size(binDataNorm,1) * size(binDataNorm,2);
 idx = uicontrol(f, ...
-    'Units', 'normalized', 'Position',[0.15 0.85 0.8 0.1],...
+    'Units', 'normalized', 'Position',[0.15 0.91 0.8 0.05],...
     'Style','slider','Min',1,'Max',nPixels,'SliderStep',[1/nPixels nCol/nPixels]);
 idx.Value = randInt;
 label1 = uicontrol('style','text', ...
@@ -116,26 +117,27 @@ label1 = uicontrol('style','text', ...
                    'Units', 'normalized', 'Position',[0.04 0.855 0.1 0.1]);
 label1.String = 'index';
 
+% select globalFraction
 sld = uicontrol(f, ...
-            'Units', 'normalized', 'Position',[0.15 0.05 0.8 0.1],...
+            'Units', 'normalized', 'Position',[0.15 0.11 0.8 0.05],...
             'Style','slider','Min',0,'Max',1,'SliderStep',[0.01 0.10]);
 sld.Value = 0;
 label1 = uicontrol('style','text', ...
                    'HorizontalAlignment', 'right', ...
                    'FontSize',12,...
-                   'Units', 'normalized', 'Position',[0.04 0.055 0.1 0.1])
+                   'Units', 'normalized', 'Position',[0.04 0.055 0.1 0.1]);
 label1.String = 'globalFraction [0.00]';
 
 % listeners for callback
 addlistener(sld, 'Value', 'PostSet',@(src,event) updatePlot(src, event, binDataNorm, globalMean, x1,x2,x3,y1,y2,y3, p1,p2,p3,f));
-addlistener(idx, 'Value', 'PostSet',@(src,event) updateRand(src, event, binDataNorm, globalMean, x2,y2,p2,p2_data,nCol,sld));
+addlistener(idx, 'Value', 'PostSet',@(src,event) updateRand(src, event, binDataNorm, globalMean, p2, p2_data, sld));
 
 % functions
-function updateRand(src, event, binDataNorm, globalMean, x2,y2,p2,p2_data, nCol, sld)
+function updateRand(src, event, binDataNorm, globalMean, p2,p2_data, sld)
 %updateRand(src, event, binDataNorm, globalMean, x2, y2, p2, p2_data, nCol, sld)
 
     idx.Value = round(idx.Value);
-    [x2,y2] = index2xy(idx.Value, nCol, 'type', 'binDataNorm');
+    [y2,x2] = index2xy(idx.Value, size(binDataNorm), 'type', 'raw');
 
     drand = correct_global(binDataNorm(y2,x2,:), sld.Value, 'mean', globalMean);
     set(p2_data, 'ydata', squeeze(binDataNorm(y2,x2,:)))
