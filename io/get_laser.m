@@ -14,12 +14,12 @@ if ~isequal(kwargs.data, false)
 end
 
 if isfile(path)
-    msg = sprintf('File was passed instead of path.', numel(laserFiles));
+    msg = sprintf('File was passed instead of path.');
     logMsg('debug',msg,1,0);
     [path, ~, ~] = fileparts(path);
 end
 
-laserFiles = {}
+laserFiles = {};
 n = 0;
 path_ = path;
 
@@ -31,7 +31,7 @@ while numel(laserFiles) == 0
     laserFiles = dir(fullfile(path_,'laser.*'));
 
     if numel(laserFiles) == 0
-        msg = sprintf('NO laser.* files found! Going up one directory', numel(laserFiles));
+        msg = sprintf('NO laser.* files found! Going up one directory');
         logMsg('error',msg,1,0);
         splitPath = split(path_, filesep);
         path_ = fullfile(splitPath{1:end-1});
