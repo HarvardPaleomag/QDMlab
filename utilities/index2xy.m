@@ -1,11 +1,16 @@
 function [row, col] = index2xy(index, shape, kwargs)
 %[row, col] = index2xy(index, shape; 'type')
-% returns the x,y coordinates of a pixel given the index of the gpu array
+% returns the x,y coordinates of a pixel given the index of a flattened
+% array.
 %
 % index: int
-%   index in reshaped array
-% nRows: int
-%   number of Rows in unbinned array
+%   index in flattened array (either gpudata or expData)
+% shape: int
+%   shape of the output array (e.g. binDataNorm)
+% type: str (gpu)
+%    can be 'gpu' or 'raw'
+%    if raw: index is asssumed to be from the raw (i.e. expData) array
+%    if gpu: index is assumed to be from the gpu array
 %
 % Returns
 % -------
@@ -13,10 +18,6 @@ function [row, col] = index2xy(index, shape, kwargs)
 %         x(column) coordinate of pixel
 %     y: int
 %         y(row) coordinate of pixel
-% type: str (gpu)
-%    can be 'gpu' or 'raw'
-%    if raw: index is asssumed to be from the raw (i.e. expData) array
-%    if gpu: index is assumed to be from the gpu array
 %
 % See also
 % --------
