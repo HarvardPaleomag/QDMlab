@@ -13,11 +13,12 @@ QDM_figure(data.B111para)
 
 
 %% N14
-expData14 = load('D:\data\mike\NRM\run_00000.mat');
+logLevel = 'debug';
+expData14 = load("C:\Users\micha\OneDrive\Desktop\NRM\FOV1\run_00000.mat");
 %%
 [binDataNorm, freq] = prepare_raw_data(expData14, 4, 1);
 %%
-[fit, initialGuess, badPixels] = fit_resonance(expData14, 4, 1, 'checkPlot', 1);
+fit = fit_resonance(expData14, 4, 1, 'checkPlot', 1);
 %%
 fits = GPU_fit('D:\data\mike\NRM', 4, 'diamond', 'N14');
 %%
