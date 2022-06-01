@@ -7,7 +7,7 @@ arguments
     rawDataPos = false
     rawDataNeg = false
 end
-    folder = automatic_input_ui__(folder, 'single', 1);
+    folder = automatic_input_ui__(folder, 'single', 1, 'title', 'select data folder');
 
     if isequal(rawDataPos, false)
         rawDataPos = load(fullfile(folder, 'run_00000.mat'));
@@ -18,7 +18,7 @@ end
     
     close all
     
-    dataPosLeft = prepare_raw_data(rawDataPos, 1, 1);%QDMreshape(rawDataPos.imgStack1, rawDataPos.imgNumRows, rawDataPos.imgNumCols);
+    dataPosLeft = prepare_raw_data(rawDataPos, 1, 1);
     dataPosRight =  prepare_raw_data(rawDataPos, 1, 2);
     dataNegLeft = prepare_raw_data(rawDataNeg, 1, 1);
     dataNegRight =  prepare_raw_data(rawDataNeg, 1, 2);
@@ -31,28 +31,31 @@ end
     meanNegRight = squeeze(mean(crop_data(dataNegRight, mask), [1,2], 'omitnan'));
 
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
-%     freqList = [rawDataPos.freqList;rawDataPos.freqList]';
 
     laser = get_laser(folder);     
     led = get_led(folder);
     ratio = min(size(laser))/max(size(laser));
+
     % Create image
-    f = figure('Units', 'normalized');
-    set(gcf,'OuterPosition',[0.05,0.05,0.7,0.9*ratio]);
+    fig = figure('Units', 'normalized');
+    set(gcf,'OuterPosition',[0.05,0.05,0.7,1*ratio]);
     
     % plot QDM data
     ax1 = subplot(2,2,1);
     LED = imagesc(led,'Parent',ax1,'CDataMapping','scaled');
     colormap(ax1, 'bone');
+    title('reflected light')
     axis equal, axis tight, axis xy
     
     ax2 = subplot(2,2,2);
     LASER = imagesc(laser,'Parent',ax2,'CDataMapping','scaled');
     colormap(ax2, 'gray');
-    linkaxes([ax1 ax2]);
-    
+    title('laser')
     axis equal, axis tight, axis xy
     
+    linkaxes([ax1 ax2]);
+    movegui(fig,'center')
+
     n = 0;
     points = 0;
     set(LED,'ButtonDownFcn',@buttonSelectPixel)
@@ -88,7 +91,7 @@ end
         plot(ax3, freqList(:,1), meanNegLeft, '.--')
         plot(ax3, freqList(:,1), squeeze(dataPosLeft(round(y), round(x), :)))
         plot(ax3, freqList(:,1), squeeze(dataNegLeft(round(y), round(x), :)))
-        legend('mean(+)', 'mean(-)', '+', '-');
+        legend('mean(+)', 'mean(-)', '+', '-', 'Location', 'southeast');
         ylabel('Intensity')
         xlabel('f (Hz)')
 
@@ -101,10 +104,11 @@ end
         plot(ax4, freqList(:,2), meanNegRight, '.--')
         plot(ax4, freqList(:,2), squeeze(dataPosRight(round(y), round(x),:)));
         plot(ax4, freqList(:,2), squeeze(dataNegRight(round(y), round(x),:)))
-        legend('mean(+)', 'mean(-)', '+', '-');
+        legend('mean(+)', 'mean(-)', '+', '-', 'Location', 'southeast');
 
         ylabel('Intensity')
         xlabel('f (Hz)')
+
     end
 end
 
