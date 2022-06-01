@@ -12,7 +12,7 @@ function fRanges = get_franges(expData, header)
 
 arguments
     expData
-    header
+    header = 'none'
 end
 
 try

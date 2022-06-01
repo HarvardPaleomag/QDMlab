@@ -1,4 +1,4 @@
-function fit = fit_resonance(expData, header, binSize, nRes, kwargs)
+function fit = fit_resonance(expData, binSize, nRes, header, kwargs)
 %[fit] = fit_resonance(expData, header, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
@@ -56,9 +56,9 @@ function fit = fit_resonance(expData, header, binSize, nRes, kwargs)
 
 arguments
     expData struct
-    header struct
     binSize double
     nRes (1, 1) int16
+    header = 'none'
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
     kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
@@ -90,7 +90,7 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
 
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions
