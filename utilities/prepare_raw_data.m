@@ -1,4 +1,4 @@
-function [binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, kwargs)
+function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, kwargs)
 %[binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes; 'gpuData', 'crop', 'normalize', 'fcrop')
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
@@ -24,9 +24,9 @@ function [binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, 
 
 arguments
     expData
-    header
     binSize
     nRes
+    header = 'none'
     kwargs.gpuData = false
     kwargs.crop = 'none'
     kwargs.normalize = true
