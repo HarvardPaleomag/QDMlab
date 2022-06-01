@@ -99,11 +99,6 @@ end
 
 %% return gpudata if kwargs.gpuData == true
 if isequal(kwargs.gpuData, true)
-    [sizeY,sizeX, sweepLength] = size(binDataNorm, [1,2,3]);
-    imgPts = sizeX*sizeY;
-    gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
-    gpudata = transpose(gpudata); %transpose to make it 51 x pixels
-    gpudata = single(gpudata);
-    binDataNorm = gpudata;
+    binDataNorm = gpu_data_reshape(binDataNorm);
 end
 
