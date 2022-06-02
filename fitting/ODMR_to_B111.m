@@ -106,8 +106,8 @@ for i = 1:size(nFolders,2)
             msg = sprintf('copying laser.jpg, laser.csv into %s', dataFolder);
             logMsg('info',msg,1,0);
 
-            copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName))
-            copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName))
+            copyfile(fullfile(dataFolder, 'laser.csv'),fullfile(dataFolder, folderName), 'f')
+            copyfile(fullfile(dataFolder, 'laser.jpg'),fullfile(dataFolder, folderName), 'f')
 
             fName = sprintf('final_fits_(%ix%i).mat', binSize, binSize);
             msg = sprintf('saving %s into %s', fName, dataFolder);
