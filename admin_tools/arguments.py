@@ -114,7 +114,7 @@ def detect_indent(l):
             break
     return out
 
-def first_line_comments(reload = False, save = False):
+def first_line_comments(reload = False, save = False, debug=False):
     """
     Function to automatically add the first line comment. Adds all possible parameters to it.
     """
@@ -124,11 +124,21 @@ def first_line_comments(reload = False, save = False):
         if 'GPUfit_MATLAB' in func_files[func]['funcPath']:
             continue
 
-        p = ', '.join([k for k in func_files[func]['parameters'] if not k in ['kwargs', 'filter', 'cline_idx', 'funcPath']])
         if 'kwargs' in func_files[func]:
             args_list = [k for k in func_files[func]['kwargs'].keys()]
         else:
             args_list = []
+
+        p = [k for k in func_files[func]['parameters']
+                       if not k in ['kwargs', 'filter', 'cline_idx', 'funcPath']]
+
+        if 'kwargs' in func_files[func]:
+            p = [k for k in p if not k in func_files[func]['kwargs'].keys()]
+
+        p = ', '.join(p)
+
+        if debug:
+            print(func, p, args_list)
 
         line = func_files[func]['indent']+'%'
         if func_files[func]['returns']:
