@@ -1,4 +1,5 @@
 function gpudata = gpu_data_reshape(binDataNorm)
+%[gpudata] = gpu_data_reshape(binDataNorm)
 % function takes the binDataNorm style (e.g. 1200x1920) data array and
 % transforms it into the gpu formatted array
 

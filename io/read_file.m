@@ -1,4 +1,5 @@
 function data = read_file(runFile)
+%[data] = read_file('runFile')
 arguments 
     runFile = 'none'
 end

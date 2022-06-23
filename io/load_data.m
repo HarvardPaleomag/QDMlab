@@ -1,4 +1,5 @@
 function runFiles = load_data(folder, polarity)
+%[runFiles] = load_data('folder', 'polarity')
 % loads the data from a specific folder
 %
 

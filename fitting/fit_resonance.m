@@ -1,5 +1,5 @@
 function fit = fit_resonance(expData, binSize, nRes, header, kwargs)
-%[fit] = fit_resonance(expData, header, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
+%[fit] = fit_resonance(expData, binSize, nRes; 'header', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -52,7 +52,6 @@ function fit = fit_resonance(expData, binSize, nRes, header, kwargs)
 %  state definitions: CONVERGED = 0, MAX_ITERATION = 1,
 %                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3,
 %                     GPU_NOT_READY = 4,
-%                     X2 > 1e-4 = 5, fRes > +- max(frequency) = 6
 
 arguments
     expData struct

@@ -1,5 +1,8 @@
 function ucMaps = upward_continue(kwargs)
 %[ucMaps] = upward_continue('nFiles', 'UC', 'unit', 'save')
+%
+% Parameters
+% ----------
 
 arguments
     kwargs.nFiles = 'none';

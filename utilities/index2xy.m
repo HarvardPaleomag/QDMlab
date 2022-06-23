@@ -2,7 +2,9 @@ function [row, col] = index2xy(index, shape, kwargs)
 %[row, col] = index2xy(index, shape; 'type')
 % returns the x,y coordinates of a pixel given the index of a flattened
 % array.
-%
+% 
+% Parameters
+% ----------
 % index: int
 %   index in flattened array (either gpudata or expData)
 % shape: int

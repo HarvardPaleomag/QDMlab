@@ -9,3 +9,5 @@ matlab.mat
 *.pyc
 
 admin_tools/~$dependencies.xlsx
+
+admin_tools/.ipynb_checkpoints/

@@ -6,17 +6,15 @@ pixel).
 
 Parameters
 ----------
-    required
-    ========
     data: double
         data array with numFreqs entries
     globalData: double
         mean of all pixels in image. Used only for plotting
     freqs: double
         frequency range
-
-    optional
-    ========
+    
+    kwargs
+    ======
     pixel: 1x3
         x y location and left(1) right(2) spectrum 
         used to find pixels that were not guessed correct (i.e. global)

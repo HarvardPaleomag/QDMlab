@@ -1,15 +1,10 @@
 function globalFraction = globalFraction_estimator(expData, kwargs)
-%[globalFraction] = globalFraction_estimator('expData', 'binSize', 'nRun', 'nRes')
+%[globalFraction] = globalFraction_estimator('expData', 'header', 'binSize', 'nRun', 'nRes')
 %
 % Parameters
 % ----------
-%     required
-%     ========
 %     expData: path, struct
 %         The path to 'run0000n.mat' or the structure retured from load(run0000n.mat)
-%
-%     optional
-%     ========
 %     binSize: int
 %         binning size (can be 1)
 %     nRes: int
@@ -134,7 +129,7 @@ addlistener(idx, 'Value', 'PostSet',@(src,event) updateRand(src, event, binDataN
 
 % functions
 function updateRand(src, event, binDataNorm, globalMean, p2,p2_data, sld)
-%updateRand(src, event, binDataNorm, globalMean, x2, y2, p2, p2_data, nCol, sld)
+%updateRand(src, event, binDataNorm, globalMean, p2, p2_data, sld)
 
     idx.Value = round(idx.Value);
     [y2,x2] = index2xy(idx.Value, size(binDataNorm), 'type', 'raw');

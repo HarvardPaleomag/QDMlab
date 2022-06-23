@@ -1,5 +1,5 @@
 function headerFile = read_header(headerFile)
-%[header] = read_header(file)
+%[headerFile] = read_header('headerFile')
 arguments 
     headerFile = 'none'
 end
