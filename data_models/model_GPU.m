@@ -2,19 +2,21 @@ function model = model_GPU(p, freq, kwargs)
 %[model] = model_GPU(p, freq; '['N15',', 'data', 'checkPlot')
 % calculates a model from the fitting parameters from GPU_fit
 % depending on the diamond type
-% 
-% N14:
-% ----
-%     p[1]: freq. of center peak
-%     p[2]: width of peaks
-%     p[3,4,5]: conrast of each peak
-%     p[6]: baseline
-% N15:
-% ----
-%     p[1]: freq. of center peak
-%     p[2]: width of peaks
-%     p[3,4]: conrast of each peak
-%     p[5]: baseline
+% Parameters
+% ----------
+%   p:
+%       N14
+%       +++
+%          p[1]: freq. of center peak
+%          p[2]: width of peaks
+%          p[3,4,5]: conrast of each peak
+%          p[6]: baseline
+%       N15
+%       +++
+%          p[1]: freq. of center peak
+%          p[2]: width of peaks
+%          p[3,4]: conrast of each peak
+%          p[5]: baseline
 % 
 % Returns
 % -------

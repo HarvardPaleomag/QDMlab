@@ -1,5 +1,5 @@
 function fRanges = get_franges(expData, header)
-%[fRanges] = get_franges(expData, header)
+%[fRanges] = get_franges(expData; 'header')
 % function gets the frequencies from either the expData or the header, if
 % that fails
 %
@@ -12,7 +12,7 @@ function fRanges = get_franges(expData, header)
 
 arguments
     expData
-    header
+    header = 'none'
 end
 
 try

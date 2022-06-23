@@ -56,7 +56,7 @@ def called_in(save = False, reload = False, debug = False):
     #     if not 'called in' in code[file]:
     #          code[file]['called in'] = 'none'
     if save:
-        with ExcelWriter(os.path.join(admin_tools.install_directory, 'admin_tools', 'dependencies.xlsx'), engine="openpyxl") as writer:
+        with ExcelWriter(os.path.join(r'C:\Users\micha\OneDrive\Desktop', 'dependencies.xlsx'), engine="openpyxl") as writer:
             code.to_excel(writer, sheet_name='called in')
 
     return code
@@ -75,7 +75,12 @@ def get_dependencies(save = False, reload = False, debug = False):
                 continue
 
     if save:
-        with ExcelWriter(os.path.join(admin_tools.install_directory, 'admin_tools', 'dependencies.xlsx'), engine="openpyxl", mode='a') as writer:
+        with ExcelWriter(os.path.join(r'C:\Users\micha\OneDrive\Desktop', 'dependencies.xlsx'), engine="openpyxl", mode='r+') as writer:
             deps.to_excel(writer, sheet_name='dependencies')
 
     return deps
+
+if __name__ == '__main__':
+    calls = called_in(save=True)
+    deps = get_dependencies(save=True)
+    print(deps)

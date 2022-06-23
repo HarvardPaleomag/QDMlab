@@ -1,5 +1,5 @@
-function [binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, kwargs)
-%[binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes; 'gpuData', 'crop', 'normalize', 'fcrop')
+function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, kwargs)
+%[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes; 'header', 'gpuData', 'crop', 'normalize', 'fcrop')
 % prepares the raw data for GPU fitting
 % 1. reshapes the data into from (x*y) -> (y,x) array
 % 2. Bins data: (imresize)
@@ -24,9 +24,9 @@ function [binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, 
 
 arguments
     expData
-    header
     binSize
     nRes
+    header = 'none'
     kwargs.gpuData = false
     kwargs.crop = 'none'
     kwargs.normalize = true
@@ -99,11 +99,6 @@ end
 
 %% return gpudata if kwargs.gpuData == true
 if isequal(kwargs.gpuData, true)
-    [sizeY,sizeX, sweepLength] = size(binDataNorm, [1,2,3]);
-    imgPts = sizeX*sizeY;
-    gpudata = reshape(binDataNorm, [imgPts, sweepLength]); % make it into 2d matrix
-    gpudata = transpose(gpudata); %transpose to make it 51 x pixels
-    gpudata = single(gpudata);
-    binDataNorm = gpudata;
+    binDataNorm = gpu_data_reshape(binDataNorm);
 end
 

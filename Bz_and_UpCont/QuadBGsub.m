@@ -1,6 +1,8 @@
 function [imOut] = QuadBGsub(imIn)
 %[imOut] = QuadBGsub(imIn)
 %Does quadratic backgound subtraction on image imIn and returns the result
+% Parameters
+% ----------
 imIn = double(imIn);
 
 x = 1:size(imIn, 2);

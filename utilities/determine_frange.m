@@ -1,5 +1,5 @@
 function [frange, findex] = determine_frange(folder)
-%[frange, findex] = determine_frange(folder; 'folder')
+%[frange, findex] = determine_frange('folder')
 arguments
     folder = 'none'
 end

@@ -1,13 +1,12 @@
 function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
 %[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'reference', 'laser')
-% Function to aling a set of images. Function will automatically align the
-% images first and you can check if it is ok. If not the complex alignment
-% will be called.
+% Function to alings a set of images. Function will automatically align the
+% images first then you can check if the alignment is ok. If the alignment is not good,
+% a complex alignment function will be called.
 %
 % Parameters
 % ----------
 %   nFolders: cell, char
-%
 %   transFormFile: path ['none']
 %   fixedIdx: int [1]
 %   checkPlot: bool [1]
@@ -15,6 +14,10 @@ function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
 %   sequence: bool [0]
 %   reverse: bool [0]
 %   laser: uses laser image for alignment
+%
+% See also
+% --------
+%  'get_image_transform', 'get_image_tform_complex'
 
 arguments
     nFolders cell {foldersMustExist(nFolders)}

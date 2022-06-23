@@ -1,4 +1,5 @@
 function [Bz] = QDMBzFromBu(Bu,fs,u)
+%[Bz] = QDMBzFromBu(Bu, fs, u)
 %   Retrieves the z component of the magnetic field from a QDM map of the u component. It performs
 %   this operation in the frequency domain. 
 %

@@ -1,4 +1,5 @@
 function [ imOut ] = QuadBGsub( imIn )
+%[imOut] = QuadBGsub(imIn)
 %Does quadratic backgound subtraction on image imIn and returns the result
 msg = sprintf('subtracting quadratic background');
 logMsg('debug',msg,1,0);
