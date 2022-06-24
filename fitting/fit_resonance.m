@@ -112,7 +112,7 @@ logMsg('info',msg,1,0);
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 
 %% first determine global guess
-meanData = squeeze(mean(binDataNorm, [1, 2]));
+meanData = squeeze(nanmean(binDataNorm, [1, 2]));
 
 if kwargs.type ~= 2
     initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
@@ -176,8 +176,8 @@ if kwargs.type == 1 %% old local/gaussian guess
                 % the local
                 resonance = (pkLoc(1) + pkLoc(2) + pkLoc(3)) / 3; % in GHz
                 width = 0.0005;
-                contrast = (mean(pixelData(1:10)) + pkVal - 1)';
-                baseline = mean(pixelData(1:10)) - 1;
+                contrast = (nanmean(pixelData(1:10)) + pkVal - 1)';
+                baseline = nanmean(pixelData(1:10)) - 1;
                 initialGuess(y, x, :) = [resonance, width, contrast, baseline];
             end
         end
@@ -286,8 +286,8 @@ function data = slope_correction(data, freq, nPoints)
     msg = sprintf('correcting slope of for the initial guess calculation');
     logMsg('debug',msg,1,0);
     
-    d1 = mean(data(1:nPoints+1,:));
-    dend = mean(data(end+1-nPoints:end,:));
+    d1 = nanmean(data(1:nPoints+1,:));
+    dend = nanmean(data(end+1-nPoints:end,:));
     
     delta = (dend-d1);
     slope = delta/numel(freq);
@@ -321,7 +321,7 @@ switch diamond
     case {'N15', 'doublet', 'gaussian', 'DAC', 'singlet'}
         cIdx = int16((mxidx+mnidx)/2);
     case {'N14', 'triplet'}
-        cIdx = int16(mean(cat(1, mxidx, mnidx)));
+        cIdx = int16(nanmean(cat(1, mxidx, mnidx)));
 end
 
 center = freq(cIdx);
