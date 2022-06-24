@@ -1,5 +1,14 @@
 function binning = detect_binning(inData, kwargs)
 %[binning] = detect_binning(inData; 'refFrame')
+% 
+% Parameters
+% ----------
+%   inData:
+%   refFrame: ('none')
+% 
+% Returns
+% ----------
+%   binning:
 
 arguments
    inData

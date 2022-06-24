@@ -1,6 +1,16 @@
 function check_ODMR(folder, laser, rawDataPos, rawDataNeg)
 %check_ODMR('folder', 'laser', 'rawDataPos', 'rawDataNeg')
-    
+% Parameters
+% ----------
+%   folder:
+%   laser:
+%   rawDataPos:
+%   rawDataNeg:
+%   folder: ('none')
+%   laser: (true)
+%   rawDataPos: (false)
+%   rawDataNeg: (false)
+
 arguments
     folder = 'none'
     laser = true

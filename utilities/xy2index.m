@@ -2,17 +2,23 @@ function index = xy2index(row, col, shape, type)
 %[index] = xy2index(row, col, shape; 'type')
 % returns the index of a pixel in the data (gpu/raw) array from given x,y of the
 % pixel
-%
-% x: int
-%   x(column) coordinate of pixel
-% y: int
-%   y(row) coordinate of pixel
-% shape: (int int)
-%    number of Rows, Cols in array binDataNorm array
-% type: str (gpu)
-%    can be 'gpu' or 'raw'. 
-%    if gpu: it will return the index used in the gpu array
-%    if raw: it will return the index of the raw data array
+% 
+% Parameters
+% ----------
+%   x: int
+%     x(column) coordinate of pixel
+%   y: int
+%     y(row) coordinate of pixel
+%   shape: (int int)
+%      number of Rows, Cols in array binDataNorm array
+%   type: str (gpu)
+%      can be 'gpu' or 'raw'. 
+%      if gpu: it will return the index used in the gpu array
+%      if raw: it will return the index of the raw data array
+% 
+% Returns
+% ----------
+%   index:
 
 arguments
     row

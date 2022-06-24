@@ -1,5 +1,15 @@
 function data = read_file(runFile)
 %[data] = read_file('runFile')
+%
+% Parameters
+% ----------
+%   runFile:
+%   runFile: ('none')
+% 
+% Returns
+% ----------
+%   data:
+
 arguments 
     runFile = 'none'
 end

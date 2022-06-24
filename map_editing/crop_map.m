@@ -2,6 +2,23 @@ function [expData, row, col] = crop_map(kwargs)
 %[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col', 'even', 'title')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
+%
+% Parameters
+% ----------
+%   filePath: ('none')
+%   save: (true)
+%   checkPlot: (false)
+%   row: (false)
+%   col: (false)
+%   even: (true)
+%       enforce even dimensions in crop to be compatible with downstream fft functions
+%   title: ('Select area to crop')
+% 
+% Returns
+% ----------
+%   expData:
+%   row:
+%   col:
 
 arguments
     kwargs.filePath = 'none';

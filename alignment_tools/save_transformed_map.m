@@ -3,6 +3,14 @@ function save_transformed_map(movingPath, referenceData, kwargs)
 % 
 % Parameters
 % ----------
+%   movingPath:
+%   referenceData:
+%   reference: ('LED')
+%   save: (true)
+%   checkPlot: (1)
+% 
+% Returns
+% ----------
 
 arguments
     movingPath

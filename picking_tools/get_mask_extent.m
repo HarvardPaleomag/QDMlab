@@ -2,6 +2,19 @@ function [x, y, w, h] = get_mask_extent(mask, kwargs)
 %[x, y, w, h] = get_mask_extent(mask; 'type')
 % Takes a mask and retuns the extent of the smallest possible rectangle 
 % around it, where values ~= 0.
+% 
+% Parameters
+% ----------
+%   mask:
+%   type: ('outer')
+% 
+% Returns
+% ----------
+%   x:
+%   y:
+%   w:
+%   h:
+
 arguments
     mask double
     kwargs.type = 'outer'

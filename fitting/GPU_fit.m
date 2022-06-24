@@ -1,6 +1,6 @@
 function fits = GPU_fit(dataFolder, binSize, kwargs)
 %[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', '['N15',', 'slopeCorrection', 'crop', 'fcrop')
-
+%
 % Parameters
 % ----------
 %     dataFolder: char
@@ -41,9 +41,9 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %         Calls 'correct_global' function
 %     save: bool [true]
 %         if true the results are saved to 'dataFolder'
-%     diamond: str [N14]
+%     diamond: str ['N14']
 %         The type of diamond. Choses the type of fitting.
-%    kwargs.crop (1,1) {mustBeBoolean(kwargs.crop)} = 0
+%     crop = [0]
 %
 % Notes
 % -----

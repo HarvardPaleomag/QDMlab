@@ -2,8 +2,18 @@ function [corrected, debug] = correct_global(data, globalFraction, kwargs)
 %[corrected, debug] = correct_global(data, globalFraction; 'mean')
 % global spectra subtraction
 % Find global averaged spectra
+% 
 % Parameters
 % ----------
+%   data:
+%   globalFraction:
+%   mean: ('none')
+% 
+% Returns
+% ----------
+%   corrected:
+%   debug:
+
 arguments
     data
     globalFraction

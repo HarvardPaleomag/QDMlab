@@ -2,6 +2,16 @@ function runFiles = load_data(folder, polarity)
 %[runFiles] = load_data('folder', 'polarity')
 % loads the data from a specific folder
 %
+% Parameters
+% ----------
+%   folder:
+%   polarity:
+%   folder: ('none')
+%   polarity: ('all')
+% 
+% Returns
+% ----------
+%   runFiles:
 
 arguments
     folder = 'none'

@@ -1,5 +1,43 @@
 function fit_center_crop(filePath, cropSize, fitParams)
 %fit_center_crop('filePath', 'cropSize', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
+% 
+% Parameters
+% ----------
+%   filePath:
+%   cropSize:
+%   filePath: ('none')
+%   cropSize: ([50,50])
+%   fitOrder: ('none')
+%   xy: ('picker')
+%   cropFactor: ('none')
+%   downSample: (1 % speedup)
+%   nRuns: (10)
+%   quad: (1)
+%   outputtrue: (true)
+%   checkPlot: (true)
+%   statsPlot: (false)
+%   save: (false)
+%   constrained: (false)
+%   m0: (1e-12)
+%   hguess: (2.5e-5)
+%   minheight: (0)
+%   maxheight: (100e-6)
+%   boxwidth: (100e-6)
+%   method: (1 %0)
+%   noise: (0 %0)
+%   SNR: (0 %signal-to-noise ratio in dB)
+%   AUTO: (0 %automatically find dipole position from Bt map)
+%   minTol: (1)
+%   display: (false)
+%   expData: ('none' % loaded data passed -> no need to load data again)
+%   dx: (false)
+%   dy: (false)
+%   imagefolder: ('none')
+%   sourceName: ('none')
+% 
+% Returns
+% ----------
+ 
 arguments
     filePath = 'none';
     cropSize = [50,50];

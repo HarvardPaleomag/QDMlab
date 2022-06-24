@@ -1,8 +1,18 @@
 function d = B111(finalFits, plots)
 %[d] = B111(finalFits; 'resonanceFieldPlot', 'centerShiftPlot', 'fieldsPlot', 'centerShiftDistribution')
+%
 % Parameters
 % ----------
+%   finalFits:
+%   resonanceFieldPlot: (false)
+%   centerShiftPlot: (false)
+%   fieldsPlot: (false)
+%   centerShiftDistribution: (false)
 % 
+% Returns
+% ----------
+%   d:
+
 arguments
     finalFits
     plots.resonanceFieldPlot {mustBeBoolean(plots.resonanceFieldPlot)} = false

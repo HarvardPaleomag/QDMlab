@@ -2,6 +2,15 @@ function out = RMSInBox(kwargs)
 %[out] = RMSInBox('filePath', 'saveCropMap')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
+% 
+% Parameters
+% ----------
+%   filePath: ('none')
+%   saveCropMap: (false)
+% 
+% Returns
+% ----------
+%   out:
 
 arguments
     kwargs.filePath = 'none'

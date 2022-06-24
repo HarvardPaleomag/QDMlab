@@ -3,6 +3,14 @@ function ucMaps = upward_continue(kwargs)
 %
 % Parameters
 % ----------
+%   nFiles: ('none')
+%   UC: ('none')
+%   unit: ('T')
+%   save: (true)
+% 
+% Returns
+% ----------
+%   ucMaps:
 
 arguments
     kwargs.nFiles = 'none';

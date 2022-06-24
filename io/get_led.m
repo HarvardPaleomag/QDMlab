@@ -1,6 +1,21 @@
 function ledData = get_led(path, kwargs)
 %[ledData] = get_led(path; 'data')
-%[laserData] = get_laser(path; 'data')
+% loads/ returns the led (reflected light) image data from a folder or 
+% data structure
+%
+% Parameters
+% ----------
+%   path: str
+%       path to the folder that contains the laser data
+%   data: struct (false)
+%       allows to also pass a data structure, if that structure contains
+%       the LED data it will be returned without checking for the LED
+%       file
+%
+% Returns
+% -------
+%   laserData
+%
 
 arguments
     path

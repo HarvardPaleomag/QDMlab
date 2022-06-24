@@ -3,6 +3,17 @@ function fit = get_B111(dataFolder, folderName, type, fit, binSize, kwargs)
 %
 % Parameters
 % ----------
+%   dataFolder:
+%   folderName:
+%   type:
+%   fit:
+%   binSize:
+%   checkPlot: (false)
+%   crop: ('none')
+% 
+% Returns
+% ----------
+%   fit:
 
 arguments
     dataFolder

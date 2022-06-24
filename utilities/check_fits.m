@@ -1,5 +1,17 @@
 function check_fits(finalFits, rawDataPos, rawDataNeg)
 %check_fits('finalFits', 'rawDataPos', 'rawDataNeg')
+% 
+% Parameters
+% ----------
+%   finalFits:
+%   rawDataPos:
+%   rawDataNeg:
+%   finalFits: ('none')
+%   rawDataPos: ('none')
+%   rawDataNeg: ('none')
+% 
+% Returns
+% ----------
 
 arguments
     finalFits = 'none'

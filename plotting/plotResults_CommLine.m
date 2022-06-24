@@ -1,5 +1,19 @@
 function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
 %[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot', 'crop')
+% 
+% Parameters
+% ----------
+%   dataFolder:
+%   folderName:
+%   type:
+%   fits:
+%   binSize:
+%   checkPlot: (false)
+%   crop: ('none')
+% 
+% Returns
+% ----------
+%   fits:
 
 arguments
     dataFolder

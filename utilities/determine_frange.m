@@ -1,5 +1,16 @@
 function [frange, findex] = determine_frange(folder)
 %[frange, findex] = determine_frange('folder')
+% 
+% Parameters
+% ----------
+%   folder:
+%   folder: ('none')
+% 
+% Returns
+% ----------
+%   frange:
+%   findex:
+
 arguments
     folder = 'none'
 end

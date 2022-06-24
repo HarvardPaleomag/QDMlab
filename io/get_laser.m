@@ -1,5 +1,20 @@
 function laserData = get_laser(path, kwargs)
 %[laserData] = get_laser(path; 'data')
+% loads/ returns the laser image data from a folder or data structure
+%
+% Parameters
+% ----------
+%   path: str
+%       path to the folder that contains the laser data
+%   data: struct (false)
+%       allows to also pass a data structure, if that structure contains
+%       the laser data it will be returned without checking for the laser
+%       file
+%
+% Returns
+% -------
+%   laserData
+%
 
 arguments
     path

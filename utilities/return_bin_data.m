@@ -1,6 +1,21 @@
 function [idx, rIdx, cIdx] = return_bin_data(row, col, kwargs)
 %[idx, rIdx, cIdx] = return_bin_data(row, col; 'binSize', 'sizeUnbinned', 'type')
 % returns the data used for the bin binnedData(row,col,:)
+% 
+% Parameters
+% ----------
+%   row:
+%   col:
+%   binSize: (4)
+%   sizeUnbinned: ([1200, 1920])
+%   type: ('binDataNorm')
+% 
+% Returns
+% ----------
+%   idx:
+%   rIdx:
+%   cIdx:
+
 arguments
     row
     col
