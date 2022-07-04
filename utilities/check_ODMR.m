@@ -35,20 +35,25 @@ end
     
     mask = any(~isnan(dataPosLeft),3) & any(~isnan(dataPosRight),3) & any(~isnan(dataNegLeft),3) & any(~isnan(dataNegRight),3);
     
-    meanPosLeft = squeeze(mean(crop_data(dataPosLeft, mask), [1,2], 'omitnan'));
-    meanPosRight = squeeze(mean(crop_data(dataPosRight, mask), [1,2], 'omitnan'));
-    meanNegLeft = squeeze(mean(crop_data(dataNegLeft, mask), [1,2], 'omitnan'));
-    meanNegRight = squeeze(mean(crop_data(dataNegRight, mask), [1,2], 'omitnan'));
-
+%     meanPosLeft = squeeze(mean(crop_data(dataPosLeft, mask), [1,2], 'omitnan'));
+%     meanPosRight = squeeze(mean(crop_data(dataPosRight, mask), [1,2], 'omitnan'));
+%     meanNegLeft = squeeze(mean(crop_data(dataNegLeft, mask), [1,2], 'omitnan'));
+%     meanNegRight = squeeze(mean(crop_data(dataNegRight, mask), [1,2], 'omitnan'));
+    meanPosLeft = rawDataPos.disp1;
+    meanPosRight = rawDataPos.disp2;
+    meanNegLeft = rawDataPos.disp1;
+    meanNegRight = rawDataPos.disp2;
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
 
     laser = get_laser(folder);     
     led = get_led(folder);
     ratio = min(size(laser))/max(size(laser));
+    
+    binning = size(led)/size(dataNegLeft, [1,2]);
 
     % Create image
     fig = figure('Units', 'normalized');
-    set(gcf,'OuterPosition',[0.05,0.05,0.7,1*ratio]);
+    set(gcf,'InnerPosition',[0.05,0.05,0.7,1*ratio]);
     
     % plot QDM data
     ax1 = subplot(2,2,1);
@@ -97,10 +102,13 @@ end
         title(titleTxt)
 
         hold on
-        plot(ax3, freqList(:,1), meanPosLeft, '.--')
-        plot(ax3, freqList(:,1), meanNegLeft, '.--')
-        plot(ax3, freqList(:,1), squeeze(dataPosLeft(round(y), round(x), :)))
-        plot(ax3, freqList(:,1), squeeze(dataNegLeft(round(y), round(x), :)))
+        dPL = squeeze(dataPosLeft(round(y/binning), round(x/binning), :));
+        dNL = squeeze(dataNegLeft(round(y/binning), round(x/binning), :));
+
+        plot(ax3, freqList(:,1), meanPosLeft/max(meanPosLeft), '.--');
+        plot(ax3, freqList(:,1), meanNegLeft/max(meanNegLeft), '.--');
+        plot(ax3, freqList(:,1), dPL/max(dPL));
+        plot(ax3, freqList(:,1), dNL/max(dNL));
         legend('mean(+)', 'mean(-)', '+', '-', 'Location', 'southeast');
         ylabel('Intensity')
         xlabel('f (Hz)')
@@ -110,10 +118,12 @@ end
         title(titleTxt)
 
         hold on
-        plot(ax4, freqList(:,2), meanPosRight, '.--')
-        plot(ax4, freqList(:,2), meanNegRight, '.--')
-        plot(ax4, freqList(:,2), squeeze(dataPosRight(round(y), round(x),:)));
-        plot(ax4, freqList(:,2), squeeze(dataNegRight(round(y), round(x),:)))
+        dPR = squeeze(dataPosRight(round(y/binning), round(x/binning), :));
+        dNR = squeeze(dataNegRight(round(y/binning), round(x/binning), :));
+        plot(ax4, freqList(:,2), meanPosRight/max(meanPosRight), '.--');
+        plot(ax4, freqList(:,2), meanNegRight/max(meanNegRight), '.--');
+        plot(ax4, freqList(:,2), dPR/max(dPR));
+        plot(ax4, freqList(:,2), dNR/max(dNR));
         legend('mean(+)', 'mean(-)', '+', '-', 'Location', 'southeast');
 
         ylabel('Intensity')
