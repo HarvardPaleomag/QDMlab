@@ -112,7 +112,7 @@ logMsg('info',msg,1,0);
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 
 %% first determine global guess
-meanData = squeeze(nanmean(binDataNorm, [1, 2]));
+meanData = squeeze(mean(binDataNorm, [1, 2], 'omitnan'));
 
 if kwargs.type ~= 2
     initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
@@ -321,7 +321,7 @@ switch diamond
     case {'N15', 'doublet', 'gaussian', 'DAC', 'singlet'}
         cIdx = int16((mxidx+mnidx)/2);
     case {'N14', 'triplet'}
-        cIdx = int16(nanmean(cat(1, mxidx, mnidx)));
+        cIdx = int16(mean(cat(1, mxidx, mnidx), "omitnan"));
 end
 
 center = freq(cIdx);
