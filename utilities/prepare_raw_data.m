@@ -13,6 +13,9 @@ function [binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, 
 %         Data of load(run0000n.mat)
 %     binSize: int
 %         binning size (can be 1)
+%     header: ('none')
+%       in RARE cases a header file is needed, if the frequency data is not
+%       stored in the data file 
 %     nRes: int
 %         number of resonance. Low frequencies = 1, High frequencies = 2
 %     crop: (int, int, int, int) ['none']
@@ -67,6 +70,7 @@ end
 % then row by row -> freq x col * rows (i.e. [51, 2304000])
 data = QDMreshape(dataStack, expData.imgNumRows, expData.imgNumCols);
 
+%% Data cropping
 if ~strcmp(kwargs.crop, 'none') 
     % cropping
     x0 = kwargs.crop(1);
@@ -80,7 +84,7 @@ if ~strcmp(kwargs.crop, 'none')
     data = data(y0:y1,x0:x1,:);
 end
    
-% binning
+%% binning
 msg = sprintf('<>   %i: binning data >> binSize = %i', nRes, binSize);
 logMsg('debug',msg,1,0);
 binData = imresize(data, 1/binSize, 'method', 'box');

@@ -3,7 +3,8 @@ function binning = detect_binning(inData, kwargs)
 % 
 % Parameters
 % ----------
-%   inData:
+%   inData: struct
+%       B111 or Bz data
 %   refFrame: ('none')
 % 
 % Returns
