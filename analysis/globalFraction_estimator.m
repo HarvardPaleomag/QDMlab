@@ -10,8 +10,6 @@ function globalFraction = globalFraction_estimator(expData, kwargs)
 %     nRes: int
 %         number of resonance. Low frequencies = 1, High frequencies = 2
     
-%% load/prepare data
-
 arguments
     expData = 'none'
     kwargs.header = 'none'
@@ -19,7 +17,7 @@ arguments
     kwargs.nRun = 'none'
     kwargs.nRes = 'none'
 end
-
+global globalFraction
 
 %% load data
 expData = automatic_input_ui__(expData, 'type', 'file', 'single', true, 'title','select run_000*.mat file');
@@ -125,6 +123,8 @@ label1.String = 'globalFraction [0.00]';
 
 % listeners for callback
 addlistener(sld, 'Value', 'PostSet',@(src,event) updatePlot(src, event, binDataNorm, globalMean, x1,x2,x3,y1,y2,y3, p1,p2,p3,f));
+globalFraction = get(sld, 'Value');
+
 addlistener(idx, 'Value', 'PostSet',@(src,event) updateRand(src, event, binDataNorm, globalMean, p2, p2_data, sld));
 
 % functions
@@ -144,16 +144,16 @@ end
 % Create ValueChangedFcn callback
 function updatePlot(src, event, binDataNorm, globalMean, x1,x2,x3, y1,y2,y3, p1,p2,p3, f)
 %updatePlot(src, event, binDataNorm, globalMean, x1, x2, x3, y1, y2, y3, p1, p2, p3, f)
-    glob = sld.Value;
-    dmin = correct_global(binDataNorm(y1,x1,:), glob, 'mean', globalMean);
-    drand = correct_global(binDataNorm(y2,x2,:), glob, 'mean', globalMean);
-    dmax = correct_global(binDataNorm(y3,x3,:), glob, 'mean', globalMean);
+    globalFraction = sld.Value;
+    dmin = correct_global(binDataNorm(y1,x1,:), globalFraction, 'mean', globalMean);
+    drand = correct_global(binDataNorm(y2,x2,:), globalFraction, 'mean', globalMean);
+    dmax = correct_global(binDataNorm(y3,x3,:), globalFraction, 'mean', globalMean);
 
     set(p1,'ydata',squeeze(dmin));
     set(p2, 'ydata', squeeze(drand));
     set(p3, 'ydata', squeeze(dmax));
-    set(f, 'Name', sprintf('global correction: %.2f', glob));
-    set(label1, 'String', sprintf('globalFraction [%.2f]', glob));
+    set(f, 'Name', sprintf('global correction: %.2f', globalFraction));
+    set(label1, 'String', sprintf('globalFraction [%.2f]', globalFraction));
 
     drawnow;
 end
