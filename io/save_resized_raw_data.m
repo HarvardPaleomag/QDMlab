@@ -1,4 +1,15 @@
 function save_resized_raw_data(inFolder, outFolder, binSize, check)
+%save_resized_raw_data(inFolder, outFolder, binSize; 'check')
+% Saves newly binned data to disc.
+%
+% Parameters
+% ----------
+%   inFolder:
+%   outFolder:
+%   binSize:
+%   check:
+%   check: (True)
+
     arguments
         inFolder
         outFolder
@@ -21,6 +32,7 @@ function save_resized_raw_data(inFolder, outFolder, binSize, check)
 end
 
 function dNew = resize_raw_data(expData, binSize, check)
+%[dNew] = resize_raw_data(expData, binSize, check)
     arguments
         expData
         binSize

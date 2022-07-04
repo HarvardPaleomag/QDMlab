@@ -2,8 +2,8 @@ function [fig, ax, im] = QDM_figure(data, kwargs, filter)
 %[fig, ax, im] = QDM_figure('data', 'fig', 'ax', 'led', 'pixelAlerts', 'title', 'cbTitle', 'unit', 'nROI', 'axis', 'xc', 'yc', 'alpha', 'colormap', 'cLim', 'symmetricCLim', 'method', 'std', 'scaleBar', 'pixelSize', 'nOutlier', 'filterProps', 'preThreshold', 'mustBe')
 % Creates a QDM figure
 %
-% Parameter
-% ---------
+% Parameters
+% ----------
 %     data: double [false]
 %         Provide either LED or B111/Bz data. If nothing is provided, you
 %         get to pick the dataFile to be loaded.
@@ -242,6 +242,7 @@ function bool = isLED(data)
 end
 
 function h = BWR2(m)
+%[h] = BWR2(m)
 % red-white-blue color map
 %   BWR2(M) returns an M-by-3 matrix containing the colormap.
 %   BWR2, by itself, is the same length as the current figure's

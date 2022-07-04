@@ -115,6 +115,7 @@ end
 end
 
 function threshold_checkPlot(data)
+%threshold_checkPlot(data)
     fig = figure('Name', 'Threshold checkPlot', 'units', 'normalized', 'position', [0.1, 0.1, 0.8, 0.3]);
 
     movegui(fig,'center')
