@@ -37,14 +37,21 @@ if ~isstruct(rawDataNeg); rawDataNeg = load(rawDataNeg); end
 %% figure
 close all
 disp(['<>   reshaping data: ' num2str(rawDataPos.numFreqs) 'x' num2str(rawDataPos.imgNumCols) 'x' num2str(rawDataPos.imgNumRows)])
-dataPosLeft = reshapeImg(rawDataPos.imgStack1, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);
-dataPosRight = reshapeImg(rawDataPos.imgStack2, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);
-dataNegLeft = reshapeImg(rawDataNeg.imgStack1, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
-dataNegRight = reshapeImg(rawDataNeg.imgStack2, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
+
+binSize = detect_binning(finalFits);
+dataPosLeft = prepare_raw_data(rawDataPos, binSize, 1);
+dataPosRight = prepare_raw_data(rawDataPos, binSize, 2);
+dataNegLeft = prepare_raw_data(rawDataNeg, binSize, 1);
+dataNegRight = prepare_raw_data(rawDataNeg, binSize, 2);
+
+% dataPosLeft = reshapeImg(rawDataPos.imgStack1, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);
+% dataPosRight = reshapeImg(rawDataPos.imgStack2, rawDataPos.numFreqs, rawDataPos.imgNumCols, rawDataPos.imgNumRows);
+% dataNegLeft = reshapeImg(rawDataNeg.imgStack1, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
+% dataNegRight = reshapeImg(rawDataNeg.imgStack2, rawDataNeg.numFreqs, rawDataNeg.imgNumCols, rawDataNeg.imgNumRows);
 freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
 
 % prefilter data for hot pixels
-[bool, dataName, ledName] = is_B111(finalFits);
+[~, dataName, ledName] = is_B111(finalFits);
 data = filter_hot_pixels(finalFits.(dataName));
 binning = detect_binning(finalFits);
 
@@ -52,7 +59,8 @@ LED = finalFits.(ledName);
 ratio = min(size(LED))/max(size(LED));
 % Create image
 f = figure('Units', 'normalized');
-set(gcf,'OuterPosition',[0.15,0.25,0.7,0.4*ratio]);
+set(gcf,'OuterPosition',[0.15,0.25,0.7,0.5*ratio]);
+movegui(f,'center')
 
 % plot QDM data
 ax1 = subplot(1,3,1);
@@ -63,7 +71,6 @@ n = 0;
 point = 0;
 set(qdm,'ButtonDownFcn',@buttonSelectPixel)
 
-        
 ax2 = subplot(1,3,2);
 ax3 = subplot(1,3,3);
 
@@ -71,8 +78,8 @@ function buttonSelectPixel(hObj, event)
     %buttonSelectPixel(hObj, event)
         % Get click coordinate
         click = event.IntersectionPoint;
-        x = click(1);
-        y = click(2);
+        x = round(click(1));
+        y = round(click(2));
         titleTxt = ['X:' num2str(round(x)) '(' num2str(round(x) * binning) ')' ...
                    ' Y:' num2str(round(y)) '(' num2str(round(y) * binning) ')'];
         ax1 = subplot(1,3,1);
@@ -84,8 +91,6 @@ function buttonSelectPixel(hObj, event)
         end
         
         hold on
-        px = round(x*binning);
-        py = round(y*binning);
         
         point = scatter(round(x),round(y),'k');
         
@@ -94,26 +99,49 @@ function buttonSelectPixel(hObj, event)
         title(titleTxt)
 
         hold on
-        f1 = freqList(:,1);
-        idx = int16(xy2index(py/binning,px/binning, size(finalFits.negDiff)));
-        plot(f1, dataPosLeft(:,px,py))
-        model = model_GPU(finalFits.leftPos.p(:,idx), f1,'diamond', finalFits.kwargs.diamond)...
-            / max(model_GPU(finalFits.leftPos.p(:,idx), f1, 'diamond', finalFits.kwargs.diamond))...
-            * max(dataPosLeft(:,px,py));
-        plot(f1, model)
-        plot(f1, dataNegLeft(:,px,py))
+        f1 = finalFits.leftPos.freq;
+        f2 = finalFits.rightPos.freq;
+
+        idx = int16(xy2index(y, x, size(dataPosRight), 'gpu'));
+
+        dNL = squeeze(dataPosLeft( y, x, :));
+        dPL = squeeze(dataNegLeft( y, x, :));
+
+        mPL = model_GPU(finalFits.leftPos.parameters(:, y, x), f1,'diamond', finalFits.kwargs.diamond);
+        mPL = normalize(mPL, 'range', [min(dPL), max(dPL)]);
+        mNL = 1 + model_GPU(finalFits.leftNeg.parameters(:, y, x), f1,'diamond', finalFits.kwargs.diamond);
+        mNL = normalize(mNL, 'range', [min(dNL), max(dNL)]);
+
+        dNR = squeeze(dataPosRight(y, x, :));
+        dPR = squeeze(dataNegRight(y, x, :));
+
+        mPR = 1 + model_GPU(finalFits.rightPos.parameters(:, y, x), f2,'diamond', finalFits.kwargs.diamond);
+        mPR = normalize(mPR, 'range', [min(dPR), max(dPR)]);
+
+        mNR = 1 + model_GPU(finalFits.rightNeg.parameters(:, y, x), f2,'diamond', finalFits.kwargs.diamond);
+        mNR = normalize(mNR, 'range', [min(dNR), max(dNR)]);
+
+        plot(f1, dNL / max(dNL), 'r.-', 'DisplayName','-')
+        plot(f1, mNL / max(mNL), 'r--', 'DisplayName', '- fit')
+
+        plot(f1, dPL / max(dPL), 'b.-', 'DisplayName','+')
+        plot(f1, mPL / max(mPL), 'b--', 'DisplayName', '+ fit')
         
-        legend('+','-');
+        legend();
         ylabel('Intensity')
         xlabel('f (Hz)')
 
         ax3 = subplot(1,3,3);
         cla()
+        hold on
         title(titleTxt)
 
-        hold on
-        plot(freqList(:,2), dataPosRight(:,round(x*binning),round(y*binning)))
-        plot(freqList(:,2), dataNegRight(:,round(x*binning),round(y*binning)))
+        plot(f2, dNR / max(dNR), 'r.-', 'DisplayName','-')
+        plot(f2, mNR / max(mNR), 'r--')
+
+        plot(f2, dPR / max(dPR), 'b.-', 'DisplayName','+')
+        plot(f2, mPR / max(mPR), 'b--')
+
         ylabel('Intensity')
         xlabel('f (Hz)')
     end
