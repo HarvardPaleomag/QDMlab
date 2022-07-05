@@ -136,7 +136,7 @@ for i = 1 : size(nFiles, 2)
         sp3 = subplot(2,2,3);
         QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction');     
         sp4 = subplot(2,2,4);
-        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction');
+        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction', 'preThreshold','none');
 
         ax = [sp1, sp2, sp3, sp4];
         linkaxes(ax)

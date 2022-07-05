@@ -451,7 +451,7 @@ if kwargs.checkPlot || kwargs.save
     rectPos = [xCrop(1), yCrop(1), xCrop(2)-xCrop(1), yCrop(2)-yCrop(1)];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
-    plot(ax1, xopt/step, yopt/step, 'xr')
+%     plot(ax1, xopt/step*binning, yopt/step*binning, 'xr')
 
     ax2 = subplot(1, 2, 2);
     QDM_figure(led, 'ax', ax2, 'led',true, 'title', 'LED map');
