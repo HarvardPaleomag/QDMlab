@@ -1,5 +1,5 @@
-function fit = fit_resonance(expData, header, binSize, nRes, kwargs)
-%[fit] = fit_resonance(expData, header, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
+function fit = fit_resonance(expData, binSize, nRes, header, kwargs)
+%[fit] = fit_resonance(expData, binSize, nRes; 'header', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -52,13 +52,12 @@ function fit = fit_resonance(expData, header, binSize, nRes, kwargs)
 %  state definitions: CONVERGED = 0, MAX_ITERATION = 1,
 %                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3,
 %                     GPU_NOT_READY = 4,
-%                     X2 > 1e-4 = 5, fRes > +- max(frequency) = 6
 
 arguments
     expData struct
-    header struct
     binSize double
     nRes (1, 1) int16
+    header = 'none'
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
     kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
@@ -90,7 +89,7 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, header, binSize, nRes, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
 
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions
@@ -113,7 +112,7 @@ logMsg('info',msg,1,0);
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 
 %% first determine global guess
-meanData = squeeze(mean(binDataNorm, [1, 2]));
+meanData = squeeze(mean(binDataNorm, [1, 2], 'omitnan'));
 
 if kwargs.type ~= 2
     initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
@@ -177,8 +176,8 @@ if kwargs.type == 1 %% old local/gaussian guess
                 % the local
                 resonance = (pkLoc(1) + pkLoc(2) + pkLoc(3)) / 3; % in GHz
                 width = 0.0005;
-                contrast = (mean(pixelData(1:10)) + pkVal - 1)';
-                baseline = mean(pixelData(1:10)) - 1;
+                contrast = (nanmean(pixelData(1:10)) + pkVal - 1)';
+                baseline = nanmean(pixelData(1:10)) - 1;
                 initialGuess(y, x, :) = [resonance, width, contrast, baseline];
             end
         end
@@ -287,8 +286,8 @@ function data = slope_correction(data, freq, nPoints)
     msg = sprintf('correcting slope of for the initial guess calculation');
     logMsg('debug',msg,1,0);
     
-    d1 = mean(data(1:nPoints+1,:));
-    dend = mean(data(end+1-nPoints:end,:));
+    d1 = nanmean(data(1:nPoints+1,:));
+    dend = nanmean(data(end+1-nPoints:end,:));
     
     delta = (dend-d1);
     slope = delta/numel(freq);
@@ -322,7 +321,7 @@ switch diamond
     case {'N15', 'doublet', 'gaussian', 'DAC', 'singlet'}
         cIdx = int16((mxidx+mnidx)/2);
     case {'N14', 'triplet'}
-        cIdx = int16(mean(cat(1, mxidx, mnidx)));
+        cIdx = int16(mean(cat(1, mxidx, mnidx), "omitnan"));
 end
 
 center = freq(cIdx);

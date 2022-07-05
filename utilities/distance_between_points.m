@@ -1,6 +1,17 @@
 function out = distance_between_points(data1, data2)
-%[out] = distance_between_points(data1, data2; 'data2')
+%[out] = distance_between_points(data1; 'data2')
 % calculates the distance between two points that get picked
+% 
+% Parameters
+% ----------
+%   data1:
+%   data2:
+%   data2: ('none')
+% 
+% Returns
+% ----------
+%   out:
+
 arguments
     data1
     data2 = 'none'

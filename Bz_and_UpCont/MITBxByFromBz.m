@@ -5,7 +5,7 @@ function [Bx, By] = MITBxByFromBz(Bz, fs)
 %   Wikswo.
 %
 %   Code by Eduardo A. Lima - (c) 2007
-
+%
 %   ----------------------------------------------------------------------------------------------
 %   Bz     -> Z component of the magnetic field measured in a regular planar grid
 %   fs     -> Sampling frequency in 1/m

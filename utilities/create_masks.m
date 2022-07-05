@@ -1,6 +1,20 @@
 function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
 %[nMasks, nROI] = create_masks(data, selectionThreshold; 'nROI', 'freeHand', 'freeHandSelection')
-%%
+%
+% 
+% Parameters
+% ----------
+%   data:
+%   selectionThreshold:
+%   nROI: (false)
+%   freeHand: (false)
+%   freeHandSelection: (false)
+% 
+% Returns
+% ----------
+%   nMasks:
+%   nROI:
+
 arguments
     data
     selectionThreshold

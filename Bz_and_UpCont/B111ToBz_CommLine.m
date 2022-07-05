@@ -1,16 +1,18 @@
 function [] = B111ToBz_CommLine(INFILE,ferroorpara,pixel,h,quadsub,colorrange)
 %[] = B111ToBz_CommLine(INFILE, ferroorpara, pixel, h, quadsub, colorrange)
-%This script takes in a B111 map file that must include a B111ferro or
-%B111para matrix and an ledImg matrix
-%for pixel size
-%use 2.42 µm for QDM1 4x4 binning
-%use 4.68 µm for the 10x objective with 4x4 binning
-%use 2.34 µm for the 20x objective with 4x4 binning
-%assumed 100 mm tube lens
-%unlike the QDMfileviewer.m script, there's no cropping, interpolation, bkg subtraction,
-%or upward continuation here.
-%quadsub tells the script whether to apply a quadratic background fit
-%leaving colorrange empty defaults to the max/min map values
+% This script takes in a B111 map file that must include a B111ferro or
+% B111para matrix and an ledImg matrix for pixel size
+% use 2.42 µm for QDM1 4x4 binning
+% use 4.68 µm for the 10x objective with 4x4 binning
+% use 2.34 µm for the 20x objective with 4x4 binning
+% assumed 100 mm tube lens
+% unlike the QDMfileviewer.m script, there's no cropping, interpolation, bkg subtraction,
+% or upward continuation here.
+% quadsub tells the script whether to apply a quadratic background fit
+% leaving colorrange empty defaults to the max/min map values
+% 
+% Parameters
+% ----------
 
 UNIT='T';
 SAVE=1;

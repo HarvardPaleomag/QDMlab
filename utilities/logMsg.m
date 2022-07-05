@@ -1,6 +1,19 @@
 function msg = logMsg(level,message,lineEnd,indent,kwargs)
 %[msg] = logMsg(level, message, lineEnd, indent; 'returnOnly')
 % simple logging function
+% 
+% Parameters
+% ----------
+%   level:
+%   message:
+%   lineEnd:
+%   indent:
+%   returnOnly: (false)
+% 
+% Returns
+% ----------
+%   msg:
+
 arguments
     level
     message

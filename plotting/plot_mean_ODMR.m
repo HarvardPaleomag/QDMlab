@@ -1,5 +1,16 @@
 function plot_mean_ODMR(folder, kwargs)
 %plot_mean_ODMR(folder; 'closeAll', 'polarity', 'xlim')
+% 
+% Parameters
+% ----------
+%   folder:
+%   closeAll: (0)
+%   polarity: (1)
+%   xlim: (false)
+% 
+% Returns
+% ----------
+
 arguments
     folder
     kwargs.closeAll = 0

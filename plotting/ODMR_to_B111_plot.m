@@ -1,5 +1,15 @@
 function ODMR_to_B111_plot(fits, savePath)
-%ODMR_to_B111_plot(fits, savePath; 'savePath')
+%ODMR_to_B111_plot(fits; 'savePath')
+% 
+% Parameters
+% ----------
+%   fits:
+%   savePath:
+%   savePath: (false)
+% 
+% Returns
+% ----------
+
 arguments
     fits
     savePath = false

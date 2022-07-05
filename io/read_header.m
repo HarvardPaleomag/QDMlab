@@ -1,5 +1,15 @@
 function headerFile = read_header(headerFile)
-%[header] = read_header(file)
+%[headerFile] = read_header('headerFile')
+%
+% Parameters
+% ----------
+%   headerFile:
+%   headerFile: ('none')
+% 
+% Returns
+% ----------
+%   headerFile:
+
 arguments 
     headerFile = 'none'
 end

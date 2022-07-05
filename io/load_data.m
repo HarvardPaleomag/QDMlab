@@ -1,10 +1,21 @@
-function runFiles = load_data(folder, nRes)
+function runFiles = load_data(folder, polarity)
+%[runFiles] = load_data('folder', 'polarity')
 % loads the data from a specific folder
 %
+% Parameters
+% ----------
+%   folder:
+%   polarity:
+%   folder: ('none')
+%   polarity: ('all')
+% 
+% Returns
+% ----------
+%   runFiles:
 
 arguments
     folder = 'none'
-    nRes = 'all'
+    polarity = 'all'
 end
 
 folder = automatic_input_ui__(folder, 'type', 'dir', 'single', true);
@@ -12,13 +23,10 @@ folder = automatic_input_ui__(folder, 'type', 'dir', 'single', true);
 runFiles = dir(fullfile(folder, 'run_*.mat'));
 headerFiles = dir(fullfile(folder, 'run_*_header.txt'));
 
-switch nRes
-    case 'all'
-        idx = 1:size(runFiles);
-    case 1
-        idx = 1;
-    case 2
-        idx = 2;
+if isequal(polarity, 'all')
+    idx = 1:size(runFiles);
+else 
+    idx = polarity;
 end
 
 for i = idx

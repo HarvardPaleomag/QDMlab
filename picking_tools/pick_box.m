@@ -1,21 +1,27 @@
 function [nROI, coordinates] = pick_box(data, kwargs)
 %[nROI, coordinates] = pick_box(data; 'led', 'closeFig', 'returnCoordinates', 'title', 'n', 'std')
 % 
-% positional parameters
-%     data: QDM/LED data
-% 
-% optional positional parameters
-%     n: int
+% Parameters
+% ----------
+%   data:
+%     QDM/LED data
+%   led: bool (false)
+%     if true: colorscale 'bone' will be used for plotting
+%   closeFig: bool (false)
+%     if true: figure will be closed after pick
+%   returnCoordinates: (false)
+%   title: ('pick boxes')
+%   n: int ('none')
 %     number of rectangles to pick
+%   std: (2)
 % 
-% optional parameters:
-%     led: bool
-%         if true: colorscale 'bone' will be used for plotting
-%     close_fig: bool
-%         if true: figure will be closed after pick
-% 
-% Returns: cell
+% Returns
+% ----------
+%   nROI: cell
 %     a cell with n entries. Each consisting of [x1,x2,y1,y2], where (x1,x2)
+%   coordinates:
+% 
+% Returns: 
 
 arguments
     data

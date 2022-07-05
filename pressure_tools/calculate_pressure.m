@@ -1,5 +1,17 @@
 function fit = calculate_pressure(filePath, reference, kwargs)
-%[fit] = calculate_pressure(filePath, reference; 'reference', 'save', 'threshold')
+%[fit] = calculate_pressure(filePath; 'reference', 'save', 'threshold')
+% 
+% Parameters
+% ----------
+%   filePath:
+%   reference:
+%   reference: ('Steele2017')
+%   save: (1)
+%   threshold: (0)
+% 
+% Returns
+% ----------
+%   fit:
 
 arguments
     filePath

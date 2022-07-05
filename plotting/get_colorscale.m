@@ -1,5 +1,19 @@
 function [cLim] = get_colorscale(data, method, kwargs, filter)
-%[cLim] = get_colorscale(data, method; 'method', 'symmetric', 'mustBe', 'std', 'nOutlier')
+%[cLim] = get_colorscale(data; 'method', 'symmetric', 'mustBe', 'std', 'nOutlier')
+% 
+% Parameters
+% ----------
+%   data:
+%   method:
+%   method: ('std')
+%   symmetric: (1)
+%   mustBe: ('none')
+%   std: (0)
+%   nOutlier: (0)
+% 
+% Returns
+% ----------
+%   cLim:
 
 arguments
     data

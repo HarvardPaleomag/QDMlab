@@ -1,6 +1,11 @@
 function scalebar(kwargs)
 %scalebar('fig', 'ax', 'im', 'pixelSize', 'scaleBar', 'unit', 'color', 'location')
-
+% adds scalebar to a plot
+%
+% Parameters
+% ----------
+%   fig:
+%   
 arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
