@@ -127,7 +127,7 @@ function buttonSelectPixel(hObj, event)
         plot(f1, dPL / max(dPL), 'b.-', 'DisplayName','+')
         plot(f1, mPL / max(mPL), 'b--', 'DisplayName', '+ fit')
         
-        legend();
+        legend('Location', "southwest");
         ylabel('Intensity')
         xlabel('f (Hz)')
 
