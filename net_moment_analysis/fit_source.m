@@ -175,7 +175,11 @@ led = expData.(ledName);
 [filePath, name, ext] = fileparts(filePath);
 
 % downsample data
-bData = downsample(downsample(expData.(dataName), kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
+bData = expData.(dataName);
+
+if kwargs.downSample ~= 1
+    bData = downsample(downsample(bData, kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
+end
 bData = double(bData); % convert to double in case of single values
 
 step = step * kwargs.downSample;
