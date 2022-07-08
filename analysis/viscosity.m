@@ -50,7 +50,8 @@ delta = viscousData - nonViscousData;
 
 if kwargs.checkPlot
     viscFigure = figure('Units', 'normalized', ...
-               'Position',[0.05 0.2 0.9 0.25], 'Name', 'viscosity');
+               'Position',[0.05 0.2 0.8 0.3], 'Name', 'viscosity');
+    movegui(viscFigure, 'center')
     ax1 = subplot(1,3,1);
     QDM_figure(viscousData,'ax', ax1, 'title', 'viscous');
     ax2 = subplot(1,3,2);
