@@ -52,7 +52,7 @@ arguments
 
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = 'B_z';
-    kwargs.unit = 'G'; % assuming the input data is in G
+    kwargs.unit = 'muT'; % assuming the input data is in G
     
     kwargs.nROI = 'none';
 
