@@ -41,8 +41,8 @@ end
 %     meanNegRight = squeeze(mean(crop_data(dataNegRight, mask), [1,2], 'omitnan'));
     meanPosLeft = rawDataPos.disp1;
     meanPosRight = rawDataPos.disp2;
-    meanNegLeft = rawDataPos.disp1;
-    meanNegRight = rawDataPos.disp2;
+    meanNegLeft = rawDataNeg.disp1;
+    meanNegRight = rawDataNeg.disp2;
     freqList = reshape(rawDataPos.freqList, [rawDataPos.numFreqs, 2]);
 
     laser = get_laser(folder);     
