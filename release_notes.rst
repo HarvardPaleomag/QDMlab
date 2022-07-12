@@ -1,5 +1,48 @@
 Release Notes
 *************
+2022.1
+======
+This is a big release. There are many additional features that will likely help analyse QDM data.  
+
+  features
+  --------
+  - New fitting functions have been implemented. `N14` and `triplet` use three lorentzian functions, `N15` and `doublet` use only two lorentian.
+    `DAC` and `singlet` fits a single Lorentzian function and `gaussian` fits a single gaussian distribution to the data.
+  - `crop` keyword in `ODMR_to_B111` can be used to crop the map before fitting.
+  - `fcrop` keyword in `ODMR_to_B111` can be used to crop thje frequency range before fitting. See also: `pick_fcrop`
+  - `get_led` and `get_laser` functions to find the LED/laser images
+  - `check_fits` now checks if the data is B111 or Bz and can disply either.
+  - adds `get_colorscale` to better determin a colorscale for QDM_figures
+  - `QDM_figure` now has a `nOutlier` keyword to remove the n highest/lowest data points
+  - new `B111` calculation routine (not used, yet)
+  - adds `save_transformed_map` function
+  - New function `fit_center_crop` to fit a source, crop the map around it and save as a new map.
+  - New function `distance_between_points`
+  - adds `pressure_tools` functions for calculating pressure in a DAC
+  - New function `plot_mean_ODMR`
+
+  important changes
+  -----------------
+  - all input and output functions are loacted in the `io` folder, now
+  - removed `testing` folder and files
+  
+  minor changes
+  -------------
+  - `QDM_figure` plots are now centered on screen.
+  - adds the fitted x/y location of the source to the plot in `fit_source`
+  - slight tweaks to initial guess of the fitting parameters in `fit_resonance`
+  - adds `row` and `col` keywords to `crop_map` to crop a map without picking a box first.
+  - `crop_map` can enforce even dimensions, now.
+  - 
+
+  minor fixes
+  -----------
+  - fixes title in several plotting fucntions
+  - `check_ODMR` now uses `get_laser` and `prepare_raw_data`
+  - fixes error in MacOS when calling `automatic_input_ui__`
+  - fixes filepath composition in `align_images`
+  - fixes wrong naming of plot in `crop_map`
+
 2021.1.4a
 =========
   fixes
