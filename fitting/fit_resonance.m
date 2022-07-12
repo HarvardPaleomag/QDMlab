@@ -1,5 +1,5 @@
-function fit = fit_resonance(expData, binSize, nRes, kwargs)
-%[fit] = fit_resonance(expData, binSize, nRes; 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection')
+function fit = fit_resonance(expData, binSize, nRes, header, kwargs)
+%[fit] = fit_resonance(expData, binSize, nRes; 'header', 'type', 'globalFraction', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'diamond', 'slopeCorrection', 'crop', 'fcrop')
 % fits a single resonance frequency (i.e. low/high frequency range) of
 % either positive or negative field.
 %
@@ -52,12 +52,12 @@ function fit = fit_resonance(expData, binSize, nRes, kwargs)
 %  state definitions: CONVERGED = 0, MAX_ITERATION = 1,
 %                     SINGULAR_HESSIAN = 2, NEG_CURVATURE_MLE = 3,
 %                     GPU_NOT_READY = 4,
-%                     X2 > 1e-4 = 5, fRes > +- max(frequency) = 6
 
 arguments
     expData struct
     binSize double
     nRes (1, 1) int16
+    header = 'none'
     kwargs.type (1, 1) {mustBeMember(kwargs.type, [0, 1, 2])} = 2
     kwargs.globalFraction (1, 1) {mustBeNumeric} = 0.5
     kwargs.forceGuess (1, 1) {mustBeMember(kwargs.forceGuess, [1, 0])} = false;
@@ -65,8 +65,11 @@ arguments
     kwargs.gaussianFit (1, 1) {mustBeBoolean(kwargs.gaussianFit)} = false;
     kwargs.gaussianFilter (1, 1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree (1, 1) {mustBeNumeric, mustBePositive} = 2
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14';
+    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14', 'DAC', 'singlet', 'doublet', 'gaussian'])} = 'doublet';
     kwargs.slopeCorrection = false;
+    kwargs.crop = 'none'
+    kwargs.fcrop  = false
+
 end
 show_references()
 
@@ -78,7 +81,7 @@ tStart = tic;
 fit = struct();
 
 %% check type/diamond combination
-if kwargs.type ~= 2 && strcmp(kwargs.diamond, 'N15')
+if kwargs.type ~= 2 && ~any(strcmpi(kwargs.diamond, {'N14', 'triplet'}))
     msg = sprintf('Determining the initial parameters for a fit with this method is not supported for N15 diamonds, yet');
     logMsg('error',msg,1,0);
 end
@@ -86,7 +89,8 @@ end
 %% data preparation
 % this step could easily be skipped, the only thing one needs to figure out
 % is how to get the
-[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes);
+[binDataNorm, freq] = prepare_raw_data(expData, binSize, nRes, header, 'crop', kwargs.crop, 'fcrop', kwargs.fcrop);
+
 
 sizeX = size(binDataNorm, 2); % binned image x-dimensions
 sizeY = size(binDataNorm, 1); % binned image y-dimensions
@@ -108,7 +112,7 @@ logMsg('info',msg,1,0);
 binDataNorm = correct_global(binDataNorm, kwargs.globalFraction);
 
 %% first determine global guess
-meanData = squeeze(mean(binDataNorm, [1, 2]));
+meanData = squeeze(mean(binDataNorm, [1, 2], 'omitnan'));
 
 if kwargs.type ~= 2
     initialGuess = global_guess(binDataNorm, freq); % initial guess for GPUfit
@@ -172,8 +176,8 @@ if kwargs.type == 1 %% old local/gaussian guess
                 % the local
                 resonance = (pkLoc(1) + pkLoc(2) + pkLoc(3)) / 3; % in GHz
                 width = 0.0005;
-                contrast = (mean(pixelData(1:10)) + pkVal - 1)';
-                baseline = mean(pixelData(1:10)) - 1;
+                contrast = (nanmean(pixelData(1:10)) + pkVal - 1)';
+                baseline = nanmean(pixelData(1:10)) - 1;
                 initialGuess(y, x, :) = [resonance, width, contrast, baseline];
             end
         end
@@ -193,7 +197,15 @@ if kwargs.type == 2
     initialPreGuess = get_initial_guess(gpudata, freq, kwargs.diamond);
     fit.initialPreGuess = initialPreGuess;
     
-    if strcmp(kwargs.diamond, 'N14')
+    % N15 (i.e. doublet) use the preGuess instead of a gaussian
+    if find(strcmp(kwargs.diamond, {'N15', 'doublet'}))
+        msg = sprintf('determining initial guess only from (N14) preInitialGuess'); 
+        logMsg('debug',msg,1,0);
+        
+        % Note: DAC initial guess is different than N15
+        initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
+        fit.initialGuess.states = zeros(size(initialGuess));
+    else
         % single gaus fit for initial parameters
         model_id = ModelID.GAUSS_1D;
         [initialGuess, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
@@ -202,11 +214,6 @@ if kwargs.type == 2
         initialGuess = parameters_to_guess(initialGuess, kwargs.diamond);
         fit.initialGuess.chi = chiSquares;
         fit.initialGuess.states = states;
-    elseif strcmp(kwargs.diamond, 'N15')
-        msg = sprintf('determining initial guess only from (N14) preInitialGuess'); 
-        logMsg('debug',msg,1,0);
-        initialGuess = parameters_to_guess(initialPreGuess, kwargs.diamond);
-        fit.initialGuess.states = zeros(size(initialGuess));
     end
 end
 
@@ -225,10 +232,15 @@ msg = sprintf('%i: initial parameter estimation complete in: %.1f s', nRes, toc(
 logMsg('info',msg,1,0);
 
 %% FINAL GPU FIT
-if strcmp(kwargs.diamond, 'N14')
-    model_id = ModelID.ESR14N;
-elseif strcmp(kwargs.diamond, 'N15')
-    model_id = ModelID.ESR15N;
+switch kwargs.diamond
+    case {'N14', 'triplet'}
+     model_id = ModelID.ESR14N;
+    case {'N15', 'doublet'}
+        model_id = ModelID.ESR15N;
+    case {'DAC','singlet'}
+        model_id = ModelID.ESRSINGLE;
+    case 'gaussian'
+        model_id = ModelID.GAUSS_1D;
 end
 
 max_n_iterations = 1000;
@@ -236,15 +248,13 @@ max_n_iterations = 1000;
 msg = sprintf('%i: starting GPU fit, model: %s', nRes);
 logMsg('info',msg,1,0);
 
-% run Gpufit - Res 1
-[parameters, states, chiSquares, n_iterations, time] = gpufit(gpudata, [], ...
+% run Gpufit
+[parameters, states, chiSquares, n_iterations, ~] = gpufit(gpudata, [], ...
     model_id, initialGuess, tolerance, max_n_iterations, [], EstimatorID.MLE, xValues);
 
 % failed fits for pixel with extrem chiSquared or values outside of the
 % measurement freq. range
-states(chiSquares > 1e-4) = 5;
-states(parameters(1, :) > max(freq)) = 6;
-states(parameters(1, :) < min(freq)) = 6;
+% states(chiSquares > 5e-4) = 5;
 
 fit = make_fit_struct(fit, initialPreGuess, initialGuess, parameters, states, ...
     chiSquares, n_iterations, nRes, sizeX, sizeY, kwargs.diamond);
@@ -276,8 +286,8 @@ function data = slope_correction(data, freq, nPoints)
     msg = sprintf('correcting slope of for the initial guess calculation');
     logMsg('debug',msg,1,0);
     
-    d1 = mean(data(1:nPoints+1,:));
-    dend = mean(data(end+1-nPoints:end,:));
+    d1 = nanmean(data(1:nPoints+1,:));
+    dend = nanmean(data(end+1-nPoints:end,:));
     
     delta = (dend-d1);
     slope = delta/numel(freq);
@@ -296,54 +306,66 @@ function initialGuess = get_initial_guess(gpudata, freq, diamond)
 %[initialGuess] = get_initial_guess(gpudata, freq, diamond)
 initialGuess = zeros(4, size(gpudata, 2), 'single');
 
-
 % amplitude
-mx = nanmax(gpudata);
-mn = nanmin(gpudata);
+mx = max(gpudata, [], 'omitnan');
+mn = min(gpudata, [], 'omitnan');
 initialGuess(1, :) = -abs(((mx - mn)./mx));
 
 % center frequency
 [~, idx] = sort(gpudata);
-l = 7; % lowest n values
+l = 10; % lowest n values
 mxidx = max(idx(1:l, :));
 mnidx = min(idx(1:l, :));
 
-if strcmp(diamond, 'N15')
-    cIdx = int16((mxidx+mnidx)/2);
-else
-    cIdx = int16(mean(cat(1, mxidx, mnidx)));
+switch diamond
+    case {'N15', 'doublet', 'gaussian', 'DAC', 'singlet'}
+        cIdx = int16((mxidx+mnidx)/2);
+    case {'N14', 'triplet'}
+        cIdx = int16(mean(cat(1, mxidx, mnidx), "omitnan"));
 end
 
 center = freq(cIdx);
 initialGuess(2, :) = center;
 
 % width
-initialGuess(3, :) = 0.0005;
-
+if strcmp(diamond, 'DAC')
+    initialGuess(3, :) = 0.004;
+elseif strcmp(diamond, 'singlet')
+    initialGuess(3, :) = 0.0002;
+else
+    initialGuess(3, :) = 0.0005;
+end
+    
 % offset
 initialGuess(4, :) = mx;
 end
 
 function guess = parameters_to_guess(parameters, diamond)
 %[guess] = parameters_to_guess(parameters, diamond)
-if strcmp(diamond, 'N14')
-    guess = zeros(6, size(parameters, 2));
-    guess(1, :) = parameters(2, :); % location
-    guess(2, :) = 0.0002; % width
-    guess(3, :) = abs(parameters(1, :)); % amplitude (contrast)
-    guess(4, :) = abs(parameters(1, :)); % amplitude (contrast)
-    guess(5, :) = abs(parameters(1, :)); % amplitude (contrast)
-    guess(6, :) = parameters(4, :) - 1; % baseline
-    guess = single(guess);
-    
-elseif strcmp(diamond, 'N15')
-    guess = zeros(5, size(parameters, 2));
-    guess(1, :) = parameters(2, :); % location
-    guess(2, :) = 0.0002; % width
-    guess(3, :) = -parameters(1, :); % amplitude (contrast)
-    guess(4, :) = -parameters(1, :); % amplitude (contrast)
-    guess(5, :) = parameters(4, :) - 1; % baseline
-    guess = single(guess);
+guess(1, :) = parameters(2, :); % location
+guess(2, :) = 0.0002; % width
+switch diamond
+    case {'N14', 'triplet'}
+        guess(3, :) = abs(parameters(1, :)); % amplitude (contrast)
+        guess(4, :) = abs(parameters(1, :)); % amplitude (contrast)
+        guess(5, :) = abs(parameters(1, :)); % amplitude (contrast)
+        guess(6, :) = parameters(4, :) - 1; % baseline
+    case {'N15', 'doublet'}
+        guess(2, :) = 0.0004; % width
+        guess(3, :) = -parameters(1, :); % amplitude (contrast)
+        guess(4, :) = -parameters(1, :); % amplitude (contrast)
+        guess(5, :) = parameters(4, :) - 1; % baseline
+    case {'singlet'}
+        guess(2, :) = 0.0003; % width
+        guess(3, :) = -parameters(1, :); % amplitude (contrast)
+        guess(4, :) = parameters(4, :)-1; % baseline
+    case {'DAC'}
+        guess(2, :) = 0.005; % width
+        guess(3, :) = -parameters(1, :); % amplitude (contrast)
+        guess(4, :) = parameters(4, :)-1; % baseline
+    case 'gaussian'
+        guess = parameters;
+   guess = single(guess);
 end
 end
 
@@ -361,20 +383,28 @@ fit.parameters = double(reshape(parameters, [], sizeY, sizeX)); % fitted paramet
 fit.p = double(parameters);
 
 % matricies with 2 dimensions for x and y pixels:
-
 fit.resonance = squeeze(fit.parameters(1, :, :));
 fit.width = squeeze(fit.parameters(2, :, :));
 fit.contrastA = squeeze(fit.parameters(3, :, :));
-fit.contrastB = squeeze(fit.parameters(4, :, :));
 
 % check for diamond type: N14 has 6 parameters, N15 has only 5
 nParams = size(initialGuess, 1);
 
-if nParams == 6 % for N14 diamonds
-    fit.contrastC = squeeze(fit.parameters(5, :, :));
-    fit.baseline = squeeze(fit.parameters(6, :, :)+1);
-else % for N15 diamonds
-    fit.baseline = squeeze(fit.parameters(5, :, :)+1);
+switch diamond
+    case {'N14', 'triplet'} % for N14 diamonds
+        fit.contrastB = squeeze(fit.parameters(4, :, :));
+        fit.contrastC = squeeze(fit.parameters(5, :, :));
+        fit.baseline = squeeze(fit.parameters(6, :, :)+1);
+    case {'N15', 'doublet'} % for N15 diamonds
+        fit.contrastB = squeeze(fit.parameters(4, :, :));
+        fit.baseline = squeeze(fit.parameters(5, :, :)+1);
+    case {'singlet', 'DAC'} % singlet
+        fit.baseline = squeeze(fit.parameters(4, :, :)+1);
+    case {'gaussian'}
+        fit.resonance = squeeze(fit.parameters(2, :, :));
+        fit.width = squeeze(fit.parameters(3, :, :));
+        fit.contrastA = -squeeze(fit.parameters(1, :, :));
+        fit.baseline = squeeze(fit.parameters(4, :, :));
 end
 
 fit.states = reshape(states, [sizeY, sizeX]);

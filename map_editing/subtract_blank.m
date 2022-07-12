@@ -1,5 +1,5 @@
 function subtractedData = subtract_blank(kwargs)
-%[subtractedData] = subtract_blank('nFiles', 'blankFile', 'checkPlot', 'save')
+%[subtractedData] = subtract_blank('nFiles', 'blankFile', 'alignmentType', 'checkPlot', 'save')
 % Subtracts a blank map from the Data
 %
 % Parameters
@@ -59,7 +59,7 @@ blankData = load(blankFile);
 
 switch kwargs.alignmentType
 case 'laser'
-    if exist(blankData, 'laser')
+    if isfield(blankData, 'laser')
         movingData = blankData.laser;
     else
         movingData = imread(fullfile(blankFolder, laserFileName));
@@ -79,7 +79,7 @@ for i = 1 : size(nFiles, 2)
 
     switch kwargs.alignmentType
     case 'laser'
-        if exist(fileData, 'laser')
+        if isfield(fileData, 'laser')
             fixedData = fileData.laser;
         else
             fixedData = imread(fullfile(iFolder, laserFileName));
@@ -130,13 +130,13 @@ for i = 1 : size(nFiles, 2)
                  'Position',[0.1 0.1 0.8 0.8], 'Name', 'Blank Subtraction');
         
         sp1 = subplot(2,2,1);
-        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original') 
+        QDM_figure(fileB111ferro, 'ax', sp1, 'title','Original');
         sp2 = subplot(2,2,2);
-        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank')        
+        QDM_figure(blankData.B111ferro, 'ax', sp2, 'title','Blank');        
         sp3 = subplot(2,2,3);
-        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction')      
+        QDM_figure(fileData.B111ferro - blankData.B111ferro, 'ax', sp3, 'title','Unaligned subtraction');     
         sp4 = subplot(2,2,4);
-        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction') 
+        QDM_figure(newFileData.B111ferro, 'ax', sp4, 'title','Aligned subtraction', 'preThreshold','none');
 
         ax = [sp1, sp2, sp3, sp4];
         linkaxes(ax)

@@ -1,5 +1,15 @@
 function binning = detect_binning(inData, kwargs)
 %[binning] = detect_binning(inData; 'refFrame')
+% 
+% Parameters
+% ----------
+%   inData: struct
+%       B111 or Bz data
+%   refFrame: ('none')
+% 
+% Returns
+% ----------
+%   binning:
 
 arguments
    inData

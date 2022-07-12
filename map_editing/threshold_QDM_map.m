@@ -14,6 +14,8 @@ function filteredMaps = threshold_QDM_map(kwargs, filterArgs)
 %     chi: array [false]
 %         if chi is provided the data will be filtered according to the chi
 %         values.
+%     save: bool [true]
+%         Specifies if the data should be saved as a new file.
 %     winSize: int [3]
 %         specifies the number of pixels to the left AND right to be used for
 %         averaging
@@ -48,6 +50,7 @@ filterArgs = ask_arguments(filterArgs, defaults);
 nFiles = automatic_input_ui__(kwargs.nFiles, 'type', 'file', 'multiselect', 'off');
 
 filteredMaps = {};
+
 for i = 1:size(nFiles,2)
     iFile = nFiles{i};
     expData = load(iFile);
@@ -104,4 +107,33 @@ for i = 1:size(nFiles,2)
         logMsg('saving',msg,1,0);
         save(iFileNew, '-struct', 'expData')
     end
+
+    if kwargs.checkPlot
+        threshold_checkPlot(filteredMaps{i})
+    end
+end
+end
+
+function threshold_checkPlot(data)
+%threshold_checkPlot(data)
+    fig = figure('Name', 'Threshold checkPlot', 'units', 'normalized', 'position', [0.1, 0.1, 0.8, 0.3]);
+
+    movegui(fig,'center')
+
+    [~, dataName, ~] = is_B111(data);
+
+    ax1 = subplot(1,3,1);
+    QDM_figure(data.(sprintf('%s_unfiltered', dataName)), 'preThreshold', 'none', ...
+        'ax', ax1, 'unit', 'muT','title','before Threshold');
+    
+    ax2 = subplot(1,3,2);
+    QDM_figure(data.(dataName), 'preThreshold', 'none', ...
+        'ax', ax2, 'unit', 'muT', 'title','after Threshold');
+    
+    ax3 = subplot(1,3,3);
+    QDM_figure(data.(dataName) - data.(sprintf('%s_unfiltered', dataName)), ...
+        'preThreshold', 'none', 'colormap', 'rwb', ...
+        'ax', ax3, 'unit', 'muT', 'title','delta');
+    linkaxes([ax1 ax2 ax3])
+    
 end

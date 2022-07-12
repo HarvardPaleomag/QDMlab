@@ -175,7 +175,11 @@ led = expData.(ledName);
 [filePath, name, ext] = fileparts(filePath);
 
 % downsample data
-bData = downsample(downsample(expData.(dataName), kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
+bData = expData.(dataName);
+
+if kwargs.downSample ~= 1
+    bData = downsample(downsample(bData, kwargs.downSample)', kwargs.downSample)'; % Bz is assumed in T
+end
 bData = double(bData); % convert to double in case of single values
 
 step = step * kwargs.downSample;
@@ -440,6 +444,8 @@ nameext = [name, ext];
 %% plotting / saving
 if kwargs.checkPlot || kwargs.save
     % whole map figure
+    binning = detect_binning(expData);
+
     f = figure('Units', 'normalized', ...
                'Position',[0.1 0.1 0.8 0.4],'NumberTitle', 'off', 'Name', 'total map / LED');
            
@@ -449,35 +455,45 @@ if kwargs.checkPlot || kwargs.save
     rectPos = [xCrop(1), yCrop(1), xCrop(2)-xCrop(1), yCrop(2)-yCrop(1)];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
-    
+%     plot(ax1, xopt/step*binning, yopt/step*binning, 'xr')
+
     ax2 = subplot(1, 2, 2);
     QDM_figure(led, 'ax', ax2, 'led',true, 'title', 'LED map');
-    binning = detect_binning(expData);
     hold on
     rectPos = [xCrop(1)*binning, yCrop(1)*binning, (xCrop(2)-xCrop(1))*binning, (yCrop(2)-yCrop(1))*binning];
     rectangle('Position', rectPos,...
         'EdgeColor', 'r', 'FaceColor', 'none', 'LineWidth', 0.7);
+    plot(xopt/step*binning, yopt/step*binning, 'xr')
     
     % data figure
     dataFig = figure('units','normalized','outerposition',[0.2 0.6 0.6 0.3],'NumberTitle', 'off', 'Name', 'fit_source');
     ax1 = subplot(1, 3, 1);
+    hold on
     imagesc(xc, yc, bDataCropped);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
+    plot(ax1, xopt, yopt, 'xr')
     title('Original Scan');
+    
     ax2 = subplot(1, 3, 2);
+    hold on
     imagesc(xc, yc, bModel);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
+    plot(ax2, xopt, yopt, 'xr')
     title('Model Scan');
+    
     ax3 = subplot(1, 3, 3);
+    hold on
     imagesc(xc, yc, residuals);
     axis xy, axis equal, axis tight;
     caxis([-1, 1]*max(abs(caxis)));
     colorbar
+    plot(ax3, xopt, yopt, 'xr')
     title('Residuals');
+    
     linkaxes([ax1, ax2, ax3]);
 end
 

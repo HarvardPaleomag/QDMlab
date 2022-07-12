@@ -1,7 +1,24 @@
 function [expData, row, col] = crop_map(kwargs)
-%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col', 'title')
+%[expData, row, col] = crop_map('filePath', 'save', 'checkPlot', 'row', 'col', 'even', 'title')
 % This script takes an input Bz map, asks for a box, crops to that box, and
 % outputs Bz and Bt maps, along with the accessory parameters
+%
+% Parameters
+% ----------
+%   filePath: ('none')
+%   save: (true)
+%   checkPlot: (false)
+%   row: (false)
+%   col: (false)
+%   even: (true)
+%       enforce even dimensions in crop to be compatible with downstream fft functions
+%   title: ('Select area to crop')
+% 
+% Returns
+% ----------
+%   expData:
+%   row:
+%   col:
 
 arguments
     kwargs.filePath = 'none';
@@ -9,6 +26,7 @@ arguments
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
     kwargs.row = false;
     kwargs.col = false;
+    kwargs.even = true; %enforce even dimensions in crop to be compatible with downstream fft functions
     kwargs.title = 'Select area to crop';
 end
 
@@ -20,7 +38,21 @@ else
     expData = load(filePath);
 end
 
-[row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
+if ~kwargs.row & ~kwargs.col
+    [row, col] = pick_box2('expData', expData, 'title', kwargs.title, 'even', true);
+else
+    row = kwargs.row;
+    col = kwargs.col;
+end
+
+if kwargs.even
+    if ~mod(row(2)-row(1),2)
+        row(2)=row(2)-1;
+    end
+    if ~mod(col(2)-col(1),2)
+        col(2)=col(2)-1;
+    end
+end
 
 [~, dataName, ledName] = is_B111(expData);
 bData = expData.(dataName);
@@ -47,11 +79,12 @@ end
 
 %% save data with new fileName
 if kwargs.save
+    fullpath=filePath;
     [filePath,fileName,~]=fileparts(filePath);
     
-    iFileNew = strrep(filePath, '.mat','_Cropped.mat');
+    iFileNew = strrep(fullpath,'.mat','_Cropped.mat');
     fprintf('<>     SAVING: cropped data to file << %s >>\n', iFileNew);
-    saveas(fig,fullfile(filePath, sprintf('%s_Hole.png', fileName)))
+    saveas(fig,fullfile(filePath, sprintf('%s_crop.png', fileName)))
     save(iFileNew,'-struct','expData');
 end
 

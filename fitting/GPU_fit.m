@@ -1,6 +1,6 @@
 function fits = GPU_fit(dataFolder, binSize, kwargs)
-%[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', 'diamond', 'slopeCorrection')
-
+%[fits] = GPU_fit(dataFolder, binSize; 'fieldPolarity', 'type', 'globalFraction', 'quadBgSub', 'forceGuess', 'checkPlot', 'gaussianFit', 'gaussianFilter', 'smoothDegree', 'save', '['N15',', 'slopeCorrection', 'crop', 'fcrop')
+%
 % Parameters
 % ----------
 %     dataFolder: char
@@ -41,8 +41,9 @@ function fits = GPU_fit(dataFolder, binSize, kwargs)
 %         Calls 'correct_global' function
 %     save: bool [true]
 %         if true the results are saved to 'dataFolder'
-%     diamond: str [N14]
+%     diamond: str ['N14']
 %         The type of diamond. Choses the type of fitting.
+%     crop = [0]
 %
 % Notes
 % -----
@@ -65,8 +66,12 @@ arguments
     kwargs.gaussianFilter (1,1) {mustBeNumeric, mustBeGreaterThanOrEqual(kwargs.gaussianFilter, 0)} = 0;
     kwargs.smoothDegree  (1,1) {mustBeNumeric, mustBePositive} = 2
     kwargs.save (1,1) {mustBeBoolean(kwargs.save)} = 1
-    kwargs.diamond {mustBeMember(kwargs.diamond, ['N15', 'N14'])} = 'N14'
+    kwargs.diamond {mustBeMember(kwargs.diamond, ...
+        ['N15', 'N14', 'DAC', 'singlet', 'doublet', 'triplet', 'gaussian'])} = 'N14'
     kwargs.slopeCorrection = false;
+    kwargs.crop = 'none'
+    kwargs.fcrop (1,1) {mustBeBoolean(kwargs.fcrop)}  = false
+
 end
 
 tStart = tic;
@@ -99,43 +104,75 @@ sides = {'left' 'right'};
 fits = struct();
 
 %% GUESS PARAMETER ESTIMATION
+lowCropIdx = [0,0];
+highCropIdx = [0,0];
+
 for fileNum=startN:1:endN
     pol = polarities{fileNum};
     
     %%% select header and data file
     dataFile = dataFiles(fileNum).name;
+    headerFile = strrep(dataFile,'.mat','_header.txt');
     
     loadStart = tic; % for timing 
     msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
     logMsg('debug',msg,1,0);
     
+    % read data & header
     expData = load(fullfile(dataFolder, dataFile));
-
+    header = read_header(fullfile(dataFolder, headerFile));
+    
+    % add path to header struct
+    header.dFile = fullfile(dataFolder, dataFile);
+    header.headerFile = fullfile(dataFolder, headerFile);
+    
     msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
     logMsg('info',msg,1,1);
 
-    SpanXTrans = 1:expData.imgNumCols;
-    SpanYTrans = 1:expData.imgNumRows;
-
     pixelAlerts = struct();
+    
     for nRes = 1:2
         side = sides{nRes};
-            
-        Resfit = fit_resonance(expData, binSize, nRes, ...
-            'type',kwargs.type, 'globalFraction', kwargs.globalFraction, ...
+        fRanges = get_franges(expData, header);
+        % get the fcrop values for each side only one time
+        if kwargs.fcrop
+            n = expData.numFreqs;
+            if nRes == 1 & all(lowCropIdx == [0,0])
+                lowCropIdx = pick_fcrop(expData.disp1, fRanges{1});
+            elseif nRes == 2 & all(highCropIdx == [0,0])
+                highCropIdx = pick_fcrop(expData.disp2, fRanges{2});
+            end
+        end
+        
+        if kwargs.fcrop & nRes == 1
+            kwargs.fcrop = lowCropIdx;
+        elseif kwargs.fcrop & nRes == 2
+            kwargs.fcrop = highCropIdx;
+        end
+        
+        Resfit = fit_resonance(expData, binSize, nRes, header, ...
+            'type',kwargs.type, ...
+            'globalFraction', kwargs.globalFraction, ...
             'diamond', kwargs.diamond,...
             'slopeCorrection', kwargs.slopeCorrection,...
-            'gaussianFit',gaussianFit, 'gaussianFilter', kwargs.gaussianFilter,...
-            'smoothDegree', kwargs.smoothDegree, 'checkPlot', kwargs.checkPlot);
+            'gaussianFit',gaussianFit, ...
+            'gaussianFilter', kwargs.gaussianFilter,...
+            'smoothDegree', kwargs.smoothDegree, ...
+            'crop', kwargs.crop, ...
+            'fcrop', kwargs.fcrop, ...
+            'checkPlot', kwargs.checkPlot);
+        
         Resfit.fileName = fullfile(dataFolder, dataFile);
         fits.([side pol]) = Resfit;
     end
 
     Resonance1 = fits.(['left' pol]).resonance; 
     Width1 = fits.(['left' pol]).width; 
-    ContrastA1 = fits.(['left' pol]).contrastA; 
-    ContrastB1 = fits.(['left' pol]).contrastB;
+    ContrastA1 = fits.(['left' pol]).contrastA;
     
+    if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastB'))
+        ContrastB1 = fits.(['left' pol]).contrastB;
+    end
     if any(strcmp(fieldnames( fits.(['left' pol])), 'contrastC'))
         ContrastC1 = fits.(['left' pol]).contrastC;
     end
@@ -148,8 +185,11 @@ for fileNum=startN:1:endN
     
     Resonance2 = fits.(['right' pol]).resonance; 
     Width2 = fits.(['right' pol]).width; 
-    ContrastA2 = fits.(['right' pol]).contrastA; 
-    ContrastB2 = fits.(['right' pol]).contrastB;
+    ContrastA2 = fits.(['right' pol]).contrastA;
+    
+    if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastB'))
+        ContrastB2 = fits.(['right' pol]).contrastB; 
+    end
 
     if any(strcmp(fieldnames( fits.(['right' pol])), 'contrastC'))
         ContrastC2 = fits.(['right' pol]).contrastC;
@@ -175,10 +215,9 @@ for fileNum=startN:1:endN
     % fit convergance, if the fit failed for whatever reason, the value for this pixel is 1 will be
     pixelAlerts = fits.(['left' pol]).states ~= 0 | fits.(['right' pol]).states ~= 0;
     fits.(['pixelAlerts' pol]) = pixelAlerts;
-
+    fits.(['header' pol]) = header;
+    
     %% SAVE FIT RESULTS%
-    sizeX = size(Resonance1,2); sizeY = size(Resonance1,1); %Image dimensions
-
     if kwargs.save
         folderName = sprintf('%ix%iBinned', binSize, binSize);
         
@@ -194,45 +233,34 @@ for fileNum=startN:1:endN
         msg = sprintf('saving data of %s',dataFile);
         logMsg('info',msg,1,0);        
         
-        if strcmp(kwargs.diamond, 'N14')
+        switch kwargs.diamond
+            case {'N14', 'triplet'}
             save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
                 'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'ContrastC1', 'Baseline1', ...
                 'Freqs1', 'chiSquares1', 'p1','freq1',...
                 'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'ContrastC2', 'Baseline2', ...
                 'Freqs2', 'chiSquares2', 'p2','freq2',...
                 'binSize','type','gaussianFit', 'pixelAlerts');
-        elseif strcmp(kwargs.diamond, 'N15')
-            save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
-            'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
-            'Freqs1', 'chiSquares1', 'p1','freq1',...
-            'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
-            'Freqs2', 'chiSquares2', 'p2','freq2',...
-            'binSize','type','gaussianFit', 'pixelAlerts');
+            
+            case {'N15', 'doublet'}
+                save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
+                'Resonance1', 'Width1', 'ContrastA1', 'ContrastB1', 'Baseline1', ...
+                'Freqs1', 'chiSquares1', 'p1','freq1',...
+                'Resonance2', 'Width2', 'ContrastA2', 'ContrastB2', 'Baseline2', ...
+                'Freqs2', 'chiSquares2', 'p2','freq2',...
+                'binSize','type','gaussianFit', 'pixelAlerts');
+        
+            case {'DAC', 'singlet', 'gaussian'}
+                save(fullfile(dataFolder, folderName, [dataFile, 'deltaBFit.mat']), 'dB', ...
+                'Resonance1', 'Width1', 'ContrastA1', 'Baseline1', ...
+                'Freqs1', 'chiSquares1', 'p1','freq1',...
+                'Resonance2', 'Width2', 'ContrastA2', 'Baseline2', ...
+                'Freqs2', 'chiSquares2', 'p2','freq2',...
+                'binSize','type','gaussianFit', 'pixelAlerts');
         end
    
     end
 end
 msg = sprintf('all GPU fitting tasks completed in: %.1f s', toc(tStart));
 logMsg('FINAL',msg,1,0);
-end
-
-function fileData = load_data(dataFolder, startN, endN)
-%[fileData] = load_data(dataFolder, startN, endN)
-    fileData = {endN};
-    dataFiles = dir(fullfile(dataFolder,'run_0000*.mat'));
-    loadStart = tic; % for timing 
-    for fileNum=startN:1:endN
-        %%% select header and data file
-        dataFile = dataFiles(fileNum).name;
-
-        msg = ['loading data file: ', fullfile(dataFolder, dataFile)];
-        logMsg('debug',msg,1,0);
-        
-        filePath = fullfile(dataFolder, dataFile);
-        expData = load(fullfile(dataFolder, dataFile)); %matfile(filePath,'Writable',true)
-        expData.filePath = filePath;
-        fileData{fileNum} = expData;
-        msg = sprintf('loading of file %i/%i complete (%.1f s)', fileNum, size(startN:1:endN, 2), toc(loadStart));
-        logMsg('info',msg,1,1);
-    end
 end

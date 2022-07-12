@@ -1,50 +1,47 @@
 function [peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs, kwargs)
 %[peakValue, peakLocation, fitFlg] = guess_peaks(data, globalData, freqs; 'forceGuess', 'checkPlot', 'gaussianFit', 'smoothDegree', 'pixel')
-%{
-helper function to determine an initial guess of a QDM spectra (i.e.
-pixel).
+%
+% helper function to determine an initial guess of a QDM spectra (i.e.
+% pixel).
+%
+% Parameters
+% ----------
+%     data: double
+%         data array with numFreqs entries
+%     globalData: double
+%         mean of all pixels in image. Used only for plotting
+%     freqs: double
+%         frequency range
+%     
+%     pixel: 1x3
+%         x y location and left(1) right(2) spectrum 
+%         used to find pixels that were not guessed correct (i.e. global)
+%     forceGuess:
+%         HAVE NOT TESTED
+%         used to force a guess
+%     smoothDegree: int
+%         default: 3
+%         how much the data ius smoothed before finding peaks
+%     gaussianFit: bool
+%         if true: will use a simple gaussian fit to determine the location
+%         of the center peak and use the hyp. splitting to gues the peaks
+%         left and right to it.
+%         if false: will use the global to estimate the peak locations
+%     checkPlot: bool
+%         creates a plot to check for wrong guesses
+% 
+% Returns
+% -------
+%    peakValue: double
+%         three values for the peaks
+%     peakLocation: double
+%         three peakindeces
+%     fitFlg: [0 1 2]
+%         0: local guess worked
+%         1: gaussian (local failed)
+%         2: global (local failed)
+% 
 
-Parameters
-----------
-    required
-    ========
-    data: double
-        data array with numFreqs entries
-    globalData: double
-        mean of all pixels in image. Used only for plotting
-    freqs: double
-        frequency range
-
-    optional
-    ========
-    pixel: 1x3
-        x y location and left(1) right(2) spectrum 
-        used to find pixels that were not guessed correct (i.e. global)
-    forceGuess:
-        HAVE NOT TESTED
-        used to force a guess
-    smoothDegree: int
-        default: 3
-        how much the data ius smoothed before finding peaks
-    gaussianFit: bool
-        if true: will use a simple gaussian fit to determine the location
-        of the center peak and use the hyp. splitting to gues the peaks
-        left and right to it.
-        if false: will use the global to estimate the peak locations
-    checkPlot: bool
-        creates a plot to check for wrong guesses
-
-Returns
--------
-    peakValue: double
-        three values for the peaks
-    peakLocation: double
-        three peakindeces
-    fitFlg: [0 1 2]
-        0: local guess worked
-        1: gaussian (local failed)
-        2: global (local failed)
-%}
 arguments
     data double
     globalData double

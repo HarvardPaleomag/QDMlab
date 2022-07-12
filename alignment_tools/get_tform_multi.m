@@ -1,28 +1,29 @@
 function [nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders, kwargs)
 %[nTransForms, nRefFrames] = get_tform_multi(fixedFile, nMovingFolders; 'transFormFile', 'checkPlot', 'reverse', 'binning', 'laser')
-% parameters:
+% 
+% Parameters
+% ----------
 %     fixedFile: str
 %         Path to the reference image. Needs to be a file not folder
 %     nMovingFolders: cell(str)
 %         A cell with all folders that contain the data to be aligned.
+%     tform_file: str
+%         default: 'none'
+%         Location for the file the transformation map is stored in for
+%         later use
+%     binning: int
+%         default: 2
+%         binning used in fit
+%     reverse: bool
+%         if true:  refernce - tform -> target
+%         if false: target   - tform -> reference
+%     checkPlot: bool
+%         default: false
+%         If true creates an overlay image of reference/target for each
+%         file in target_fodlers matching the filename of reference_file
 % 
-% optional parameters:
-%         tform_file: str
-%             default: 'none'
-%             Location for the file the transformation map is stored in for
-%             later use
-%         binning: int
-%             default: 2
-%             binning used in fit
-%         reverse: bool
-%             if true:  refernce - tform -> target
-%             if false: target   - tform -> reference
-%         checkPlot: bool
-%             default: false
-%             If true creates an overlay image of reference/target for each
-%             file in target_fodlers matching the filename of reference_file
-% 
-% Returns:
+% Returns
+% -------
 %     a map with the filname as the key and the transform as the value. Can
 %     be accessed like `nTransForms(fname) = iTransForm`
 
@@ -93,14 +94,14 @@ for iFolder = nMovingFolders
     iFolder = iFolder{:};
 
     % load moving data
-    movingFile = [iFolder, filesep, refFileName];
+    movingFile = fullfile(iFolder, filesep, refFileName);
     movingFile = check_suffix(movingFile);
     
     msg = sprintf('aligning: %s', movingFile(end-40:end));
     logMsg('debug',msg,1,0);
     
     if laser
-        moving = imread([iFolder filesep refExtension]);
+        moving = imread(fullfile(iFolder, refExtension));
 %         moving = adapthisteq(moving);
     else
         moving = load(movingFile);

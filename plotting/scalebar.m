@@ -1,6 +1,11 @@
 function scalebar(kwargs)
 %scalebar('fig', 'ax', 'im', 'pixelSize', 'scaleBar', 'unit', 'color', 'location')
-
+% adds scalebar to a plot
+%
+% Parameters
+% ----------
+%   fig:
+%   
 arguments
     kwargs.fig = 'none';
     kwargs.ax = 'none';
@@ -77,7 +82,7 @@ switch kwargs.location
 end
 
 xEnd = xStart + kwargs.scaleBar * pixelPerUnit;
-yEnd = yStart + 0.1*top* pixelPerUnit;
+yEnd = yStart + 0.0*top* pixelPerUnit;
 yCenter = mean([yStart, yEnd]);
 
 % left

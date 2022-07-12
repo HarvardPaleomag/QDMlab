@@ -1,13 +1,12 @@
 function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
-%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'laser')
-% Function to aling a set of images. Function will automatically align the
-% images first and you can check if it is ok. If not the complex alignment
-% will be called.
+%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'reference', 'laser')
+% Function to alings a set of images. Function will automatically align the
+% images first then you can check if the alignment is ok. If the alignment is not good,
+% a complex alignment function will be called.
 %
 % Parameters
 % ----------
 %   nFolders: cell, char
-%
 %   transFormFile: path ['none']
 %   fixedIdx: int [1]
 %   checkPlot: bool [1]
@@ -15,6 +14,10 @@ function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
 %   sequence: bool [0]
 %   reverse: bool [0]
 %   laser: uses laser image for alignment
+%
+% See also
+% --------
+%  'get_image_transform', 'get_image_tform_complex'
 
 arguments
     nFolders cell {foldersMustExist(nFolders)}
@@ -24,6 +27,7 @@ arguments
     kwargs.fileName char {fileMustExistInFolder(kwargs.fileName, nFolders)} = 'Bz_uc0'
     kwargs.sequence (1,1) {mustBeBoolean(kwargs.sequence)} = 0
     kwargs.reverse (1,1) {mustBeBoolean(kwargs.reverse)} = 0
+    kwargs.reference = 'led'
     kwargs.laser (1,1) {mustBeBoolean(kwargs.laser)} = false
 end
 nFolders = correct_cell_shape(nFolders);
@@ -35,7 +39,7 @@ sequence = kwargs.sequence;
 reverse = kwargs.reverse;
 
 % generate reference file name
-fixedFile = [nFolders{fixedIdx}, filesep, fileName];
+fixedFile = fullfile(nFolders{fixedIdx}, filesep, fileName);
 fixedData = load(fixedFile);
 
 

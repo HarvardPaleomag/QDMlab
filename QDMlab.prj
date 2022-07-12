@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="3309077158" file="/Users/mike/github/QDMlab/QDMlab.prj" location="/Users/mike/github/QDMlab" name="QDMlab" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="3309077158" file="C:\Users\micha\github\QDMlab\QDMlab.prj" location="C:\Users\micha\github\QDMlab" name="QDMlab" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>QDMlab</param.appname>
     <param.authnamewatermark>M. Volk, R. Fu, R. Trubko, P. Kehayias ...</param.authnamewatermark>
     <param.email>michaelvolk1979@gmail.com</param.email>
@@ -7,9 +7,9 @@
     <param.summary>QDMlab a matlab toolbox for analyzing Quantum Diamond Microscope images</param.summary>
     <param.description>For decades, paleomagnetic measurements of the natural remanent magnetization of bulk, millimeter to centimeter-sized rock samples were performed using classical net moment rock magnetometers. In this case, the integration over vast numbers of magnetic particles severely limits the spatial resolution of the analysis.
 The invention and development of magnetic imaging with the quantum diamond microscope (QDM) allows for the measurement of weakly magnetic (10-16 Am2) samples at unprecedented spatial resolution. The raw data for each pixel in a magnetic map consists of several individual spectra of nitrogen vacancy fluorescence. Therefore, before a magnetic map can be analyzed, large amounts of data need to be processed and fitted. QDMlab, is an open source MATLAB toolbox for analyzing QDM magnetic field maps. QDMlab contains easy to use functions for (1) magnetic field map generation, (2) map editing, and (3) novel approaches for map analysis. QDMlab utilizes modern computational techniques like graphical processing unit (GPU) and spectral fitting routines as well as automated imaging alignment using machine learning algorithms.</param.description>
-    <param.screenshot>/Users/mike/Dropbox/science/_projects/QDMlab_paper/figs/QDMlab_logo.png</param.screenshot>
-    <param.version>2021.1.5</param.version>
-    <param.output>${PROJECT_ROOT}/QDMlab.mltbx</param.output>
+    <param.screenshot>C:\Users\micha\Dropbox\science\_projects\QDMlab_paper\figs\QDMlab_logo.png</param.screenshot>
+    <param.version>2022.1</param.version>
+    <param.output>${PROJECT_ROOT}\QDMlab.mltbx</param.output>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -101,47 +101,48 @@ The invention and development of magnetic imaging with the quantum diamond micro
       <file>${PROJECT_ROOT}</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}/Bz_and_UpCont</file>
-      <file>${PROJECT_ROOT}/GPUfit_MATLAB</file>
-      <file>${PROJECT_ROOT}/README.md</file>
-      <file>${PROJECT_ROOT}/admin_tools</file>
-      <file>${PROJECT_ROOT}/alignment_tools</file>
-      <file>${PROJECT_ROOT}/analysis</file>
-      <file>${PROJECT_ROOT}/data_models</file>
-      <file>${PROJECT_ROOT}/fitting</file>
-      <file>${PROJECT_ROOT}/map_editing</file>
-      <file>${PROJECT_ROOT}/net_moment_analysis</file>
-      <file>${PROJECT_ROOT}/picking_tools</file>
-      <file>${PROJECT_ROOT}/plotting</file>
-      <file>${PROJECT_ROOT}/release_notes.rst</file>
-      <file>${PROJECT_ROOT}/testing</file>
-      <file>${PROJECT_ROOT}/utilities</file>
-      <file>${PROJECT_ROOT}/validators</file>
+      <file>${PROJECT_ROOT}\admin_tools</file>
+      <file>${PROJECT_ROOT}\alignment_tools</file>
+      <file>${PROJECT_ROOT}\analysis</file>
+      <file>${PROJECT_ROOT}\Bz_and_UpCont</file>
+      <file>${PROJECT_ROOT}\data_models</file>
+      <file>${PROJECT_ROOT}\fitting</file>
+      <file>${PROJECT_ROOT}\GPUfit_MATLAB</file>
+      <file>${PROJECT_ROOT}\io</file>
+      <file>${PROJECT_ROOT}\map_editing</file>
+      <file>${PROJECT_ROOT}\net_moment_analysis</file>
+      <file>${PROJECT_ROOT}\picking_tools</file>
+      <file>${PROJECT_ROOT}\plotting</file>
+      <file>${PROJECT_ROOT}\pressure_tools</file>
+      <file>${PROJECT_ROOT}\README.md</file>
+      <file>${PROJECT_ROOT}\release_notes.rst</file>
+      <file>${PROJECT_ROOT}\utilities</file>
+      <file>${PROJECT_ROOT}\validators</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="QDMlab.mltbx" optional="false">/Users/mike/github/QDMlab/QDMlab.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="QDMlab.mltbx" optional="false">C:\Users\micha\github\QDMlab\QDMlab.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/Applications/MATLAB_R2021a.app</root>
+      <root>C:\Program Files\MATLAB\R2022a</root>
       <toolboxes />
     </matlab>
     <platform>
-      <unix>true</unix>
-      <mac>true</mac>
-      <windows>false</windows>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.16</osver>
+      <osver>10.0</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>maci64</arch>
+      <arch>win64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>

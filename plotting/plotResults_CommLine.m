@@ -1,5 +1,19 @@
 function fits = plotResults_CommLine(dataFolder, folderName, type, fits, binSize, kwargs)
-%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot')
+%[fits] = plotResults_CommLine(dataFolder, folderName, type, fits, binSize; 'checkPlot', 'crop')
+% 
+% Parameters
+% ----------
+%   dataFolder:
+%   folderName:
+%   type:
+%   fits:
+%   binSize:
+%   checkPlot: (false)
+%   crop: ('none')
+% 
+% Returns
+% ----------
+%   fits:
 
 arguments
     dataFolder
@@ -8,6 +22,7 @@ arguments
     fits
     binSize
     kwargs.checkPlot (1, 1) {mustBeBoolean(kwargs.checkPlot)} = false;
+    kwargs.crop = 'none'
 end
 
 close all;
@@ -22,6 +37,14 @@ laserFiles = dir(fullfile(myDir,'laser.csv'));   %grab the first / only CSV
 laserImgPath = fullfile(myDir, laserFiles(1).name);
 laserImg = load(laserImgPath);
 
+if ~strcmp(kwargs.crop, 'none')
+    x0 = kwargs.crop(1);
+    y0 = kwargs.crop(2);
+    x1 = kwargs.crop(3)+x0;
+    y1 = kwargs.crop(4)+y0;
+    ledImg = ledImg(y0:y1,x0:y1);
+    laserImg = laserImg(y0:y1,x0:x1);
+end
 gamma = 0.0028;
  
 if type == 'np  '

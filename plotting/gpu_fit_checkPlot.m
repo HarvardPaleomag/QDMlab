@@ -1,7 +1,10 @@
 function fig = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
 %[fig] = gpu_fit_checkPlot(fit, binDataNorm, freq, binSize, diamond)
-    fig = figure('units','normalized','outerposition',[0 0.5 1 0.35]);
-    
+    [sizeX, sizeY, nF] = size(binDataNorm);
+    rat = sizeX / sizeY;
+    fig = figure('units','normalized','Position',[0 0.5 0.8 0.8*rat/2]);
+    movegui(fig,'center')
+
     %% RESONANCE
     ax1 = subplot(1,3,1);
     

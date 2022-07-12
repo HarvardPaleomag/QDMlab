@@ -1,5 +1,5 @@
 function [row, col] = pick_box2(kwargs)
-%[row, col] = pick_box2('expData', 'title', 'point', 'even')
+%[row, col] = pick_box2('expData', 'title', 'point', 'even', 'dataName', 'sort', 'close')
 %
 % Parameters
 % ----------
@@ -22,6 +22,9 @@ arguments
     kwargs.title = 'Pick Area (+/- to change colorscale)';
     kwargs.point {mustBeBoolean(kwargs.point)} = false;
     kwargs.even {mustBeBoolean(kwargs.even)} = false;
+    kwargs.dataName = 'none';
+    kwargs.sort = true;
+    kwargs.close = true
 end
 
 %% get data
@@ -32,8 +35,11 @@ else
     expData = kwargs.expData;
 end
 
-[~, dataName, ~] = is_B111(expData);
-bData = expData.(dataName);
+if strcmp(kwargs.dataName, 'none')
+    [~, kwargs.dataName, ~] = is_B111(expData);
+end
+
+data = expData.(kwargs.dataName);
 % ledData = expData.(ledName);
 
 %% Crop a single region for source fitting
@@ -44,8 +50,9 @@ logMsg('SELECT',msg,1,0);
 
 pickFigure = figure('Units', 'normalized', ...
                'Position',[0.1 0.2 0.8 0.8],'NumberTitle', 'off', 'Name', 'Pick Point(s)');
-           
-[pickFigure, ax] = QDM_figure(bData, 'fig', pickFigure, 'title', kwargs.title);
+movegui(pickFigure,'center')
+
+[pickFigure, ax] = QDM_figure(data, 'fig', pickFigure, 'title', kwargs.title);
 
 hold(ax, 'on')
 
@@ -80,8 +87,10 @@ while flag
     end
 end
 
-row = sort(row, 1);
-col = sort(col, 1);
+if kwargs.sort
+    row = sort(row, 1);
+    col = sort(col, 1);
+end
 
 %% check indices
 if row(1) <= 0
@@ -92,11 +101,11 @@ if col(1) <= 0
 end
 
 if ~kwargs.point
-    if row(2) > size(bData, 1)
-        row(2) = size(bData, 1);
+    if row(2) > size(data, 1)
+        row(2) = size(data, 1);
     end
-    if col(2) > size(bData, 2)
-        col(2) = size(bData, 2);
+    if col(2) > size(data, 2)
+        col(2) = size(data, 2);
     end
 end
 
@@ -105,8 +114,10 @@ if kwargs.even
     col = makeEven(col);
 end
 
-pause(1)
-close(pickFigure)
+if kwargs.close
+    pause(1)
+    close(pickFigure)
+end
 
 if kwargs.point
     msg = sprintf('returning point indices: x: %i; y: %i', col, row);

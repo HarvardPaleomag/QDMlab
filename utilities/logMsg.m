@@ -1,6 +1,19 @@
 function msg = logMsg(level,message,lineEnd,indent,kwargs)
 %[msg] = logMsg(level, message, lineEnd, indent; 'returnOnly')
 % simple logging function
+% 
+% Parameters
+% ----------
+%   level:
+%   message:
+%   lineEnd:
+%   indent:
+%   returnOnly: (false)
+% 
+% Returns
+% ----------
+%   msg:
+
 arguments
     level
     message
@@ -46,7 +59,7 @@ msg = sprintf('<> %6s %s: %s:%s %s', datetime('now', 'Format', 'HH:mm:ss:SS'), .
 % while msg           
           
 if ~kwargs.returnOnly
-    if strcmpi(level, 'INPUT') | strcmpi(level, 'ERROR') | strcmpi(level, 'DEPRECATED')
+    if any(strcmpi(level, {'INPUT', 'ERROR', 'DEPRECATED', 'ATTENTION'}))
         if lineEnd
             fprintf(2, '%s\n',msg);
         else
