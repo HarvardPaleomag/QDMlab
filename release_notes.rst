@@ -2,12 +2,11 @@ Release Notes
 *************
 2022.1
 ======
-This is a big release. There are many additional features that will likely help analyse QDM data.  
 
   features
   --------
-  - New fitting functions have been implemented. `N14` and `triplet` use three lorentzian functions, `N15` and `doublet` use only two lorentian.
-    `DAC` and `singlet` fits a single Lorentzian function and `gaussian` fits a single gaussian distribution to the data.
+  - New fitting functions have been implemented. `N14` and `triplet` use three Lorentzian functions, `N15` and `doublet` use only two Lorentzian.
+    `DAC` and `singlet` fits a single Lorentzian function, and `gaussian` fits a single gaussian distribution to the data.
   - `crop` keyword in `ODMR_to_B111` can be used to crop the map before fitting.
   - `fcrop` keyword in `ODMR_to_B111` can be used to crop thje frequency range before fitting. See also: `pick_fcrop`
   - `get_led` and `get_laser` functions to find the LED/laser images
@@ -23,14 +22,14 @@ This is a big release. There are many additional features that will likely help 
 
   important changes
   -----------------
-  - all input and output functions are loacted in the `io` folder, now
-  - removed `testing` folder and files
+  - all input and output functions are located in the `io` folder, now
+  - removed the `testing` folder and files
   
   minor changes
   -------------
-  - `QDM_figure` plots are now centered on screen.
+  - `QDM_figure` plots are now centered on the screen.
   - adds the fitted x/y location of the source to the plot in `fit_source`
-  - slight tweaks to initial guess of the fitting parameters in `fit_resonance`
+  - slight tweaks to the initial guess of the fitting parameters in `fit_resonance`
   - adds `row` and `col` keywords to `crop_map` to crop a map without picking a box first.
   - `crop_map` can enforce even dimensions, now.
   - 
