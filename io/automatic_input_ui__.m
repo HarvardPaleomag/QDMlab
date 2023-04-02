@@ -1,38 +1,41 @@
 function [input] = automatic_input_ui__(input, kwargs)
-%[input] = automatic_input_ui__(input; 'type', 'title', 'MultiSelect', 'single', 'filter='*')
-% Lets you pick a file/folder if
+% Select files or directories using a GUI. If the input argument is the
+% string 'none', the function opens a GUI window to let the user select
+% files or directories. Otherwise, the input argument is returned
+% unchanged. 
 %
-% Parameters
-% ----------
-%     input: cell
-%     type: str ['dir']
-%     MultiSelect: str ['off']
-%     single: bool [false]
+% INPUTS:
+% - input: A cell array containing the path(s) to the file(s) or
+%   directory(ies) to be selected, or the string 'none' to trigger the GUI
+%   window for selection.
+% - kwargs: A struct containing optional keyword arguments for customizing
+%   the GUI window. Fields include:
+%     - 'type': A string specifying whether to select files or directories.
+%       Default is 'dir'.
+%     - 'title': A string specifying the title of the GUI window. Default
+%       is 'select file/directory'.
+%     - 'MultiSelect': A string specifying whether to allow selection of
+%       multiple files or directories. Default is 'off'.
+%     - 'single': A boolean specifying whether to return a single path as a
+%       string, rather than a cell array containing a single string. Default
+%       is false.
+%     - 'filter': A string specifying the file extension filter to use for
+%       selecting files. Default is '*.mat'.
 %
-% Returns
-% -------
-%   input: cell
+% OUTPUTS:
+% - input: A cell array containing the selected path(s) to the file(s) or
+%   directory(ies), or a single string if the 'single' keyword argument is
+%   true.
 
-arguments
-    input
-    kwargs.type = 'dir';
-    kwargs.title = 'select file/directory';
-    kwargs.MultiSelect = 'off';
-    kwargs.single = false;
-    kwargs.filter='*.mat'
-end
-
-if isstruct(input)
-    return
-end
-
+% If input is 'none', trigger GUI window for file or directory selection
 if strcmp(input, 'none')
-	input = {};
-    logMsg('input', kwargs.title, 1,0);
+    input = {};
+    logMsg('input', kwargs.title, 1, 0);
 
     if strcmp(kwargs.type, 'dir')
-        
-        if strcmp(kwargs.MultiSelect,'on')
+        % Select directory/directories
+        if strcmp(kwargs.MultiSelect, 'on')
+            % Allow multiple selections
             path = 1;
             while path ~= 0
                 path = uigetdir('title', [kwargs.title ' cancel to stop selecting']);
@@ -41,35 +44,41 @@ if strcmp(input, 'none')
                 end
             end
         else
-           input = {uigetdir('title', kwargs.title)};
+            % Single selection
+            input = {uigetdir('title', kwargs.title)};
         end
         
     end
     if strcmp(kwargs.type, 'file')
-        [file,path] = uigetfile(kwargs.filter, kwargs.title, 'MultiSelect', kwargs.MultiSelect);
-        if strcmp(kwargs.MultiSelect,'on')
+        % Select file/files
+        [file, path] = uigetfile(kwargs.filter, kwargs.title, 'MultiSelect', kwargs.MultiSelect);
+        if strcmp(kwargs.MultiSelect, 'on')
+            % Allow multiple selections
             for f = file
                 f = fullfile(path, f);
                 input{end+1} = f{:};
             end
         else
+            % Single selection
             input = {fullfile(path, file)};
         end
     end
 end
 
+% Ensure input is in cell array format
 input = correct_cell_shape(input);
 
-% check if any file was selected
+% Check if any files were selected
 if size(input,1) == 1
     if strcmp(input{1}, '/')
         error('<>   ERROR: NO files/folders selected, please specify or pick files/folders.')
     end
 end
 
+% If 'single' is true, return a single string rather than a cell array with
+% a single string
 if kwargs.single
     input = input{:};
 end
 
 end
-

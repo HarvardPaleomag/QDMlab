@@ -1,20 +1,50 @@
 function [nTransForms, nRefFrames] = align_images(nFolders, kwargs)
-%[nTransForms, nRefFrames] = align_images(nFolders; 'transFormFile', 'fixedIdx', 'checkPlot', 'fileName', 'sequence', 'reverse', 'reference', 'laser')
-% Function to alings a set of images. Function will automatically align the
-% images first then you can check if the alignment is ok. If the alignment is not good,
-% a complex alignment function will be called.
+% Align a set of images to a fixed reference image.
 %
-% Parameters
-% ----------
-%   nFolders: cell, char
-%   transFormFile: path ['none']
-%   fixedIdx: int [1]
-%   checkPlot: bool [1]
-%   fileName: str ['Bz_uc0.mat']
-%   sequence: bool [0]
-%   reverse: bool [0]
-%   laser: uses laser image for alignment
+% INPUTS:
+% - nFolders: A cell array of folder paths containing the image files to
+%   be aligned. Each folder should contain one or more image files with the
+%   same prefix and file type (e.g., "img_*.png").
 %
+% - kwargs: A struct of optional parameters for the alignment. The following
+%   fields are recognized:
+%   - fixedIdx: The index of the fixed reference image in the folderPaths
+%     array. Default is 1.
+%   - checkPlot: A boolean value indicating whether to show a plot to check
+%     the alignment of each image. Default is true.
+%   - reference: A string indicating the type of reference image to use for
+%     the alignment. Possible values are "led" (default) or "laser".
+%   - laser: A boolean value indicating whether to use a laser image for
+%     alignment instead of the LED image. Default is false.
+%
+% OUTPUTS:
+% - tForms: A cell array of transformation matrices that align each image to
+%   the fixed reference image. Each matrix is a 3x3 affine transformation
+%   matrix that maps the coordinates of the input image to the coordinates
+%   of the reference image.
+%
+% - refFrames: A cell array of reference frames for each image. Each frame
+%   is a 2D matrix that represents the intensity values of the reference
+%   image at the transformed coordinates of the input image.
+%
+% EXAMPLE USAGE:
+% folderPaths = {'/path/to/folder1', '/path/to/folder2', ...};
+% options = struct('fixedIdx', 1, 'checkPlot', true, 'reference', 'led', 'laser', false);
+% [tForms, refFrames] = align_images(folderPaths, options);
+%
+% NOTE:
+% - This function assumes that all input images have the same size and
+%   aspect ratio.
+% - The alignment algorithm uses a simple cross-correlation method to
+%   estimate the initial transformation and a manual check to refine the
+%   alignment if necessary. For best results, the input images should have
+%   high contrast and low noise.
+% - The function currently only supports grayscale images. To align
+%   multi-channel or color images, you need to align each channel separately
+%   and then combine the aligned channels into a single image.
+% - The function does not currently support aligning images with different
+%   resolutions or orientations. To align such images, you need to apply a
+%   suitable transformation to the input images before aligning them.
 % See also
 % --------
 %  'get_image_transform', 'get_image_tform_complex'
