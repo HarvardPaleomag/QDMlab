@@ -90,6 +90,7 @@ arguments
     kwargs.nRuns = 10;
     kwargs.std = 2;
     kwargs.downSample = 1; % speedup
+    kwargs.closeplots = false;
 
     kwargs.save = false;
 
@@ -249,6 +250,10 @@ for j = 1:numberoffolders
                 'downSample', kwargs.downSample, ...
                 constrainArgs{:}, ...
                 'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
+            
+            if kwargs.closeplots
+                close all
+            end
 
             %% results
             iResult.xLims = xLim;
