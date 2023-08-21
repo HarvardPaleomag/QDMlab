@@ -52,7 +52,7 @@ arguments
 
     kwargs.title = 'QDM DATA';
     kwargs.cbTitle = 'B_z';
-    kwargs.unit = 'muT'; % assuming the input data is in G
+    kwargs.unit = 'T'; % assuming the input data is in T
     
     kwargs.nROI = 'none';
 
@@ -148,8 +148,8 @@ else
     yc= kwargs.yc;
 end
 
-if ~isequal(kwargs.unit, 'G') & ~strcmp(kwargs.unit, 'none')
-    data = convert_to(data, kwargs.unit);
+if ~isequal(kwargs.unit, 'T') & ~strcmp(kwargs.unit, 'none')
+    data = 10000*convert_to(data, kwargs.unit);
 end
 
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);

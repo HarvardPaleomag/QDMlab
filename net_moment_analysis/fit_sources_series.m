@@ -1,5 +1,5 @@
 function results = fit_sources_series(nFolders, kwargs, constrains, filter)
-%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'std', 'downSample', 'save', 'checkPlot', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
+%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'std', 'downSample', 'save', 'checkPlot', 'closeplots', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -36,6 +36,8 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %         selections
 %     downSample:
 %         downsamples the selected ROI by a factor to speed up calculation
+%     closeplots:
+%         closes plots after every step to avoid crashing matlab
 %     IMAGEFOLDER: char
 %         name of folder to store fit images
 %     save: bool (false)
