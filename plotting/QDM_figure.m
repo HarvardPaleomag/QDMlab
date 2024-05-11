@@ -60,7 +60,7 @@ arguments
     kwargs.xc = false;
     kwargs.yc = false;
     kwargs.alpha = false;
-    kwargs.colormap = 'parula';
+    kwargs.colormap = 'jet';
     kwargs.cLim = false;
     kwargs.symmetricCLim = true
     

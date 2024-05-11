@@ -13,9 +13,9 @@ axis xy; axis equal; axis tight
 
 % led images have no negative values and dont need to be changed in Cscale
 if min(data, [], 'all') < 0
-    mx = max(data, [], 'all');
+    mx = mean(mean(abs(data)));
     mx = double(mx);
-    set(gca(), 'CLim', [-1, 1]*mx/5)
+    set(gca(), 'CLim', [-1, 1]*mx*5)
 end
 
 nMasks = {};
