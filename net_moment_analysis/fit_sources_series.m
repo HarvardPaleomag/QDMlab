@@ -109,8 +109,7 @@ arguments
     constrains.maxheight = 100e-6;
     constrains.boxwidth = 100e-6;
     
-
-    filter.filterProps struct = struct();
+    filter.filterProps = struct();
 end
 
 if ~all(structfun(@isempty, filter.filterProps))
@@ -247,17 +246,18 @@ for j = 1:numberoffolders
             yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
             %% actual fitting
-            sourceName = sprintf('S%is%i', i,j);
+            sourceName = sprintf('S%i', i);
 
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             constrainArgs = namedargs2cell(constrains);
-            iResult = fit_source('filePath', iFile, 'fitOrder', 1, 'nRuns', kwargs.nRuns, ...
+            iResult = fit_source('sourceName', sourceName,'filePath', iFile, ...
+                'UC',kwargs.upCont{k},'fitOrder', 1, 'nRuns', kwargs.nRuns, ...
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
                 'downSample', kwargs.downSample, ...
                 constrainArgs{:}, ...
-                'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
+                'imageFolder', kwargs.imageFolder);
             
             if kwargs.closeplots
                 close all

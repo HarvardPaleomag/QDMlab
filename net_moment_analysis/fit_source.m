@@ -1,10 +1,12 @@
-function results = fit_source(kwargs)
+function results = fit_source(sourceName,kwargs)
 %[results] = fit_source('filePath', 'fitOrder', 'xy', 'cropFactor', 'downSample', 'nRuns', 'quad', 'outputtrue', 'checkPlot', 'statsPlot', 'save', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'method', 'noise', 'SNR', 'AUTO', 'minTol', 'display', 'expData', 'dx', 'dy', 'imagefolder', 'sourceName')
 %fitOrder is : 
 %
 %
 % Parameters
 % ----------
+%     sourceName: ['NA']
+%       Name of source
 %     filePath: ['none']
 %     fitOrder: [1]
 %       highest order in the multipole expansion
@@ -60,9 +62,11 @@ function results = fit_source(kwargs)
 %         res: residuals
 
 arguments
+    sourceName;
     kwargs.filePath = 'none';
     kwargs.fitOrder = 'none';
     kwargs.xy = 'picker';
+    kwargs.UC = 0;
     kwargs.cropFactor = 'none';
     kwargs.downSample = 1; % speedup
     kwargs.nRuns = 10;
@@ -70,7 +74,8 @@ arguments
     kwargs.outputtrue {mustBeBoolean(kwargs.outputtrue)} = true;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)} = true;
     kwargs.statsPlot (1,1) {mustBeBoolean(kwargs.statsPlot)} = false;
-    kwargs.save {mustBeBoolean(kwargs.save)} = 'none'; 
+    kwargs.saveFigs {mustBeBoolean(kwargs.saveFigs)} = false; 
+    kwargs.saveFit {mustBeBoolean(kwargs.saveFit)} = true; 
     
     kwargs.constrained {mustBeBoolean(kwargs.constrained)} = false; 
     kwargs.m0 = 1e-12;
@@ -87,16 +92,15 @@ arguments
     kwargs.display {mustBeBoolean(kwargs.display)} = false;
     
     kwargs.expData = 'none'; % loaded data passed -> no need to load data again
-    kwargs.dx = false
-    kwargs.dy = false
+    kwargs.dx = false;
+    kwargs.dy = false;
     
     kwargs.imagefolder = 'none';
-    kwargs.sourceName = 'none'
     
 end
 
 % define defaults for the function
-defaults = struct('fitOrder', 1, 'cropFactor', 20, 'save', true);
+defaults = struct('fitOrder', 1, 'cropFactor', 20, 'saveFigs', false, 'saveFit', true);
 
 terms = [3,8,15];
 
@@ -130,11 +134,9 @@ else
     XY = kwargs.xy;
 end
 
-if isequal(kwargs.sourceName, 'none')
-    kwargs.sourceName = '';
-else
-    kwargs.sourceName = ['_' kwargs.sourceName];
-end
+
+sourceSaveStr = ['_' sourceName];
+
 
 %% check NV distance (h)
 if isfield(expData, 'h')
@@ -442,7 +444,7 @@ logMsg('RESULT',msg,1,1);
 nameext = [name, ext];
 
 %% plotting / saving
-if kwargs.checkPlot || kwargs.save
+if kwargs.checkPlot || kwargs.saveFigs
     % whole map figure
     binning = detect_binning(expData);
 
@@ -505,10 +507,12 @@ else
     dec = mod(360 - dopt, 360);
 end
 
-if kwargs.save
+if kwargs.saveFigs
     % save figure
-    saveas(dataFig, [filePath, '/Fit_', name, kwargs.sourceName, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
-    
+    saveas(dataFig, [filePath, '/Fit_', name, sourceSaveStr, '_M', num2str(kwargs.fitOrder), '_x', num2str(round(XY(1))), 'y', num2str(round(XY(2))), '.png'])
+end
+
+if kwargs.saveFit
     % add line to dipoleinversions.txt
     fid = fopen([filePath, '/', outFileName], 'r');
     header = (fid == -1);
@@ -517,22 +521,26 @@ if kwargs.save
     end
     fid = fopen([filePath, '/', outFileName], 'a+t');
     if header
-        fprintf(fid, 'File Name\tMoment\tInclination\tDeclination\tx\ty\tHeight\tDipolarity\r\n');
+        fprintf(fid, ['Source ID\tFile Name\tUC\tMoment\tInclination\t',...
+            'Declination\tHeight\tDipolarity\tx\ty\tx_min\tx_max\ty_min\ty_max\r\n']);
     end
     %Note a 180 rotation about y axis is imposed here
-    fprintf(fid, '%s\t%1.5d\t%1.5d\t%1.5d\t%1.2f\t%1.2f\t%1.5d\t%1.5d\r\n', nameext, mopt, -iopt, dec, xopt/step, yopt/step, abs(hopt), dipolarity);
+    fprintf(fid, '%s\t%s\t%d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.5d\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\t%1.2f\r\n', ...
+        sourceName, nameext, kwargs.UC, mopt, -iopt, dec, abs(hopt), dipolarity,xopt/step, yopt/step, ...
+        xCrop(1), xCrop(2), yCrop(1), yCrop(2));
     fclose(fid);
 end
 
 if kwargs.statsPlot
-    checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt,xopt, yopt)
+    checkPlotFigure(P, fval, i, i0, mopt, iopt, dopt, hopt, xopt, yopt)
 end
 
 % create the outputs of the funtion
 results = struct('dfile', filePath, 'm', mopt, 'inc', -iopt, 'dec', dec, ...
     'h', -hopt, 'res', resids, 'x',xopt/step,'y',yopt/step, 'residuals', residuals,...
     'data', bDataCropped, 'model', bModel, 'dipolarity', dipolarity, ...
-    'xCrop', xCrop, 'yCrop', yCrop, 'sourceName', kwargs.sourceName);
+    'xMin', xCrop(1), 'xMax', xCrop(2), 'yMin', yCrop(1), 'yMax', yCrop(2),...
+    'sourceName', sourceName);
 %     'Popt', Popt2, 'residFull',residFull, 'bModelFull',bModelFull % todo
 %     save full model
 end
