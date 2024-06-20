@@ -109,8 +109,7 @@ arguments
     constrains.maxheight = 100e-6;
     constrains.boxwidth = 100e-6;
     
-
-    filter.filterProps struct = struct();
+    filter.filterProps = struct();
 end
 
 if ~all(structfun(@isempty, filter.filterProps))
@@ -118,6 +117,10 @@ if ~all(structfun(@isempty, filter.filterProps))
     filtered = true;
 else
     filtered = false;
+end
+
+if isnumeric(kwargs.upCont)
+    kwargs.upCont = {kwargs.upCont};
 end
 
 nFolders = correct_cell_shape(nFolders);
@@ -155,7 +158,7 @@ fixedLed = fixed.(ledName);
 if ~islogical(kwargs.nROI)
     nROI = kwargs.nROI;
 else
-    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true,'std',kwargs.std);
+    nROI = pick_box(fixedData, 'led', false, 'closeFig', true,'std',kwargs.std);
 end
 
 numberoffolders = size(nFolders, 2);
@@ -178,6 +181,7 @@ yMax = preAllocatedArray;
 xloc = preAllocatedArray;
 yloc = preAllocatedArray;
 fileResults = num2cell(preAllocatedArray);
+tForms = cell(numberoffolders);
 
 %%
 % cycle through all folders
@@ -191,6 +195,7 @@ for j = 1:numberoffolders
 
     % get transformation for that file
     tForm = nTransForms(iFile);
+    tForms{j} = tForm;
     % get refFrame for that file
     rframe = nRefFrames(iFile);
 
@@ -218,7 +223,7 @@ for j = 1:numberoffolders
     % UC calculations later
     transDataUC = iData;
 
-    fileResults = {};
+    iResults = {};
 
     % cycle through all rectangles (i.e. sources)
     for i = 1:size(nROI, 2)
@@ -241,17 +246,18 @@ for j = 1:numberoffolders
             yLim = round([iRect(2), iRect(2) + iRect(4)]);
 
             %% actual fitting
-            sourceName = sprintf('S%is%i', i,j);
+            sourceName = sprintf('S%i', i);
 
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             constrainArgs = namedargs2cell(constrains);
-            iResult = fit_source('filePath', iFile, 'fitOrder', 1, 'nRuns', kwargs.nRuns, ...
+            iResult = fit_source('sourceName', sourceName,'filePath', iFile, ...
+                'UC',kwargs.upCont{k},'fitOrder', 1, 'nRuns', kwargs.nRuns, ...
                 'cropFactor', 20, 'save', kwargs.save, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
                 'downSample', kwargs.downSample, ...
                 constrainArgs{:}, ...
-                'imageFolder', kwargs.imageFolder, 'sourceName', sourceName);
+                'imageFolder', kwargs.imageFolder);
             
             if kwargs.closeplots
                 close all
@@ -284,6 +290,7 @@ for j = 1:numberoffolders
             xMax(i, j, k) = xLim(2);
             yMin(i, j, k) = yLim(1);
             yMax(i, j, k) = yLim(2);
+            
             %             close all
         end
     end
@@ -310,6 +317,10 @@ results.xMin = xMin;
 results.xMax = xMax;
 results.yMin = yMin;
 results.yMax = yMax;
+
+results.tforms = tForms;
+results.refFrame = rframe;
+results.UC = kwargs.upCont;
 
 results.individualResults = fileResults;
 msg = sprintf('returning structure where result{i,j,k} is: ith ROI, jth file, kth UC value');

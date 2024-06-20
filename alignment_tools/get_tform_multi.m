@@ -97,7 +97,7 @@ for iFolder = nMovingFolders
     movingFile = fullfile(iFolder, filesep, refFileName);
     movingFile = check_suffix(movingFile);
     
-    msg = sprintf('aligning: %s', movingFile(end-40:end));
+    msg = sprintf('aligning: %s', movingFile);
     logMsg('debug',msg,1,0);
     
     if laser
