@@ -152,7 +152,7 @@ pixelsize = kwargs.nPixels/4 * 4.7*10^(-6);
 meas_fp = [dest,'/magic_measurements_',num2str(contrib_id),'.txt'];
 img_fp = [dest,'/magic_images_',num2str(contrib_id),'.txt'];
 
-dest = strrep(dest,'\','/');
+dest = strrep(dest,'\',filesep);
 
 %% prepare data
 
@@ -226,7 +226,7 @@ end
 %% prepare output 
 % fix dest if necessary
 if ~strcmp(dest(end),'/') || ~strcmp(dest(end),'\')
-    dest = [dest '/'];
+    dest = [dest filesep];
 end
 
 
@@ -236,7 +236,7 @@ meas_n = 0;
 % make output file if it doesn't already exist
 if ~isfolder(dest)
     mkdir(dest)
-    mkdir([dest 'images/'])
+    mkdir([dest 'images' filesep])
 elseif kwargs.meas_n > 0
     meas_n = kwargs.meas_n;
 else
@@ -329,8 +329,8 @@ for j = 1:length(data_files)
     % get image file names
     B111FName = [dest,'magic_measurements_',num2str(contrib_id),'.',num2str(meas_n+j),'.txt'];
     BzFName = [dest,'magic_measurements_',num2str(contrib_id),'.',num2str(meas_n+j),'.txt'];
-    contextFName = [dest,'images\QDM_context_image_',names{j},'.jpg'];
-    fittedMapFName = [dest,'images\QDM_fitted_map_', names{j},'.jpg'];
+    contextFName = [dest,'images' filesep 'QDM_context_image_',names{j},'.jpg'];
+    fittedMapFName = [dest,'images' filesep 'QDM_fitted_map_', names{j},'.jpg'];
     
     
     % drop properties that are not used (and assemble header info while
@@ -408,7 +408,7 @@ for j = 1:length(data_files)
         fprintf(fileIDB111, meas_header);
         
         % load B111 
-        load([stepPath,'\B111dataToPlot.mat'],'B111ferro');
+        load([stepPath filesep 'B111dataToPlot.mat'],'B111ferro');
         
         % convert to A/m (B111 is in G initially)
         B111ferro = B111ferro * 79.5774715;
@@ -617,7 +617,7 @@ for j = 1:length(data_files)
         fprintf(fileIDImg, contribLine);
         
         % write fitted map line to images table
-        if isfile([dest,'images/',fittedMapFName])
+        if isfile([dest 'images' filesep fittedMapFName])
             contribLine = [specimen,'\t',... 
                         'QDM_fitted_map_', names{j},'.jpg','\t',...
                         'Bz map','\t',...

@@ -43,8 +43,8 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %     save: bool (false)
 %         if true: individual fits are saved
 %         if false: fits are not saved
-%         if true `dipoleinversions.txt` will be written to disk
-%         if false `dipoleinversions.txt` will not be written to disk
+%         if true `InversionResults.txt` will be written to disk
+%         if false `InversionsResults.txt` will not be written to disk
 %     constraints
 %     -----------
 %     m0: double [1e-12]

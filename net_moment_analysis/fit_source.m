@@ -109,7 +109,7 @@ rng('shuffle')
 
 set(0, 'DefaultFigureColormap', parula)
 
-outFileName = 'DipoleInversions.txt';
+outFileName = 'InversionResults.txt';
 
 % get the correct filePath - even if expData is passed
 filePath = automatic_input_ui__(kwargs.filePath, 'type', 'file', 'single', true);
