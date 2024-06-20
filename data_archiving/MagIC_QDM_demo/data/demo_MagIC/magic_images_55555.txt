@@ -1,0 +1,8 @@
+tab delimited	images
+specimen	file	type	title	keywords
+5a	QDM_context_image_5a_QDM-ARM-Demag-AF_1.jpg	Context image	QDM context image of 5a_QDM-ARM-Demag-AF_1	QDM:Visible light:Context
+5a	QDM_fitted_map_5a_QDM-ARM-Demag-AF_1.jpg	Bz map	QDM Bz Map (fitted) of 5a_QDM-ARM-Demag-AF_1	QDM:Bz
+5a	QDM_context_image_5a_QDM-ARM-Demag-AF_2.jpg	Context image	QDM context image of 5a_QDM-ARM-Demag-AF_2	QDM:Visible light:Context
+5a	QDM_fitted_map_5a_QDM-ARM-Demag-AF_2.jpg	Bz map	QDM Bz Map (fitted) of 5a_QDM-ARM-Demag-AF_2	QDM:Bz
+5a	QDM_context_image_5a_QDM-ARM-Demag-AF_3.jpg	Context image	QDM context image of 5a_QDM-ARM-Demag-AF_3	QDM:Visible light:Context
+5a	QDM_fitted_map_5a_QDM-ARM-Demag-AF_3.jpg	Bz map	QDM Bz Map (fitted) of 5a_QDM-ARM-Demag-AF_3	QDM:Bz

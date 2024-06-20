@@ -42,7 +42,7 @@ for i = 1:length(folders)
     
     
     % open DipoleInversions file
-    fID = fopen(fullfile(folder{1},'DipoleInversions.txt'),'r');
+    fID = fopen(fullfile(folder{1},'InversionResults.txt'),'r');
     
     % find row in DipoleInversions file
     fgetl(fID);
@@ -134,7 +134,7 @@ else
     end
     
     %check if inferred UC looks good
-    UCgood=input(['UC = ', num2str(mapUC+UC(1)),'? [Y]:'],'s');
+    UCgood=input(['UC = ', num2str(mapUC+UC(1)),'? [Y]/N:'],'s');
     if isempty(UCgood)
         results.UC = mapUC + UC(1);
     elseif UCgood=='y' | UCgood=='Y'
