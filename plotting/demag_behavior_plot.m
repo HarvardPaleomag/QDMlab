@@ -18,7 +18,7 @@ arguments
     results struct
     kwargs.steps  (1,:) double = false
     kwargs.stepUnit  (1,:) = 'mT'
-    kwargs.dataUnit  (1,:) = 'G'
+    kwargs.dataUnit  (1,:) = 'T'
     kwargs.parameter = 'pPixels'
     kwargs.ylabel = 'norm. n(+)pixel'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
@@ -42,7 +42,7 @@ if size(steps) ~= size(results.(kwargs.parameter), 2)
     error('WARNING: number of steps (%i) does not match number of results (%i)', s, s2);
 end
 
-rows = fix(nFiles/3)+ double(mod(nFiles,3)>0)+1;
+rows = fix(nFiles/3)+ double(mod(nFiles,3)>0);
 
 figure('units','normalized', 'outerposition',[0,0,3*(0.8/rows),0.8]);
 
@@ -98,16 +98,15 @@ linkaxes(axes)
 
 for ax = axes
     lim = mean(means)+5*mean(stds);
-    lim = convert_to(lim, kwargs.dataUnit);
     set(ax,'CLim',[-1 1] * lim);
 end
 
-% figure
-ax = subplot(rows, 3, [rows*3-2 rows*3-1 rows*3]);
-hold(ax, 'on');
+figure
+ay = subplot(1, 1, [1]);
+hold(ay, 'on');
 
 for i = 1:nMasks
-    errorbar(ax, steps, results.(kwargs.parameter)(i, :, 1) / results.(kwargs.parameter)(i, 1, 1), ...
+    errorbar(ay, steps, results.(kwargs.parameter)(i, :, 1) / results.(kwargs.parameter)(i, 1, 1), ...
              results.(kwargs.parameter)(i, :, 2) /results.(kwargs.parameter)(i, 1, 1), ...
              'o-', 'DisplayName', num2str(i))
 end
@@ -117,9 +116,9 @@ if kwargs.mean
     st = std(results.(kwargs.parameter)(:, :, 1) ./ results.(kwargs.parameter)(:, 1, 1)); 
     errorbar(ax, steps, mn(:,:,1), st(:,:,1), 'k.--', 'DisplayName', 'mean', 'LineWidth', 1)
 end
-ylabel(ax, kwargs.ylabel)
-legend(ax)
-h = plot(ax, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
+ylabel(ay, kwargs.ylabel)
+legend(ay)
+h = plot(ay, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
 % the following line skip the name of the previous plot from the legend
 h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 %% additional LED plot
