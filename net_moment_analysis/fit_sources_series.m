@@ -1,5 +1,5 @@
 function results = fit_sources_series(nFolders, kwargs, constrains, filter)
-%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'std', 'downSample', 'save', 'checkPlot', 'closeplots', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
+%[results] = fit_sources_series(nFolders; 'refIdx', 'upCont', 'nROI', 'pixelSize', 'nRuns', 'std', 'downSample', 'saveFigs','saveFit', 'checkPlot', 'closeplots', 'transFormFile', 'imageFolder', 'fileName', 'constrained', 'm0', 'hguess', 'minheight', 'maxheight', 'boxwidth', 'filterProps')
 % pick_sources_and_fit is used to bulk analyze datasets it
 % (1) registers the maps with respect to the first file in nFolders
 % (2) lets you pick the sources (can be passed using 'nROI' parameter)
@@ -40,11 +40,14 @@ function results = fit_sources_series(nFolders, kwargs, constrains, filter)
 %         closes plots after every step to avoid crashing matlab
 %     IMAGEFOLDER: char
 %         name of folder to store fit images
-%     save: bool (false)
+%     saveFit: bool (false)
 %         if true: individual fits are saved
 %         if false: fits are not saved
 %         if true `InversionResults.txt` will be written to disk
 %         if false `InversionsResults.txt` will not be written to disk
+%     saveFigs: bool (false)
+%         if true: saves fit maps as PNGs
+%         if false: does not save maps
 %     constraints
 %     -----------
 %     m0: double [1e-12]
@@ -94,7 +97,8 @@ arguments
     kwargs.downSample = 1; % speedup
     kwargs.closeplots = false;
 
-    kwargs.save = false;
+    kwargs.saveFit = false;
+    kwargs.saveFigs = false;
 
     kwargs.checkPlot = false;
     kwargs.transFormFile = false;
@@ -158,7 +162,7 @@ fixedLed = fixed.(ledName);
 if ~islogical(kwargs.nROI)
     nROI = kwargs.nROI;
 else
-    nROI = pick_box(fixedData, 'led', false, 'closeFig', true,'std',kwargs.std);
+    [~, nROI] = pick_box(fixedData, 'led', false, 'closeFig', true,'std',kwargs.std);
 end
 
 numberoffolders = size(nFolders, 2);
@@ -250,9 +254,9 @@ for j = 1:numberoffolders
 
             % Dipole... returns a struct('dfile', 'm', 'inc', 'dec', 'h', 'res');
             constrainArgs = namedargs2cell(constrains);
-            iResult = fit_source('sourceName', sourceName,'filePath', iFile, ...
+            iResult = fit_source(sourceName,'filePath', iFile, ...
                 'UC',kwargs.upCont{k},'fitOrder', 1, 'nRuns', kwargs.nRuns, ...
-                'cropFactor', 20, 'save', kwargs.save, ...
+                'cropFactor', 20, 'saveFit', kwargs.saveFit, 'saveFigs', kwargs.saveFigs, ...
                 'xy', iRect(1:2), 'dx', iRect(3), 'dy', iRect(4), ...
                 'expData', transDataUC, 'checkPlot', kwargs.checkPlot, ...
                 'downSample', kwargs.downSample, ...
