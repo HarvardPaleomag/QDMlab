@@ -1,0 +1,2 @@
+Source ID	File Name	UC	Moment	Inclination	Declination	Height	Dipolarity	x	y	x_min	x_max	y_min	y_max
+T1	Bz_uc0_uc50.mat	0	5.28136e-12	-4.61790e+01	4.39176e+01	1.72911e-04	8.49219e-01	242.45	153.04	170.00	290.00	88.00	208.00	

@@ -1,0 +1,8 @@
+tab delimited	images
+specimen	file	type	title	keywords
+T1	QDM_context_image_T1_QDM-ARM-Demag-AF_1.jpg	Context image	QDM context image of T1_QDM-ARM-Demag-AF_1	QDM:Visible light:Context
+T1	QDM_fitted_map_T1_QDM-ARM-Demag-AF_1.jpg	Bz map	QDM Bz Map (fitted) of T1_QDM-ARM-Demag-AF_1	QDM:Bz
+T1	QDM_context_image_T1_QDM-ARM-Demag-AF_2.jpg	Context image	QDM context image of T1_QDM-ARM-Demag-AF_2	QDM:Visible light:Context
+T1	QDM_fitted_map_T1_QDM-ARM-Demag-AF_2.jpg	Bz map	QDM Bz Map (fitted) of T1_QDM-ARM-Demag-AF_2	QDM:Bz
+T1	QDM_context_image_T1_QDM-ARM-Demag-AF_3.jpg	Context image	QDM context image of T1_QDM-ARM-Demag-AF_3	QDM:Visible light:Context
+T1	QDM_fitted_map_T1_QDM-ARM-Demag-AF_3.jpg	Bz map	QDM Bz Map (fitted) of T1_QDM-ARM-Demag-AF_3	QDM:Bz
