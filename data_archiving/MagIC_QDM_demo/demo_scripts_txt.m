@@ -74,7 +74,7 @@ magic.instrument = 'QDM-Antares'; % name of the QDM used to make the measurement
 % arguments :)
 arg_array = namedargs2cell(magic);
 
-% Now we can run results2MagIC to get everything ready for a MagIC upload!
+% Now we can run txt2MagIC to get everything ready for a MagIC upload!
 % Here we set the keyword arguments to do everything: write the fit data to
 % the contribution file (writeToContrib), make the condensed MagIC files 
 % for the Bz and B111 images (makeImgs), make and save the cropped Bz map
