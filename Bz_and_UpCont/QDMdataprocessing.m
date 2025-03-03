@@ -21,7 +21,7 @@ CAL=1;          %field calibration factor
 alpha=0;        %rotation of the diamond lattice axes around z-axis
 beta=0;         %rotation of the image axes around z-axis
 
-set(0,'DefaultFigureColormap',jet)      % Comment this if you prefer parula color map
+set(0,'DefaultFigureColormap',redwhiteblue)      % Comment this if you prefer parula color map
 
 %select and load data file
 [longfilename, pathname] = uigetfile('*.mat', 'Pick a magnetic field map file');
@@ -318,7 +318,7 @@ axis xy, axis equal, axis tight, axis off
 hh=colorbar;
 set(gca,'Fontsize',14);
 title(hh,sprintf('       B_u (%s)',UNIT),'Fontsize',14);
-colormap(jet);
+colormap(redwhiteblue);
 
 bti=sqrt(bxi.^2+byi.^2+bzi.^2); %compute the total field
 Bz=double(bzi);
@@ -334,7 +334,7 @@ axis xy, axis equal, axis tight, axis off
 hh=colorbar;
 set(gca,'Fontsize',14);
 title(hh,sprintf('       B_z (%s)',UNIT),'Fontsize',14);
-colormap(jet);
+colormap(redwhiteblue);
 
 %save images of (processed) B111 and Bz to disk
 if length(ferroorpara)==4
