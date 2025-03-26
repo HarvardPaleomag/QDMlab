@@ -132,8 +132,18 @@ nFolders = correct_cell_shape(nFolders);
 refFile = [nFolders{kwargs.refIdx}, filesep, kwargs.fileName];
 
 % get transformations and rframes
-[nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
+if kwargs.transFormFile ~= 0
+    if isfile(kwargs.transFormFile)
+        load(kwargs.transFormFile);
+    else
+        [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
     'transFormFile', kwargs.transFormFile, 'check', kwargs.checkPlot);
+    end
+else
+    [nTransForms, nRefFrames] = get_tform_multi(refFile, nFolders, ...
+    'transFormFile', kwargs.transFormFile, 'check', kwargs.checkPlot);
+end
+
 
 % pick source on data
 fixed = load(refFile);
