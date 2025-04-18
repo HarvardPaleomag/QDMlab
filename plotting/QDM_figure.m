@@ -153,6 +153,8 @@ if ~isequal(kwargs.unit, 'T') & ~strcmp(kwargs.unit, 'none')
 end
 
 im = imagesc(xc,yc, data,'Parent',ax,'CDataMapping','scaled','AlphaData',imAlpha);
+% defaults to bluewhitered
+colormap('redwhiteblue')
 
 switch kwargs.colormap
     case 'parula'
