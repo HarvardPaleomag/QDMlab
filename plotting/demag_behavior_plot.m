@@ -1,5 +1,5 @@
 function demag_behavior_plot(results, kwargs)
-%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'parameter', 'ylabel', 'led', 'mean')
+%demag_behavior_plot(results; 'steps', 'stepUnit', 'dataUnit', 'parameter', 'ylabel', 'led', 'mean', 'save')
 %coercivity_result_plot(results; 'steps', 'stepUnit', 'led', 'mean')
 % plots results from estimate_coercivity
 % 
@@ -23,6 +23,7 @@ arguments
     kwargs.ylabel = 'norm. n(+)pixel'
     kwargs.led  (1,1) {mustBeMember(kwargs.led, [1, 0])} = 0
     kwargs.mean (1,1) {mustBeBoolean(kwargs.mean)} = false
+    kwargs.save = false
 end
     
 [nMasks, nFiles] = size(results.nFiles);
@@ -44,7 +45,7 @@ end
 
 rows = fix(nFiles/3)+ double(mod(nFiles,3)>0);
 
-figure('units','normalized', 'outerposition',[0,0,3*(0.8/rows),0.8]);
+fig = figure('units','normalized', 'outerposition',[0,0,3*(0.8/rows),0.8]);
 
 axes = [];
 mx = 0;
@@ -83,6 +84,7 @@ for j = 1:nFiles
     hold(ax, 'on');
     axes = [axes ax];
     
+    %plot the positive masks
     for i = 1:nMasks
         iMask = results.nMasks{i};
         nROI = results.nROI{i};
@@ -93,6 +95,21 @@ for j = 1:nFiles
         t = text(ax, double(x),double(y), ['#' num2str(i)]);
         set(t, 'Clipping', 'on')
     end
+    
+    %plot the negative masks
+    for i = 1:nMasks
+        iMask = results.nMasksneg{i};
+        nROI = results.nROI{i};
+        visboundaries(iMask, 'lineWidth', 0.7,'Color','b');
+        
+        [x, y, w, h] = get_mask_extent(nROI);
+        rectangle(ax, 'Position', [x y w h])
+        t = text(ax, double(x),double(y), ['#' num2str(i)]);
+        set(t, 'Clipping', 'on')
+    end
+end
+if kwargs.save
+    saveas(fig, 'maps.fig');
 end
 linkaxes(axes)
 
@@ -104,11 +121,21 @@ end
 figure
 ay = subplot(1, 1, [1]);
 hold(ay, 'on');
+A = zeros(size(steps,2), nMasks+1);
+A(:,1) = 1:size(steps,2);
 
 for i = 1:nMasks
     errorbar(ay, steps, results.(kwargs.parameter)(i, :, 1) / results.(kwargs.parameter)(i, 1, 1), ...
              results.(kwargs.parameter)(i, :, 2) /results.(kwargs.parameter)(i, 1, 1), ...
              'o-', 'DisplayName', num2str(i))
+end
+
+if kwargs.save
+    for i = 1:nMasks
+        demagstate = results.(kwargs.parameter)(i, :, 1) / results.(kwargs.parameter)(i, 1, 1);
+        demagstate = round(demagstate*1000)/1000;
+        A(:,1+i) = demagstate(1,:);
+    end
 end
 
 if kwargs.mean
@@ -121,6 +148,12 @@ legend(ay)
 h = plot(ay, [min(steps), max(steps)], [0.5, 0.5], '--', 'color', '#7F7F7F', 'DisplayName', '');
 % the following line skip the name of the previous plot from the legend
 h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+if kwargs.save
+    saveas(gcf, 'curves.fig');
+    writematrix(A, 'demag_sequence.csv');      
+end
+
 %% additional LED plot
 if kwargs.led
     axes = [];

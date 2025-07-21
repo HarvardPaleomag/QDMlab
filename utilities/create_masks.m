@@ -1,5 +1,5 @@
 function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
-%[nMasks, nROI] = create_masks(data, selectionThreshold; 'nROI', 'freeHand', 'freeHandSelection')
+%[nMasks, nROI] = create_masks(data, selectionThreshold; 'nROI', 'freeHand', 'freeHandSelection', 'selectneg')
 %
 % 
 % Parameters
@@ -9,6 +9,8 @@ function [nMasks, nROI] = create_masks(data, selectionThreshold, kwargs)
 %   nROI: (false)
 %   freeHand: (false)
 %   freeHandSelection: (false)
+%   selectneg: (false) when true, selects negative pixels with same
+%   threshold as positive
 % 
 % Returns
 % ----------
@@ -21,6 +23,7 @@ arguments
     kwargs.nROI = false;
     kwargs.freeHand  (1,1) {mustBeBoolean(kwargs.freeHand)} = false
     kwargs.freeHandSelection (1,1) {mustBeBoolean(kwargs.freeHandSelection)} = false
+    kwargs.selectneg = false
 end
 nROI = kwargs.nROI;
 
@@ -60,7 +63,11 @@ else
 %         selData = selData - median(selData, 'all', 'omitnan');
 
         % The masked data now gets filtered to create the final mask
-        iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
+        if kwargs.selectneg
+            iMaskData = selData <= -selectionThreshold * max(selData, [], 'all','omitnan');
+        else
+            iMaskData = selData >= selectionThreshold * max(selData, [], 'all','omitnan');
+        end
         m = limit_mask(nROI{iSelect});
         msg = sprintf('creating mask #%i containing %i/%i pixel (%.2f %%)', iSelect, numel(nonzeros(iMaskData)), numel(iMaskData), 100*numel(nonzeros(iMaskData))/numel(iMaskData));
         logMsg('debug',msg,1,0);

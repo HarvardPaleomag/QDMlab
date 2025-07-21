@@ -133,8 +133,16 @@ end
 
 [nMasks, nROI] = create_masks(fixedData, selection.selectionThreshold,...
                       'nROI', nROI, 'freeHand', selection.freeHand,...
-                      'freeHandSelection', selection.freeHandSelection);
-
+                      'freeHandSelection', selection.freeHandSelection,...
+                      'selectneg',false);
+                  
+[nMasksneg, nROIneg] = create_masks(fixedData, selection.selectionThreshold,...
+                      'nROI', nROI, 'freeHand', selection.freeHand,...
+                      'freeHandSelection', selection.freeHandSelection,...
+                      'selectneg',true);
+                  
+% nMasks is a logic map with 1's in the pixels that exceed Threshold
+% nROI is logic map containing whole manually selected region
 
 % calculation of the mask for each file.
 % Note: this is where the mask is transformed in case of 'reverse' == true
@@ -151,6 +159,7 @@ errs = zeros(size(nMasks, 2), size(nFiles, 2), 2);
 maskSums = zeros(size(nMasks, 2), size(nFiles, 2), 2);
 iFiles = cell(size(nMasks, 2), size(nFiles, 2));
 iMasks = cell(1, size(nMasks, 2));
+iMasksneg = cell(1, size(nMasksneg, 2));
 transDatas = cell(1, size(nFiles, 2));
 transLeds = cell(1, size(nFiles, 2));
 
@@ -167,26 +176,38 @@ for j = 1:size(nFiles, 2)
 
     % iterate over each mask
     for i = 1:size(nMasks, 2)
+        %iMask is the current mask, iMasks is a cell with all the masks
         iMask = nMasks{:, i};
+        iMaskneg = nMasksneg{:, i};
 
         if kwargs.reverse
             msg = ['transforming mask to match << ...', iFile(end-40:end), ' >>'];
             logMsg('info',msg,1,0);
             iMask = tform_data(iMask, iFileData.transForm, iFileData.refFrame);
+            iMaskneg = tform_data(iMaskneg, iFileData.transForm, iFileData.refFrame);
         end
 
         % create masked_data: mask is array with 0 where is should be
         % masked and 1 where it should not
         mData = iMask .* iFileData.transData;
+        mDataneg = iMaskneg .* iFileData.transData;
 
         % masked reference
         d0ROI = crop_data(fixedData, nROI{i});
         d0 = iMask .* fixedData;
+        d0neg = iMaskneg .* fixedData;
 
         % cut around the ROI/mask
         mDataCut = crop_data(mData, iMask);
         d0Cut = crop_data(d0, iMask);
-
+        mDataCutneg = crop_data(mDataneg, iMaskneg);
+        d0Cutneg = crop_data(d0neg, iMaskneg);
+        
+        %at this point d0 has area of whole map, with only unmasked pixels
+        % non-zero
+        %d0Cut is as d0, but in a rectangle cropped down to just contain
+        %the ROI
+        %d0ROI is also cropped down, but with all pixels
 
         % predefine the variables
         nPixel = zeros(error.bootStrapN,1);
@@ -199,6 +220,12 @@ for j = 1:size(nFiles, 2)
 
 
         if size(mDataCut) ~= size(d0Cut)
+            msg = sprintf('mask too close to edge, skipping ... ');
+            logMsg('warn',msg,1,0);
+            continue
+        end
+        
+        if size(mDataCutneg) ~= size(d0Cutneg)
             msg = sprintf('mask too close to edge, skipping ... ');
             logMsg('warn',msg,1,0);
             continue
@@ -217,28 +244,33 @@ for j = 1:size(nFiles, 2)
             
             if dx ~= 0 && dy ~= 0
                 mask = shift_matrix(iMask, dx, dy);
+                maskneg = shift_matrix(iMaskneg, dx, dy);
             else
                 mask = iMask;
+                maskneg = iMaskneg;
             end
             
             mData = iFileData.transData .* mask;
             mDataCut = crop_data(mData, mask);
+            mDataneg = iFileData.transData .* maskneg;
+            mDataCutneg = crop_data(mDataneg, maskneg);
 
-            nPixel(n) = numel(nonzeros(d0Cut));
-            pPixel(n) = numel(nonzeros(mDataCut>0));
+            nPixel(n) = numel(nonzeros(d0Cut))+numel(nonzeros(d0Cutneg)); %npixels unmasked in original
+            pPixel(n) = numel(nonzeros(mDataCut>0))+numel(nonzeros(mDataCutneg<0)); %npixels still unmasked in current
             pPixelRat(n) = pPixel(n) / nPixel(n);
-            sumDiff(n) = sum(sum(mDataCut-d0Cut));
-            err(n) = immse(mDataCut, d0Cut);
-            maskSum(n) = sum(mDataCut, 'all');
-
+            sumDiff(n) = sum(sum(mDataCut-d0Cut))+sum(sum(mDataCutneg-d0Cutneg));
+            err(n) = immse(mDataCut, d0Cut)+immse(mDataCutneg, d0Cutneg);
+            maskSum(n) = sum(mDataCut, 'all')-sum(mDataCutneg, 'all');
             % Pixel above threshold
             thresh = mDataCut >= selection.selectionThreshold * max(mDataCut, [], 'all');
-            iPixelThresh(n) = numel(nonzeros(thresh));
+            threshneg = mDataCutneg <= -selection.selectionThreshold * max(mDataCutneg, [], 'all');
+            iPixelThresh(n) = numel(nonzeros(thresh)) + numel(nonzeros(threshneg));
         end
 
         % Pixel above threshold
         thresh = mDataCut >= mean(d0ROI,'all') + selection.selectionThreshold * std(d0ROI, 0, 'all');
-        iPixelThresh = numel(nonzeros(thresh));
+        threshneg = mDataCutneg <= -(mean(d0ROI,'all') + selection.selectionThreshold * std(d0ROI, 0, 'all'));
+        iPixelThresh = numel(nonzeros(thresh)) + numel(nonzeros(threshneg));
 
         % store everything
         iFiles{i, j} = iFile;
@@ -257,6 +289,7 @@ for j = 1:size(nFiles, 2)
         maskSums(i, j, :) = [mean(maskSum) std(maskSum)];
         % mask itself
         iMasks{i} = iMask;
+        iMasksneg{i} = iMaskneg;
         % transformed data
         transDatas{j} = iFileData.transData;
         % transformed data
@@ -268,7 +301,7 @@ end
 results = struct('nFiles', {iFiles}, 'pPixels', pPixels, 'pPixelRats', pPixelRats, ...
                  'nPixelThreshs', iPixelThreshs, 'sumDiffs', sumDiffs, ...
                  'errs', errs, 'maskSums', maskSums, 'nPixels', nPixels, ...
-                 'nMasks', {iMasks}, 'nROI', {nROI},...
+                 'nMasks', {iMasks}, 'nMasksneg', {iMasksneg}, 'nROI', {nROI},...
                  'transDatas', {transDatas}, 'fixedData', fixedData, 'transLeds', {transLeds});
 
 msg = sprintf('coercivity estimation complete. Output: (%i x %i x 2) = (ROI, file, (value, std)', size(nROI,2), size(iFiles,2));
