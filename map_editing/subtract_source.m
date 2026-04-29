@@ -17,7 +17,9 @@ function expData = subtract_source(kwargs)
 %% check why weird
 arguments
     kwargs.filePath = 'none'
-    kwargs.save = true;
+    kwargs.saveFigs = true;
+    kwargs.saveFit = true;
+    kwargs.save = true; % save the new subtracted file
     kwargs.fitOrder = 1;
     kwargs.checkPlot (1,1) {mustBeBoolean(kwargs.checkPlot)}= false
 end
@@ -46,11 +48,11 @@ dipMaps = dir(sprintf('/Users/mike/Dropbox/science/_projects/QDMlab_paper/data/N
 nDipMaps = size(dipMaps,1);
 
 %% calculate fit for the region
-fit = fit_source('filePath',filePath, 'expData', bData, ...
+fit = fit_source('subbed_source','filePath',filePath, 'expData', bData, ...
                 'xy', [col(1), row(1)], 'dx', diff(col), 'dy', diff(row), ...
                 'fitOrder', kwargs.fitOrder, 'nRuns', 2, ...
-                'cropFactor', max([diff(col) diff(row)]), 'save', false,...
-                'checkPlot', kwargs.checkPlot);
+                'cropFactor', max([diff(col) diff(row)]), 'saveFit', kwargs.saveFit,...
+                'saveFigs', kwargs.saveFigs, 'checkPlot', kwargs.checkPlot);
 
 bData(row(1):row(2), col(1):col(2)) = fit.residuals;
 
