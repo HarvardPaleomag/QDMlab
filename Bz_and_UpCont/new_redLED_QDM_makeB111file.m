@@ -17,19 +17,25 @@ if folderPath ~= 0
     
     %added a new toggle for specifying the LED file, the only difference
     %from the old newQDM_makeB111file.
-    snapshot_input=input('[Red] LED or [Default] LED for reference image?: [Default]','s');
+    snapshot_input=input('[Red] LED or [Default] LED for reference image?: [Red]','s');
     if isempty(snapshot_input)
-        snapshot_input = 'Default';
+        snapshot_input = 'Red';
     end
 
     if strcmp(snapshot_input,'Default')
         snapshot = fullfile(folderPath, 'snapshot.csv'); 
     else
         if strcmp(snapshot_input,'Red')
-            custom_file_loc = input('Specify custom directory for csv? (n chooses "red_LED.csv") y/n:','s');
+            custom_file_loc = input('Specify custom directory for csv? (n chooses "red_LED.csv") [y]/[n]:[n]','s');
+
+            if isempty(custom_file_loc)
+                custom_file_loc = 'n';
+            end
+
+
             if strcmpi(custom_file_loc, 'y')
-                snapshot = uigetdir(pwd, 'Select folder containing LED data','s');
-            else
+                snapshot = uigetdir(pwd, 'Select folder containing LED data');
+            elseif strcmpi(custom_file_loc, 'n')
                 snapshot = fullfile(folderPath, 'red_LED.csv');
             end
         else
