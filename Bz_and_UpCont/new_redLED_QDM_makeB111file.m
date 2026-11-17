@@ -26,9 +26,9 @@ if folderPath ~= 0
         snapshot = fullfile(folderPath, 'snapshot.csv'); 
     else
         if strcmp(snapshot_input,'Red')
-            custom_file_loc = input('Specify custom directory for csv? (n chooses "red_LED.csv") y/n:');
+            custom_file_loc = input('Specify custom directory for csv? (n chooses "red_LED.csv") y/n:','s');
             if strcmpi(custom_file_loc, 'y')
-                snapshot = uigetdir(pwd, 'Select folder containing LED data');
+                snapshot = uigetdir(pwd, 'Select folder containing LED data','s');
             else
                 snapshot = fullfile(folderPath, 'red_LED.csv');
             end
