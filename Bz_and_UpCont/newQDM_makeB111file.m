@@ -126,6 +126,8 @@ elseif size(B111ferro,2) == 967
     bintype = 2;
 elseif size(B111ferro,2) == 483
     bintype = 3;
+else
+    bintype = 4;
 end
 
 % crop to remove the weird hot pixels in the corner of the new sensor
@@ -147,6 +149,12 @@ elseif bintype == 3
     B111_s1 = B111_s1(1:300, 1:480);
     B111_s2 = B111_s2(1:300, 1:480);
     ledImg = ledImg(1:1200, 1:1920);
+elseif bintype == 4
+    B111ferro = B111ferro;
+    B111para = B111para;
+    B111_s1 = B111_s1;
+    B111_s2 = B111_s2;
+    ledImg = ledImg;
 end
 
 % flip up-down to maintain sample north
